@@ -1,9 +1,4 @@
-(function initLiftwiseDomain(root, factory) {
-  const api = factory();
-  if (typeof module === "object" && module.exports) module.exports = api;
-  if (root) root.LiftwiseDomain = api;
-}(typeof globalThis !== "undefined" ? globalThis : this, () => {
-  "use strict";
+"use strict";
 
   const SCHEMA_VERSION = 9;
   const MEASUREMENT_MODES = ["load_reps", "reps", "duration", "distance_duration"];
@@ -600,7 +595,7 @@
       .sort((a, b) => String(b.date).localeCompare(String(a.date)));
   }
 
-  return {
+  export {
     SCHEMA_VERSION,
     MEASUREMENT_MODES,
     LOAD_MODES,
@@ -628,4 +623,3 @@
     normalizedSetVolume,
     groupWorkoutsByDay,
   };
-}));

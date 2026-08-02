@@ -1,6 +1,6 @@
-const test = require("node:test");
-const assert = require("node:assert/strict");
-const domain = require("../domain.js");
+import assert from "node:assert/strict";
+import { test } from "vitest";
+import * as domain from "../src/domain.js";
 
 test("derived RIR retains imported RPE provenance", () => {
   const set = domain.normalizeEffortSet({ rpe: 8 }, { source: "hevy-csv" });

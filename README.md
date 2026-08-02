@@ -1,21 +1,23 @@
 # Liftwise
 
-Liftwise is a local-first workout tracker that turns logged working sets into simple, explainable training prompts. It is an installable static web app: no build process, account, or application server is required.
+Liftwise is a local-first workout tracker that turns logged working sets into simple, explainable training prompts. It is an installable Vite web app: browser data stays local, and the production build remains deployable as static files without an account or application server.
 
 See [`FUNCTIONALITY.md`](FUNCTIONALITY.md) for the complete implemented feature, calculation, import/export, validation, and data-model reference.
 
 ## Run it locally
 
 ```bash
-python3 -m http.server 8080
+npm install
+npm run dev
 ```
 
-Then open `http://localhost:8080` in a browser. Any static HTTPS hosting service can publish the app files. The service worker makes the shell available offline after its first successful load.
+Then open the URL printed by Vite (normally `http://localhost:5173`). Build deployable files with `npm run build`; `npm run preview` serves that production build locally. Any static HTTPS hosting service can publish the generated `dist/` directory. The generated service worker makes the application shell available offline after its first successful load.
 
 Run the regression suite with:
 
 ```bash
 npm test
+npm run test:coverage
 npm run check
 ```
 
@@ -140,8 +142,10 @@ Open **Why this session?** in the dashboard to see every current-week planning i
 ## File map
 
 - `index.html` — application structure, modals, and accessible labels.
-- `styles.css` — responsive visual system; works on desktop and small screens.
-- `domain.js` — tested pure effort, import identity, aggregation, measurement, and volume rules.
-- `app.js` — catalog, persistence, calculations, charts, and browser interactions.
-- `manifest.webmanifest`, `service-worker.js`, `icons/` — installable/offline shell.
-- `test/domain.test.js` — Node regression tests for critical data rules.
+- `src/main.js` — Vite application entry point.
+- `src/styles.css` — responsive visual system; works on desktop and small screens.
+- `src/domain.js` — tested ES-module rules for effort, import identity, aggregation, measurement, and volume.
+- `src/ui/import-chooser.js` — isolated workout, Fitatu, and backup file routing.
+- `src/app.js` — catalog, persistence, calculations, charts, and remaining browser controllers.
+- `src/pwa.js`, `vite.config.js`, `public/icons/` — generated installable/offline shell and update flow.
+- `test/` — Vitest domain, component, and jsdom application-integration tests.

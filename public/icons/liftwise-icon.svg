@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="Liftwise">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="Liftwise" focusable="false">
   <rect width="512" height="512" rx="112" fill="#151713"/>
   <g fill="#b9e62e">
     <rect x="90" y="218" width="332" height="76" rx="38"/>

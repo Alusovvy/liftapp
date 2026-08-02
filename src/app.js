@@ -1,5 +1,7 @@
-/* Liftwise is intentionally dependency-free: local data, explainable calculations, and plain browser APIs. */
-const Domain = window.LiftwiseDomain;
+import * as Domain from "./domain.js";
+import { bindImportChooser } from "./ui/import-chooser.js";
+
+/* Liftwise keeps its data local and its coaching calculations explainable. */
 const STORAGE_KEY = "liftwise-data-v1";
 const RECOVERY_KEY = "liftwise-data-recovery-v7";
 const CORRUPT_KEY = "liftwise-data-corrupt";
@@ -5015,6 +5017,7 @@ function restoreViewState() {
 }
 
 function bindEvents() {
+  bindImportChooser({ openModal, closeModal });
   $$(".nav-item, .view-switch").forEach((button) => button.addEventListener("click", () => switchView(button.dataset.view)));
   $(".brand").addEventListener("click", (event) => { event.preventDefault(); switchView("dashboard"); });
   $("#newWorkoutButton").addEventListener("click", () => openWorkout());
@@ -5052,7 +5055,6 @@ function bindEvents() {
   $("#researchButton").addEventListener("click", () => openModal("researchModal"));
   $("#backupButton").addEventListener("click", exportBackup);
   $("#exportCsvButton").addEventListener("click", exportCsv);
-  $("#importFileButton")?.addEventListener("click", () => openModal("importChoiceModal"));
   $("#importInput")?.addEventListener("change", importData);
   $("#backupImportInput")?.addEventListener("change", importData);
   $("#fitatuImportInput")?.addEventListener("change", importData);
@@ -5099,20 +5101,6 @@ function bindEvents() {
   $("#deleteCustomExerciseButton").addEventListener("click", deleteCustomExercise);
   document.addEventListener("click", (event) => {
     const close = event.target.closest("[data-close-modal]"); if (close) closeModal(close.dataset.closeModal);
-    if (event.target.closest("[data-open-import-choice]")) openModal("importChoiceModal");
-    const importChoice = event.target.closest("[data-select-import]");
-    if (importChoice) {
-      const target = {
-        workout: $("#importInput"),
-        meal: $("#fitatuImportInput"),
-        backup: $("#backupImportInput"),
-      }[importChoice.dataset.selectImport];
-      closeModal("importChoiceModal");
-      if (target) {
-        target.value = "";
-        target.click();
-      }
-    }
     const muscleRegion = event.target.closest("[data-muscle-region]"); if (muscleRegion) selectBodyMuscle(muscleRegion.dataset.muscleRegion);
     const deleteButton = event.target.closest("[data-delete-workout]"); if (deleteButton) deleteWorkout(deleteButton.dataset.deleteWorkout);
     const deleteMetricButton = event.target.closest("[data-delete-body-metric]"); if (deleteMetricButton) deleteBodyMetric(deleteMetricButton.dataset.deleteBodyMetric);
@@ -5235,27 +5223,5 @@ applyLocale();
 renderAll({ force: true });
 commitPendingMigration();
 bindEvents();
-
-if ("serviceWorker" in navigator && location.protocol !== "file:") {
-  const hadServiceWorkerController = Boolean(navigator.serviceWorker.controller);
-  let refreshingForUpdate = false;
-  navigator.serviceWorker.addEventListener("controllerchange", () => {
-    if (!hadServiceWorkerController || refreshingForUpdate || workoutEditorDirty) return;
-    refreshingForUpdate = true;
-    location.reload();
-  });
-  navigator.serviceWorker.register("./service-worker.js?v=5", { updateViaCache: "none" }).then((registration) => {
-    registration.addEventListener("updatefound", () => {
-      const worker = registration.installing;
-      worker?.addEventListener("statechange", () => {
-        if (worker.state === "installed" && navigator.serviceWorker.controller) {
-          showPersistentStatus("A Liftwise update is ready. Reload when you have saved your current workout.");
-        }
-      });
-    });
-  }).catch((error) => {
-    console.warn("Offline support could not be registered", error);
-  });
-}
 window.addEventListener("offline", () => showPersistentStatus("Liftwise is offline. The installed app shell and local data remain available."));
 window.addEventListener("online", () => showPersistentStatus("Liftwise is back online."));

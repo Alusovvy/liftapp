@@ -23,7 +23,7 @@ The goal is to distinguish correctness work from optional product expansion. The
 | C3 | Implemented: file/row limits, range validation, rejected-row reasons, report download, and explicit partial-import approval |
 | C4 | Implemented: pre-migration recovery snapshot, validation, render-before-commit, and corrupt-data recovery UI |
 | C5 | Implemented: Data & Backup center, persistence/size/count/backup/import status, and large-operation safeguards |
-| F1 | Implemented incrementally: pure `domain.js`, Node regression tests, and isolated critical rules; the dependency-free UI remains in `app.js` |
+| F1 | Implemented incrementally: Vite module/build structure, pure `src/domain.js`, isolated `src/ui/import-chooser.js`, and Vitest domain/component/jsdom integration coverage; the remaining browser controllers stay in `src/app.js` for gradual extraction |
 | W1 | Implemented: debounced drafts, reload resume/discard, close warning, and unload protection |
 | W2 | Implemented: repeat without effort, saved routines, weekday assignment, start/delete actions |
 | W3 | Implemented: load+reps, reps-only, duration, and distance+duration manual set modes |

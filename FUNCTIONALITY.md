@@ -6,7 +6,7 @@ Implementation baseline: local data schema version 9.
 
 ## 1. Product and technical scope
 
-Liftwise is a dependency-free, local-first workout tracker focused on muscle-building training. It runs as a static web application and does not require an account, application server, or build step.
+Liftwise is a local-first workout tracker focused on muscle-building training. Vite builds it into static files, so the deployed application does not require an account or application server.
 
 The application:
 
@@ -618,12 +618,12 @@ Implemented behavior includes:
 
 ## 21. PWA behavior
 
-`manifest.webmanifest` supplies application metadata and the Liftwise icon. `service-worker.js` caches the static application shell.
+The Vite PWA build generates `manifest.webmanifest` and a Workbox service worker from `vite.config.js`. The generated service worker precaches the versioned application shell and removes outdated caches.
 
 - First load requires a network connection.
 - Later loads can use the cached shell offline.
-- Requests prefer the network and fall back to cache.
-- Updated app files replace cached files as the service worker updates.
+- Versioned build assets are served from the precache when offline.
+- When an update is available, the application shows an explicit **Update now** action rather than mixing old HTML and JavaScript assets.
 - Installation requires HTTP on localhost or HTTPS in production.
 
 ## 22. Data model
@@ -740,6 +740,7 @@ Run:
 
 ```bash
 npm test
+npm run test:coverage
 npm run check
 ```
 
