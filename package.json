@@ -1,0 +1,10 @@
+{
+  "name": "liftwise",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Local-first workout log and rule-based training insights.",
+  "scripts": {
+    "test": "node --test",
+    "check": "node --check app.js && node --check domain.js && node --test"
+  }
+}
