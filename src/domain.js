@@ -1,6 +1,7 @@
 "use strict";
 
   const SCHEMA_VERSION = 9;
+  const DEFAULT_RIR = 3;
   const MEASUREMENT_MODES = ["load_reps", "reps", "duration", "distance_duration"];
   const LOAD_MODES = ["total", "per_hand", "added_bodyweight", "assistance", "none"];
   const REP_MODES = ["total", "per_side"];
@@ -433,6 +434,19 @@
     };
   }
 
+  function defaultMissingRir(set = {}, fallback = DEFAULT_RIR, context = {}) {
+    const normalized = normalizeEffortSet(set, context);
+    if (normalized.rir !== null || normalized.manualRirCleared) return normalized;
+    const defaultRir = clampEffort(fallback);
+    if (defaultRir === null) return normalized;
+    return normalizeEffortSet({
+      ...normalized,
+      manualRir: defaultRir,
+      manualRirCleared: false,
+      rirManual: true,
+    }, context);
+  }
+
   function updateManualRir(set, rawValue, touched = true) {
     if (!touched) return normalizeEffortSet(set);
     const text = String(rawValue ?? "").trim();
@@ -597,6 +611,7 @@
 
   export {
     SCHEMA_VERSION,
+    DEFAULT_RIR,
     MEASUREMENT_MODES,
     LOAD_MODES,
     REP_MODES,
@@ -611,6 +626,7 @@
     stableStringify,
     resolveEffort,
     normalizeEffortSet,
+    defaultMissingRir,
     updateManualRir,
     sourceIdentity,
     contentProjection,

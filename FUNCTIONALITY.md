@@ -13,6 +13,7 @@ The application:
 - Logs workouts at individual-set level.
 - Supports load/repetition, repetition-only, duration, and distance-plus-duration sets.
 - Tracks set type, RIR, imported RPE, notes, load convention, and repetition convention.
+- Defaults a new manual set to 3 RIR when neither effort nor a plan-specific RIR target is supplied.
 - Imports Hevy-style CSV files with validation, mapping, change preview, correction updates, and undo.
 - Imports Fitatu nutrition CSV files with localized parsing, daily aggregation, correction updates, and undo.
 - Exports complete JSON backups and one-row-per-set CSV files.

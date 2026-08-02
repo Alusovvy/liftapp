@@ -69,6 +69,16 @@ describe("application import flow", () => {
     chooser.showModal = nativeShowModal;
   });
 
+  test("defaults new exercise sets to 3 RIR", () => {
+    document.querySelector("#newWorkoutButton").click();
+
+    const rirInputs = [...document.querySelectorAll("#workoutModal [data-set-field=rir]")];
+    expect(rirInputs.length).toBeGreaterThan(0);
+    expect(rirInputs.every((input) => input.value === "3")).toBe(true);
+
+    document.querySelector('[data-close-modal="workoutModal"]').click();
+  });
+
   test("parses a selected Fitatu file and opens its review", async () => {
     const fitatuCsv = [
       "Date,Meal,Products and dishes,quantity (g),calories (kcal),Protein (g),Fats (g),Carbohydrates (g),Fibre (g)",

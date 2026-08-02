@@ -9,6 +9,7 @@ const IMPORT_UNDO_KEY = "liftwise-import-undo";
 const WORKOUT_DRAFT_KEY = "liftwise-workout-draft";
 const VIEW_STATE_KEY = "liftwise-view-state";
 const SCHEMA_VERSION = Domain.SCHEMA_VERSION;
+const DEFAULT_RIR = Domain.DEFAULT_RIR;
 const MUSCLES = ["Chest", "Back", "Quads", "Hamstrings", "Glutes", "Shoulders", "Biceps", "Triceps", "Calves", "Core"];
 const DEFAULT_TARGETS = {
   Chest: [8, 14], Back: [10, 16], Quads: [8, 14], Hamstrings: [8, 14], Glutes: [6, 12],
@@ -2904,7 +2905,7 @@ function latestSetTemplates(exerciseId, count = 3, targetRir = null) {
       reps: resetAtPrescription
         ? decision?.prescribedReps ?? low
         : addRepPerSet ? Math.min(high, previousReps + 1) : previousReps,
-      rir: null,
+      rir: nullableNumber(targetRir) ?? DEFAULT_RIR,
       targetRir: nullableNumber(targetRir),
       measurementMode: previous?.measurementMode || conventions.measurementMode,
       durationSeconds: previous?.durationSeconds ?? null,
@@ -2959,7 +2960,11 @@ function refreshSetEditorRows(entry) {
 function addSetEditorRow(entry, setData = {}, focus = false) {
   const targetRir = nullableNumber(setData?.targetRir);
   const entryMode = $("[data-entry-field=measurement]", entry)?.value || exerciseConventions($("[name=exerciseId]", entry)?.value).measurementMode;
-  const set = normalizeSet({ ...setData, measurementMode: setData.measurementMode || entryMode }, 0, { source: "manual" });
+  const set = Domain.defaultMissingRir(
+    normalizeSet({ ...setData, measurementMode: setData.measurementMode || entryMode }, 0, { source: "manual" }),
+    targetRir ?? DEFAULT_RIR,
+    { source: "manual" },
+  );
   const row = document.createElement("div");
   row.className = `set-editor-row ${set.type === "warmup" ? "warmup" : ""}`;
   row.innerHTML = `<span class="set-number">S1</span>
@@ -3035,7 +3040,7 @@ function syncExerciseNameEntry(entry, { canonicalize = false, refreshSets = fals
       $("[data-set-field=reps]", row).value = template.reps === null ? "" : String(template.reps);
       $("[data-set-field=duration]", row).value = template.durationSeconds ?? "";
       $("[data-set-field=distance]", row).value = template.distanceMeters ?? "";
-      $("[data-set-field=rir]", row).value = "";
+      $("[data-set-field=rir]", row).value = template.rir ?? DEFAULT_RIR;
       $("[data-set-field=rir]", row).placeholder = template.targetRir === null ? "—" : `Target ${template.targetRir}`;
       refreshSetModeRow(row);
     });

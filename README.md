@@ -24,6 +24,7 @@ npm run check
 ## What it does
 
 - Logs load/repetition, repetition-only, duration, and distance-plus-duration sets. Exercise autocomplete accepts a catalog suggestion, alias, or new reusable custom name.
+- Defaults new manual exercise sets to 3 RIR when no effort or plan-specific target is supplied; explicit and imported effort remains unchanged.
 - Autosaves workout drafts, repeats prior sessions without copying effort, and supports reusable weekday routines.
 - Imports Hevy workout CSV exports with validation, rejected-row reports, remembered mapping, correction updates, conflict detection, history, and undo.
 - Imports Fitatu nutrition CSV exports into daily calorie, protein, carbohydrate, fat, and optional fiber summaries.

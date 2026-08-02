@@ -26,6 +26,23 @@ test("cleared manual RIR survives source-derived effort", () => {
   assert.equal(cleared.effortSource, "manual-cleared");
 });
 
+test("missing manual effort defaults to 3 RIR without overriding supplied effort", () => {
+  const missing = domain.defaultMissingRir({}, undefined, { source: "manual" });
+  const planned = domain.defaultMissingRir({}, 2, { source: "manual" });
+  const explicit = domain.defaultMissingRir({ rir: 1.5 }, undefined, { source: "manual" });
+  const derived = domain.defaultMissingRir({ rpe: 8 }, undefined, { source: "manual" });
+  const cleared = domain.defaultMissingRir({ manualRirCleared: true }, undefined, { source: "manual" });
+
+  assert.equal(domain.DEFAULT_RIR, 3);
+  assert.equal(missing.rir, 3);
+  assert.equal(missing.effortSource, "manual");
+  assert.equal(planned.rir, 2);
+  assert.equal(explicit.rir, 1.5);
+  assert.equal(derived.rir, 2);
+  assert.equal(cleared.rir, null);
+  assert.equal(cleared.effortSource, "manual-cleared");
+});
+
 test("corrected source workout is updated without losing manual RIR", () => {
   const existing = {
     id: "hevy-1",
