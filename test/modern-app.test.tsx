@@ -1,5 +1,6 @@
 // @vitest-environment jsdom
 
+import assert from "node:assert/strict";
 import { render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, test } from "vitest";
@@ -77,6 +78,45 @@ describe("modern application shell", () => {
     screen.getByText("Saves time; changes direct work");
     screen.getByText("Biceps direct work decreases from 2 sets to 0");
     screen.getByText(/Secondary weighted sets are a planning heuristic/i);
+  });
+
+  test("applies a mandatory preview as a revision and restores it with exact undo", async () => {
+    seed({
+      routines: [{
+        id: "routine-arms",
+        name: "Arms",
+        notes: "",
+        weekdays: [],
+        entries: [
+          { exerciseId: "curl", targetSets: 2, targetRir: 2, notes: "Controlled" },
+          { exerciseId: "concentration-curl", targetSets: 2, targetRir: 3, notes: "" },
+        ],
+      }],
+    });
+    const user = userEvent.setup();
+    render(<App />);
+
+    await user.click(screen.getByRole("button", { name: /Train/i }));
+    await user.click(screen.getByRole("tab", { name: "Optimize plan" }));
+    await user.click(screen.getByRole("button", { name: "Preview routine" }));
+    await user.click(screen.getByRole("button", { name: "Apply as new revision" }));
+
+    screen.getByText(/Routine revision saved/i);
+    const applied = JSON.parse(window.localStorage.getItem(STORAGE_KEY) ?? "{}");
+    assert.deepEqual(applied.routines[0].entries, [{
+      exerciseId: "curl",
+      targetSets: 4,
+      targetRir: 2,
+      notes: "Controlled",
+    }]);
+    assert.equal(applied.routineRevisions.length, 1);
+
+    await user.click(screen.getByRole("button", { name: "Undo revision" }));
+
+    screen.getByText(/exact previous routine was restored/i);
+    const undone = JSON.parse(window.localStorage.getItem(STORAGE_KEY) ?? "{}");
+    assert.equal(undone.routines[0].entries.length, 2);
+    assert.equal(undone.routineRevisions.length, 2);
   });
 
   test("leaves corrupt source text recoverable", () => {

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { AppShell, type PrimaryView } from "../components/layout/AppShell";
 import { DataProblem } from "../components/feedback/DataProblem";
 import { BodyNutritionPage } from "../features/body-nutrition/BodyNutritionPage";
@@ -21,9 +21,15 @@ function initialView(): PrimaryView {
 
 export function App() {
   const [view, setView] = useState<PrimaryView>(initialView);
-  const [storageResult] = useState<StorageLoadResult>(() => (
-    new LiftwiseStorageRepository(window.localStorage).load()
-  ));
+  const repository = useMemo(
+    () => new LiftwiseStorageRepository(window.localStorage),
+    [],
+  );
+  const [storageResult] = useState<StorageLoadResult>(() => repository.load());
+  const [data, setData] = useState(
+    storageResult.status === "loaded" ? storageResult.data : null,
+  );
+  const [saveError, setSaveError] = useState<string | null>(null);
 
   useEffect(() => {
     const onHashChange = () => setView(initialView());
@@ -60,15 +66,31 @@ export function App() {
     );
   }
 
-  const data = storageResult.data;
+  if (!data) {
+    return <DataProblem message="Validated data became unavailable. Reload the application or open recovery tools." />;
+  }
+
+  const persistData = (next: typeof data) => {
+    try {
+      repository.save(next);
+      setData(next);
+      setSaveError(null);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Unknown storage error";
+      setSaveError(`The change was not saved: ${message}`);
+      throw error;
+    }
+  };
+
   return (
     <AppShell
       activeView={view}
       athleteName={data.profile.name}
       onNavigate={navigate}
     >
+      {saveError ? <div className="save-error" role="alert">{saveError}</div> : null}
       {view === "today" ? <TodayPage data={data} onOpenProgress={() => navigate("progress")} /> : null}
-      {view === "train" ? <TrainPage data={data} /> : null}
+      {view === "train" ? <TrainPage data={data} onDataChange={persistData} /> : null}
       {view === "progress" ? <ProgressPage data={data} /> : null}
       {view === "body" ? <BodyNutritionPage data={data} /> : null}
       {view === "library" ? <LibraryPage data={data} /> : null}

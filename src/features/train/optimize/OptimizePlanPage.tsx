@@ -1,13 +1,33 @@
 import { useMemo, useState } from "react";
 import { analyzeRoutineOptimization } from "../../../domain/optimization/analyze-plan";
+import {
+  applyRoutineOpportunity,
+  coverageForProposedEntries,
+  routineRevisionToken,
+  snoozeUntilSixWeeksFrom,
+  undoRoutineRevision,
+  withOptimizationPreferences,
+} from "../../../domain/optimization/routine-revisions";
 import type {
   OptimizationObjective,
   OptimizationOpportunity,
+  RoutineEntryChange,
 } from "../../../domain/optimization/types";
 import type { LiftwiseData } from "../../../domain/models/schema";
 
 type OptimizePlanPageProps = {
   data: LiftwiseData;
+  onDataChange: (data: LiftwiseData) => void;
+};
+
+type PreviewState = {
+  opportunity: OptimizationOpportunity;
+  expectedRoutineToken: string;
+};
+
+type Notice = {
+  tone: "success" | "review";
+  message: string;
 };
 
 const objectives: Array<{
@@ -27,11 +47,16 @@ function opportunityTone(opportunity: OptimizationOpportunity): string {
   return opportunity.kind === "time_saving_tradeoff" ? "tradeoff" : "preserved";
 }
 
-export function OptimizePlanPage({ data }: OptimizePlanPageProps) {
-  const [objective, setObjective] = useState<OptimizationObjective>("simplify");
+export function OptimizePlanPage({ data, onDataChange }: OptimizePlanPageProps) {
+  const [objective, setObjective] = useState<OptimizationObjective>(
+    data.optimizationPreferences.objective,
+  );
   const [routineId, setRoutineId] = useState(data.routines[0]?.id ?? "");
-  const [protectedIds, setProtectedIds] = useState<string[]>([]);
-  const [previewId, setPreviewId] = useState<string | null>(null);
+  const [dismissedIds, setDismissedIds] = useState<string[]>([]);
+  const [previewState, setPreviewState] = useState<PreviewState | null>(null);
+  const [proposalSets, setProposalSets] = useState<Record<string, number>>({});
+  const [lastAppliedRevisionId, setLastAppliedRevisionId] = useState<string | null>(null);
+  const [notice, setNotice] = useState<Notice | null>(null);
   const routine = data.routines.find((item) => item.id === routineId) ?? data.routines[0];
 
   const appearances = useMemo(() => {
@@ -44,16 +69,176 @@ export function OptimizePlanPage({ data }: OptimizePlanPageProps) {
     return counts;
   }, [data.workouts]);
 
+  const activeSnoozes = useMemo(() => (
+    Object.entries(data.optimizationPreferences.snoozedOpportunityIds)
+      .filter(([, until]) => new Date(until).getTime() > Date.now())
+      .map(([id]) => id)
+  ), [data.optimizationPreferences.snoozedOpportunityIds]);
+
   const analysis = useMemo(() => (
     routine ? analyzeRoutineOptimization({
       routine,
       objective,
       equipment: data.profile.equipment,
-      protectedExerciseIds: protectedIds,
+      protectedExerciseIds: data.optimizationPreferences.protectedExerciseIds,
+      suppressedOpportunityIds: [...activeSnoozes, ...dismissedIds],
+      suppressedRelationshipIds: data.optimizationPreferences.suppressedRelationshipIds,
       completedAppearances: appearances,
     }) : null
-  ), [appearances, data.profile.equipment, objective, protectedIds, routine]);
-  const preview = analysis?.opportunities.find((item) => item.id === previewId) ?? null;
+  ), [
+    activeSnoozes,
+    appearances,
+    data.optimizationPreferences.protectedExerciseIds,
+    data.optimizationPreferences.suppressedRelationshipIds,
+    data.profile.equipment,
+    dismissedIds,
+    objective,
+    routine,
+  ]);
+  const preview = previewState?.opportunity ?? null;
+  const previewProposals: RoutineEntryChange[] = preview
+    ? preview.proposedEntries.map((entry) => ({
+      ...entry,
+      targetSets: proposalSets[entry.exerciseId] ?? entry.targetSets,
+    }))
+    : [];
+  const previewCoverage = preview
+    ? coverageForProposedEntries(preview, previewProposals)
+    : [];
+
+  const persistPreferences = (
+    update: Parameters<typeof withOptimizationPreferences>[1],
+    nextNotice?: Notice,
+  ) => {
+    try {
+      onDataChange(withOptimizationPreferences(data, update));
+      if (nextNotice) setNotice(nextNotice);
+      return true;
+    } catch {
+      setNotice({
+        tone: "review",
+        message: "The preference could not be saved. Your existing plan was not changed.",
+      });
+      return false;
+    }
+  };
+
+  const selectObjective = (next: OptimizationObjective) => {
+    setObjective(next);
+    setPreviewState(null);
+    persistPreferences((preferences) => ({ ...preferences, objective: next }));
+  };
+
+  const openPreview = (opportunity: OptimizationOpportunity) => {
+    if (!routine) return;
+    setPreviewState({
+      opportunity,
+      expectedRoutineToken: routineRevisionToken(routine),
+    });
+    setProposalSets(Object.fromEntries(
+      opportunity.proposedEntries.map((entry) => [entry.exerciseId, entry.targetSets]),
+    ));
+    setNotice(null);
+  };
+
+  const applyPreview = () => {
+    if (!previewState) return;
+    try {
+      const result = applyRoutineOpportunity({
+        data,
+        opportunity: previewState.opportunity,
+        expectedRoutineToken: previewState.expectedRoutineToken,
+        proposedEntries: previewProposals,
+      });
+      onDataChange(result.data);
+      setLastAppliedRevisionId(result.revision.id);
+      setPreviewState(null);
+      setNotice({
+        tone: "success",
+        message: "Routine revision saved. The previous routine remains available for exact undo.",
+      });
+    } catch (error) {
+      setNotice({
+        tone: "review",
+        message: error instanceof Error
+          ? error.message
+          : "The routine could not be changed. Your existing plan was preserved.",
+      });
+    }
+  };
+
+  const undoLastRevision = () => {
+    if (!lastAppliedRevisionId) return;
+    try {
+      const result = undoRoutineRevision(data, lastAppliedRevisionId);
+      onDataChange(result.data);
+      setLastAppliedRevisionId(null);
+      setNotice({
+        tone: "success",
+        message: "Undo complete. The exact previous routine was restored.",
+      });
+    } catch (error) {
+      setNotice({
+        tone: "review",
+        message: error instanceof Error
+          ? error.message
+          : "Undo could not be completed safely.",
+      });
+    }
+  };
+
+  const snoozePreview = () => {
+    if (!preview) return;
+    const until = snoozeUntilSixWeeksFrom();
+    const saved = persistPreferences((preferences) => ({
+      ...preferences,
+      snoozedOpportunityIds: {
+        ...preferences.snoozedOpportunityIds,
+        [preview.id]: until,
+      },
+    }), {
+      tone: "success",
+      message: `Snoozed until ${new Intl.DateTimeFormat(undefined, {
+        dateStyle: "medium",
+      }).format(new Date(until))}.`,
+    });
+    if (saved) setPreviewState(null);
+  };
+
+  const suppressPreview = () => {
+    if (!preview) return;
+    const relationshipIds = preview.ruleIds.filter((id) => id.startsWith("relationship."));
+    const identifiers = relationshipIds.length ? relationshipIds : [preview.id];
+    const saved = persistPreferences((preferences) => ({
+      ...preferences,
+      suppressedRelationshipIds: [
+        ...new Set([...preferences.suppressedRelationshipIds, ...identifiers]),
+      ],
+    }), {
+      tone: "success",
+      message: "This reviewed replacement will no longer be suggested.",
+    });
+    if (saved) setPreviewState(null);
+  };
+
+  const protectPreviewExercise = () => {
+    if (!preview) return;
+    const proposedIds = new Set(preview.proposedEntries.map(({ exerciseId }) => exerciseId));
+    const protectedId = preview.sourceEntries.find(
+      ({ exerciseId }) => !proposedIds.has(exerciseId),
+    )?.exerciseId ?? preview.sourceEntries[0]?.exerciseId;
+    if (!protectedId) return;
+    const saved = persistPreferences((preferences) => ({
+      ...preferences,
+      protectedExerciseIds: [
+        ...new Set([...preferences.protectedExerciseIds, protectedId]),
+      ],
+    }), {
+      tone: "success",
+      message: "Exercise protected. Opportunities that remove it are now excluded.",
+    });
+    if (saved) setPreviewState(null);
+  };
 
   if (!routine) {
     return (
@@ -80,7 +265,7 @@ export function OptimizePlanPage({ data }: OptimizePlanPageProps) {
           Routine
           <select value={routine.id} onChange={(event) => {
             setRoutineId(event.target.value);
-            setPreviewId(null);
+            setPreviewState(null);
           }}>
             {data.routines.map((item) => (
               <option key={item.id} value={item.id}>{item.name}</option>
@@ -99,10 +284,7 @@ export function OptimizePlanPage({ data }: OptimizePlanPageProps) {
                 name="optimization-objective"
                 value={item.id}
                 checked={objective === item.id}
-                onChange={() => {
-                  setObjective(item.id);
-                  setPreviewId(null);
-                }}
+                onChange={() => selectObjective(item.id)}
               />
               <strong>{item.label}</strong>
               <span>{item.description}</span>
@@ -115,6 +297,17 @@ export function OptimizePlanPage({ data }: OptimizePlanPageProps) {
         Based on <strong>{routine.name}</strong>, {data.workouts.length} saved workout
         {data.workouts.length === 1 ? "" : "s"}, and your current equipment.
       </div>
+
+      {notice ? (
+        <div className={`optimization-notice notice-${notice.tone}`} role="status">
+          <span>{notice.message}</span>
+          {lastAppliedRevisionId ? (
+            <button className="text-button" type="button" onClick={undoLastRevision}>
+              Undo revision
+            </button>
+          ) : null}
+        </div>
+      ) : null}
 
       {analysis?.opportunities.length ? (
         <div className="opportunity-list" aria-label="Optimization opportunities">
@@ -155,7 +348,7 @@ export function OptimizePlanPage({ data }: OptimizePlanPageProps) {
                 <button
                   className="button button-primary"
                   type="button"
-                  onClick={() => setPreviewId(opportunity.id)}
+                  onClick={() => openPreview(opportunity)}
                 >
                   Preview routine
                 </button>
@@ -163,13 +356,12 @@ export function OptimizePlanPage({ data }: OptimizePlanPageProps) {
                   className="button button-secondary"
                   type="button"
                   onClick={() => {
-                    const removable = opportunity.sourceEntries
-                      .find((entry) => !opportunity.proposedEntries.some(
-                        (proposed) => proposed.exerciseId === entry.exerciseId,
-                      ));
-                    if (removable) {
-                      setProtectedIds((current) => [...new Set([...current, removable.exerciseId])]);
-                    }
+                    setDismissedIds((current) => [...new Set([...current, opportunity.id])]);
+                    if (preview?.id === opportunity.id) setPreviewState(null);
+                    setNotice({
+                      tone: "success",
+                      message: "Kept current for this review. No plan data changed.",
+                    });
                   }}
                 >
                   Keep current
@@ -211,18 +403,42 @@ export function OptimizePlanPage({ data }: OptimizePlanPageProps) {
         <section className="routine-preview" aria-labelledby="routine-preview-title">
           <div className="section-heading">
             <div>
-              <p className="eyebrow">Read-only preview</p>
+              <p className="eyebrow">Revision preview</p>
               <h3 id="routine-preview-title">{preview.title}</h3>
             </div>
-            <button className="text-button" type="button" onClick={() => setPreviewId(null)}>Close</button>
+            <button className="text-button" type="button" onClick={() => setPreviewState(null)}>Close</button>
           </div>
+          <fieldset className="proposal-editor">
+            <legend>Proposed routine entries</legend>
+            {previewProposals.map((entry) => (
+              <label key={entry.exerciseId}>
+                <span>{entry.exerciseName}</span>
+                <input
+                  aria-label={`${entry.exerciseName} proposed sets`}
+                  type="number"
+                  min="1"
+                  max="20"
+                  step="1"
+                  value={entry.targetSets}
+                  onChange={(event) => {
+                    const value = Number(event.target.value);
+                    setProposalSets((current) => ({
+                      ...current,
+                      [entry.exerciseId]: value,
+                    }));
+                  }}
+                />
+                <span>sets</span>
+              </label>
+            ))}
+          </fieldset>
           <div className="coverage-table" role="table" aria-label="Coverage comparison">
             <div role="row" className="coverage-header">
               <span role="columnheader">Coverage</span>
               <span role="columnheader">Before</span>
               <span role="columnheader">After</span>
             </div>
-            {preview.coverage.map((item) => (
+            {previewCoverage.map((item) => (
               <div role="row" key={`${item.label}:${item.unit}`}>
                 <span role="cell">{item.label}<small>{item.unit}</small></span>
                 <strong role="cell">{item.before}</strong>
@@ -231,9 +447,30 @@ export function OptimizePlanPage({ data }: OptimizePlanPageProps) {
             ))}
           </div>
           <p className="preview-gate">
-            Applying changes remains locked during the read-only audit phase. Routine revisions,
-            confirmation, and exact undo are required before mutation is enabled.
+            Applying creates an immutable routine revision. It does not change workouts, targets,
+            or historical performance data.
           </p>
+          <div className="preview-actions">
+            <button
+              className="button button-primary"
+              type="button"
+              onClick={applyPreview}
+              disabled={previewProposals.some(({ targetSets }) => (
+                !Number.isInteger(targetSets) || targetSets < 1 || targetSets > 20
+              ))}
+            >
+              Apply as new revision
+            </button>
+            <button className="button button-secondary" type="button" onClick={snoozePreview}>
+              Snooze 6 weeks
+            </button>
+            <button className="button button-secondary" type="button" onClick={protectPreviewExercise}>
+              Protect exercise
+            </button>
+            <button className="text-button" type="button" onClick={suppressPreview}>
+              Never suggest this replacement
+            </button>
+          </div>
         </section>
       ) : null}
     </div>

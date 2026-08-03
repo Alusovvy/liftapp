@@ -45,7 +45,12 @@ test("presents a decision-first Today view and a working optimization journey", 
   await expect(page.getByRole("heading", {
     name: "Use one direct elbow-flexion variation instead of two",
   }).last()).toBeVisible();
-  await expect(page.getByText(/Applying changes remains locked/)).toBeVisible();
+  await expect(page.getByText(/Applying creates an immutable routine revision/)).toBeVisible();
+
+  await page.getByRole("button", { name: "Apply as new revision" }).click();
+  await expect(page.getByText(/Routine revision saved/)).toBeVisible();
+  await page.getByRole("button", { name: "Undo revision" }).click();
+  await expect(page.getByText(/exact previous routine was restored/)).toBeVisible();
 });
 
 test("has no serious or critical automated accessibility findings", async ({ page }) => {

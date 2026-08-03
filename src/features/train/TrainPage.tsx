@@ -5,6 +5,7 @@ import { OptimizePlanPage } from "./optimize/OptimizePlanPage";
 
 type TrainPageProps = {
   data: LiftwiseData;
+  onDataChange: (data: LiftwiseData) => void;
 };
 
 type TrainTab = "workout" | "routines" | "optimize" | "history" | "import";
@@ -17,7 +18,7 @@ const tabs: Array<{ id: TrainTab; label: string }> = [
   { id: "import", label: "Import" },
 ];
 
-export function TrainPage({ data }: TrainPageProps) {
+export function TrainPage({ data, onDataChange }: TrainPageProps) {
   const [tab, setTab] = useState<TrainTab>("workout");
   const latest = [...data.workouts].sort((a, b) => b.date.localeCompare(a.date))[0];
 
@@ -93,7 +94,9 @@ export function TrainPage({ data }: TrainPageProps) {
           </div>
         ) : null}
 
-        {tab === "optimize" ? <OptimizePlanPage data={data} /> : null}
+        {tab === "optimize" ? (
+          <OptimizePlanPage data={data} onDataChange={onDataChange} />
+        ) : null}
 
         {tab === "history" ? (
           <div className="history-list-modern">

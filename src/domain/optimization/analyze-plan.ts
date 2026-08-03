@@ -246,13 +246,18 @@ export function analyzeRoutineOptimization(
 ): OptimizationAnalysisResult {
   const protectedIds = new Set(input.protectedExerciseIds ?? []);
   const suppressedIds = new Set(input.suppressedOpportunityIds ?? []);
+  const suppressedRelationshipIds = new Set(input.suppressedRelationshipIds ?? []);
   const ruleTrace: string[] = [];
 
   const candidates = [
     ...equipmentOpportunities(input, protectedIds),
     ...sameRoleOpportunities(input, protectedIds),
     ...timeSavingOpportunities(input, protectedIds),
-  ].filter((opportunity) => !suppressedIds.has(opportunity.id));
+  ].filter((opportunity) => (
+    !suppressedIds.has(opportunity.id)
+    && !suppressedRelationshipIds.has(opportunity.id)
+    && !opportunity.ruleIds.some((ruleId) => suppressedRelationshipIds.has(ruleId))
+  ));
 
   if (candidates.some((opportunity) => opportunity.kind === "equipment_alternative")) {
     ruleTrace.push("optimization.equipment-alternative");

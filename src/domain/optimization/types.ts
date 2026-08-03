@@ -60,6 +60,7 @@ export type OptimizationAnalysisInput = {
   equipment: Record<string, boolean>;
   protectedExerciseIds?: string[];
   suppressedOpportunityIds?: string[];
+  suppressedRelationshipIds?: string[];
   completedAppearances?: Record<string, number>;
 };
 

@@ -106,6 +106,36 @@ export const RoutineSchema = z.object({
   createdAt: z.string().nullable().optional(),
 }).passthrough();
 
+export const OptimizationObjectiveSchema = z.enum([
+  "save_time",
+  "simplify",
+  "add_variety",
+  "equipment",
+  "prioritize",
+  "comfort",
+]);
+
+export const OptimizationPreferencesSchema = z.object({
+  enabled: z.boolean().default(true),
+  objective: OptimizationObjectiveSchema.default("simplify"),
+  maxVisibleOpportunities: z.literal(3).default(3),
+  protectedExerciseIds: z.array(z.string()).default([]),
+  suppressedRelationshipIds: z.array(z.string()).default([]),
+  snoozedOpportunityIds: z.record(z.string(), z.string()).default({}),
+}).passthrough();
+
+export const RoutineRevisionSchema = z.object({
+  id: z.string().min(1),
+  routineId: z.string().min(1),
+  revision: z.number().int().positive(),
+  createdAt: z.string(),
+  action: z.enum(["apply", "undo"]),
+  sourceOpportunityId: z.string().nullable(),
+  revertsRevisionId: z.string().nullable(),
+  before: RoutineSchema,
+  after: RoutineSchema,
+}).passthrough();
+
 export const NutritionDaySchema = z.object({
   id: z.string().min(1),
   date: DateKeySchema,
@@ -200,6 +230,15 @@ export const LiftwiseDataSchema = z.object({
   targets: TargetsSchema,
   customExercises: z.array(CustomExerciseSchema).default([]),
   routines: z.array(RoutineSchema).default([]),
+  routineRevisions: z.array(RoutineRevisionSchema).default([]),
+  optimizationPreferences: OptimizationPreferencesSchema.default({
+    enabled: true,
+    objective: "simplify",
+    maxVisibleOpportunities: 3,
+    protectedExerciseIds: [],
+    suppressedRelationshipIds: [],
+    snoozedOpportunityIds: {},
+  }),
   importAliases: z.record(z.string(), z.string()).default({}),
   exercisePreferences: z.record(z.string(), LooseRecordSchema).default({}),
   favoriteExercises: z.array(z.string()).default([]),
@@ -235,6 +274,8 @@ export type Workout = z.infer<typeof WorkoutSchema>;
 export type WorkoutEntry = z.infer<typeof WorkoutEntrySchema>;
 export type WorkoutSet = z.infer<typeof WorkoutSetSchema>;
 export type Routine = z.infer<typeof RoutineSchema>;
+export type RoutineRevision = z.infer<typeof RoutineRevisionSchema>;
+export type OptimizationPreferences = z.infer<typeof OptimizationPreferencesSchema>;
 export type NutritionDay = z.infer<typeof NutritionDaySchema>;
 export type RecoveryCheckin = z.infer<typeof RecoveryCheckinSchema>;
 export type Muscle = (typeof MUSCLES)[number];

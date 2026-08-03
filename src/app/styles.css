@@ -367,6 +367,20 @@ h3 {
   background: var(--safety);
 }
 
+.button:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.save-error {
+  margin: 18px clamp(20px, 4vw, 58px) 0;
+  padding: 12px 15px;
+  border: 1px solid #e5b8b1;
+  border-radius: 10px;
+  color: var(--safety);
+  background: var(--safety-surface);
+}
+
 .today-hero {
   display: grid;
   grid-template-columns: minmax(0, 1.6fr) minmax(290px, 0.7fr);
@@ -792,6 +806,27 @@ h3 {
   font-size: 0.78rem;
 }
 
+.optimization-notice {
+  min-height: 48px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  margin: 0 0 18px;
+  padding: 11px 15px;
+  border: 1px solid #b8c99c;
+  border-radius: 11px;
+  color: #3f5520;
+  background: #f1f7e5;
+  font-size: 0.8rem;
+}
+
+.optimization-notice.notice-review {
+  border-color: #e4ca8e;
+  color: #705019;
+  background: var(--review-surface);
+}
+
 .opportunity-list {
   display: grid;
   gap: 12px;
@@ -912,6 +947,38 @@ h3 {
   box-shadow: var(--shadow);
 }
 
+.proposal-editor {
+  display: grid;
+  gap: 8px;
+  margin: 0 0 18px;
+  padding: 0;
+  border: 0;
+}
+
+.proposal-editor legend {
+  margin-bottom: 8px;
+  font-weight: 800;
+}
+
+.proposal-editor label {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 72px 35px;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px;
+  border: 1px solid #ccd9de;
+  border-radius: 10px;
+  background: white;
+}
+
+.proposal-editor input {
+  width: 72px;
+  min-height: 42px;
+  padding: 6px 8px;
+  border: 1px solid #9fada6;
+  border-radius: 8px;
+}
+
 .coverage-table {
   display: grid;
 }
@@ -949,6 +1016,14 @@ h3 {
   margin: 16px 0 0;
   color: var(--text-muted);
   font-size: 0.8rem;
+}
+
+.preview-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin-top: 16px;
 }
 
 .history-list-modern {
@@ -1454,6 +1529,16 @@ h3 {
   }
 
   .opportunity-actions {
+    flex-direction: column;
+  }
+
+  .optimization-notice {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .preview-actions {
+    align-items: stretch;
     flex-direction: column;
   }
 
