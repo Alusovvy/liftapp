@@ -179,6 +179,38 @@ test("autosaves and completes a focused workout without mobile overflow", async 
   expect(completed.draft).toBeNull();
 });
 
+test("keeps progress decisions auditable and usable on a narrow screen", async ({ page }) => {
+  await openModernApp(page);
+
+  await page.getByRole("button", { name: "Progress", exact: true }).click();
+  await expect(page.getByRole("heading", {
+    name: "Highest-value reviews for this week",
+  })).toBeVisible();
+  await expect(page.getByText(/Planning model, not a readiness score/i)).toBeVisible();
+
+  await page.getByRole("tab", { name: "Exercises" }).click();
+  await expect(page.getByRole("heading", { name: "Exercise decisions" })).toBeVisible();
+  await expect(page.getByText("Emerging")).toBeVisible();
+  await page.getByText("Why and comparable history").first().click();
+  await expect(page.getByRole("columnheader", { name: "Top qualified set" })).toBeVisible();
+
+  const dimensions = await page.evaluate(() => ({
+    viewport: document.documentElement.clientWidth,
+    content: document.documentElement.scrollWidth,
+  }));
+  expect(dimensions.content).toBeLessThanOrEqual(dimensions.viewport);
+
+  const accessibility = await new AxeBuilder({ page })
+    .withTags(["wcag2a", "wcag2aa", "wcag21a", "wcag21aa"])
+    .analyze();
+  expect(accessibility.violations.filter(
+    ({ impact }) => impact === "serious" || impact === "critical",
+  )).toEqual([]);
+
+  await page.getByRole("tab", { name: "Recovery" }).click();
+  await expect(page.getByText(/do not prove that a recovery input caused/i)).toBeVisible();
+});
+
 test("keeps the primary experience usable at 320 pixels", async ({ page }) => {
   await openModernApp(page);
 

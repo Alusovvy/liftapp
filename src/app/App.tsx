@@ -203,7 +203,7 @@ export function App() {
           onDiscardWorkout={discardWorkout}
         />
       ) : null}
-      {view === "progress" ? <ProgressPage data={data} /> : null}
+      {view === "progress" ? <ProgressPage data={data} onOpenTrain={() => navigate("train")} /> : null}
       {view === "body" ? <BodyNutritionPage data={data} /> : null}
       {view === "library" ? <LibraryPage data={data} /> : null}
       {view === "settings" ? <SettingsPage data={data} /> : null}

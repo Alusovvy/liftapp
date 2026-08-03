@@ -237,6 +237,30 @@ describe("modern application shell", () => {
     assert.equal(window.localStorage.getItem(ACTIVE_WORKOUT_DRAFT_KEY), null);
   });
 
+  test("separates progress focus, exercise evidence, muscle coverage, and reported recovery", async () => {
+    seed();
+    const user = userEvent.setup();
+    render(<App />);
+
+    await user.click(screen.getByRole("button", { name: "Progress" }));
+    screen.getByRole("heading", { name: "Highest-value reviews for this week" });
+    screen.getByText(/Planning model, not a readiness score/i);
+
+    await user.click(screen.getByRole("tab", { name: "Exercises" }));
+    screen.getByRole("heading", { name: "Exercise decisions" });
+    assert.ok(screen.getAllByText("24 kg × 10").length >= 1);
+    screen.getByText("Emerging");
+
+    await user.click(screen.getByRole("tab", { name: "Muscles" }));
+    screen.getByRole("heading", { name: "Muscle coverage" });
+    screen.getByText(/not a direct measurement of muscle growth/i);
+
+    await user.click(screen.getByRole("tab", { name: "Recovery" }));
+    screen.getByRole("heading", { name: "Recovery check-ins" });
+    screen.getByText("Plan unchanged");
+    screen.getByText(/do not prove that a recovery input caused/i);
+  });
+
   test("leaves corrupt source text recoverable", () => {
     window.localStorage.setItem(STORAGE_KEY, "{broken");
     render(<App />);

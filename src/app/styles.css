@@ -1737,6 +1737,283 @@ h3 {
   font-size: 0.72rem;
 }
 
+.progress-panel {
+  min-height: 430px;
+}
+
+.progress-focus,
+.exercise-progress,
+.recovery-progress {
+  padding: clamp(22px, 4vw, 36px);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: white;
+}
+
+.progress-section-intro {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 22px;
+  margin-bottom: 22px;
+}
+
+.progress-section-intro h2 {
+  margin-bottom: 0;
+}
+
+.progress-section-intro > span {
+  color: var(--text-muted);
+  font-size: 0.75rem;
+}
+
+.progress-focus-list {
+  display: grid;
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.progress-focus-list > li {
+  display: grid;
+  grid-template-columns: 38px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 16px;
+  padding: 18px;
+  border: 1px solid var(--line);
+  border-radius: 13px;
+  background: #fbfcf8;
+}
+
+.focus-rank {
+  width: 32px;
+  height: 32px;
+  display: grid;
+  place-items: center;
+  border-radius: 10px;
+  color: #425415;
+  background: var(--surface-accent);
+  font-weight: 850;
+}
+
+.progress-observation {
+  display: block;
+  margin-bottom: 5px;
+  color: var(--text-muted);
+  font-size: 0.64rem;
+  font-weight: 800;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+}
+
+.progress-focus-list h3 {
+  margin: 0;
+  font-size: 1rem;
+}
+
+.progress-focus-list p {
+  margin: 6px 0 0;
+  color: var(--text-muted);
+  font-size: 0.8rem;
+}
+
+.progress-focus-list details,
+.exercise-progress-row details {
+  margin-top: 10px;
+}
+
+.progress-focus-list summary,
+.exercise-progress-row summary {
+  min-height: 32px;
+  color: var(--info);
+  cursor: pointer;
+  font-size: 0.74rem;
+  font-weight: 750;
+}
+
+.progress-focus-list code {
+  font-size: 0.72rem;
+}
+
+.progress-boundary-note {
+  display: grid;
+  gap: 4px;
+  margin-top: 18px;
+  padding: 14px 16px;
+  border-radius: 11px;
+  color: #4b5e65;
+  background: #eef4f5;
+  font-size: 0.76rem;
+}
+
+.exercise-progress-list {
+  display: grid;
+  gap: 12px;
+}
+
+.exercise-progress-row {
+  display: grid;
+  grid-template-columns: minmax(250px, 1.3fr) minmax(120px, 0.6fr) minmax(260px, 1fr) auto;
+  align-items: center;
+  gap: 16px;
+  padding: 18px;
+  border: 1px solid var(--line);
+  border-left: 4px solid #b7c0b8;
+  border-radius: 13px;
+}
+
+.exercise-progress-row.change-improved {
+  border-left-color: #829d38;
+}
+
+.exercise-progress-row.change-review {
+  border-left-color: #bd8a30;
+  background: #fffcf3;
+}
+
+.exercise-progress-decision h3 {
+  margin: 0 0 6px;
+  font-size: 0.98rem;
+}
+
+.exercise-progress-decision > strong {
+  color: var(--text-muted);
+  font-size: 0.76rem;
+}
+
+.exercise-progress-latest {
+  display: grid;
+  gap: 4px;
+}
+
+.exercise-progress-latest > span,
+.exercise-progress-latest time {
+  color: var(--text-muted);
+  font-size: 0.68rem;
+}
+
+.compact-trend {
+  display: flex;
+  align-items: stretch;
+  gap: 4px;
+}
+
+.compact-trend > span {
+  min-width: 0;
+  flex: 1;
+  display: grid;
+  gap: 3px;
+  padding: 7px 8px;
+  border-radius: 8px;
+  background: #eef1ed;
+}
+
+.compact-trend small {
+  overflow: hidden;
+  color: var(--text-muted);
+  font-size: 0.56rem;
+  text-overflow: ellipsis;
+}
+
+.compact-trend strong {
+  overflow: hidden;
+  font-size: 0.66rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.exercise-progress-row > details {
+  grid-column: 1 / -1;
+  padding-top: 10px;
+  border-top: 1px solid var(--line);
+}
+
+.exercise-progress-row > details > p {
+  max-width: 80ch;
+  color: var(--text-muted);
+  font-size: 0.78rem;
+}
+
+.progress-data-table {
+  overflow-x: auto;
+}
+
+.progress-data-table table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.75rem;
+}
+
+.progress-data-table th,
+.progress-data-table td {
+  padding: 8px;
+  border-bottom: 1px solid var(--line);
+  text-align: left;
+}
+
+.progress-data-table th {
+  color: var(--text-muted);
+}
+
+.progress-muscles {
+  margin-top: 0;
+}
+
+.recovery-timeline {
+  display: grid;
+  gap: 10px;
+}
+
+.recovery-timeline article {
+  display: grid;
+  grid-template-columns: 100px minmax(300px, 1fr) minmax(250px, 1.2fr);
+  align-items: center;
+  gap: 18px;
+  padding: 16px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+}
+
+.recovery-timeline time {
+  color: var(--text-muted);
+  font-size: 0.72rem;
+}
+
+.recovery-timeline dl {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(60px, 1fr));
+  gap: 6px;
+  margin: 0;
+}
+
+.recovery-timeline dl > div {
+  padding: 7px;
+  border-radius: 8px;
+  background: #f0f2ef;
+}
+
+.recovery-timeline dt {
+  color: var(--text-muted);
+  font-size: 0.6rem;
+}
+
+.recovery-timeline dd {
+  margin: 3px 0 0;
+  font-size: 0.78rem;
+  font-weight: 800;
+}
+
+.recovery-timeline article > div:last-child strong {
+  display: block;
+}
+
+.recovery-timeline article > div:last-child p {
+  margin: 5px 0 0;
+  color: var(--text-muted);
+  font-size: 0.73rem;
+}
+
 .muscle-bars {
   display: grid;
   gap: 16px;
@@ -2055,6 +2332,27 @@ h3 {
   .objective-selector > div {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
+
+  .exercise-progress-row {
+    grid-template-columns: minmax(220px, 1fr) minmax(120px, 0.6fr) auto;
+  }
+
+  .compact-trend {
+    grid-column: 1 / -1;
+    grid-row: 2;
+  }
+
+  .exercise-progress-row > details {
+    grid-row: 3;
+  }
+
+  .recovery-timeline article {
+    grid-template-columns: 90px minmax(0, 1fr);
+  }
+
+  .recovery-timeline article > div:last-child {
+    grid-column: 2;
+  }
 }
 
 @media (max-width: 760px) {
@@ -2164,7 +2462,8 @@ h3 {
   }
 
   .active-workout-header,
-  .workout-finish {
+  .workout-finish,
+  .progress-section-intro {
     align-items: stretch;
     flex-direction: column;
   }
@@ -2231,6 +2530,56 @@ h3 {
   .workout-finish-actions {
     justify-content: space-between;
     flex-wrap: wrap;
+  }
+
+  .progress-focus-list > li {
+    grid-template-columns: 34px minmax(0, 1fr);
+    align-items: start;
+  }
+
+  .progress-focus-list > li > .button {
+    grid-column: 2;
+    justify-self: start;
+  }
+
+  .exercise-progress-row {
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+
+  .exercise-progress-latest,
+  .compact-trend,
+  .exercise-progress-row > details {
+    grid-column: 1 / -1;
+  }
+
+  .exercise-progress-latest {
+    grid-row: 2;
+  }
+
+  .compact-trend {
+    grid-row: 3;
+  }
+
+  .exercise-progress-row > .evidence-badge {
+    grid-column: 2;
+    grid-row: 1;
+  }
+
+  .exercise-progress-row > details {
+    grid-row: 4;
+  }
+
+  .recovery-timeline article {
+    grid-template-columns: 1fr;
+    align-items: start;
+  }
+
+  .recovery-timeline article > div:last-child {
+    grid-column: 1;
+  }
+
+  .recovery-timeline dl {
+    grid-template-columns: repeat(2, 1fr);
   }
 
   .import-heading,
@@ -2347,8 +2696,15 @@ h3 {
   .week-strip,
   .page-section,
   .optimizer,
-  .workout-start {
+  .workout-start,
+  .progress-focus,
+  .exercise-progress,
+  .recovery-progress {
     padding: 18px;
+  }
+
+  .compact-trend {
+    flex-direction: column;
   }
 
   .active-exercise-list {
