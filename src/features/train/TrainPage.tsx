@@ -1,8 +1,10 @@
 import { useState } from "react";
 import type { LiftwiseData } from "../../domain/models/schema";
 import { EXERCISE_BY_ID } from "../../domain/exercises/catalog";
+import type { ActiveWorkoutDraft } from "../../domain/workout/active-workout";
 import { ImportPage } from "./import/ImportPage";
 import { OptimizePlanPage } from "./optimize/OptimizePlanPage";
+import { WorkoutPage } from "./workout/WorkoutPage";
 
 type TrainPageProps = {
   data: LiftwiseData;
@@ -14,6 +16,12 @@ type TrainPageProps = {
     batchId: string,
   ) => void;
   onUndoImport: () => void;
+  workoutDraft: ActiveWorkoutDraft | null;
+  workoutDraftProblem: string | null;
+  onStartWorkout: (routineId?: string) => void;
+  onWorkoutDraftChange: (draft: ActiveWorkoutDraft) => void;
+  onFinishWorkout: () => void;
+  onDiscardWorkout: () => void;
 };
 
 type TrainTab = "workout" | "routines" | "optimize" | "history" | "import";
@@ -32,9 +40,15 @@ export function TrainPage({
   onDataChange,
   onImportCommit,
   onUndoImport,
+  workoutDraft,
+  workoutDraftProblem,
+  onStartWorkout,
+  onWorkoutDraftChange,
+  onFinishWorkout,
+  onDiscardWorkout,
 }: TrainPageProps) {
   const [tab, setTab] = useState<TrainTab>("workout");
-  const latest = [...data.workouts].sort((a, b) => b.date.localeCompare(a.date))[0];
+  const [workoutNotice, setWorkoutNotice] = useState<string | null>(null);
 
   return (
     <div className="page">
@@ -61,24 +75,34 @@ export function TrainPage({
 
       <section role="tabpanel" className="train-panel">
         {tab === "workout" ? (
-          <div className="train-start">
-            <div>
-              <p className="eyebrow">Workout workspace</p>
-              <h2>Start with the current proven logger</h2>
-              <p>
-                The focused React set editor is the next migration surface. Until its draft,
-                autosave, import provenance, and recovery tests pass, the existing logger remains in charge.
-              </p>
-              <a className="button button-primary" href="./index.html">Open workout logger</a>
-            </div>
-            {latest ? (
-              <aside>
-                <span>Last completed</span>
-                <strong>{latest.name}</strong>
-                <small>{latest.date} · {latest.entries.length} exercises</small>
-              </aside>
+          <>
+            {workoutNotice ? (
+              <div className="optimization-notice" role="status">
+                <span>{workoutNotice}</span>
+                <button className="text-button" type="button" onClick={() => setTab("history")}>
+                  View history
+                </button>
+              </div>
             ) : null}
-          </div>
+            <WorkoutPage
+              data={data}
+              draft={workoutDraft}
+              draftProblem={workoutDraftProblem}
+              onStart={(routineId) => {
+                setWorkoutNotice(null);
+                onStartWorkout(routineId);
+              }}
+              onDraftChange={onWorkoutDraftChange}
+              onFinish={() => {
+                onFinishWorkout();
+                setWorkoutNotice("Workout saved. Your completed sets are now in history and progress.");
+              }}
+              onDiscard={() => {
+                onDiscardWorkout();
+                setWorkoutNotice("Workout draft discarded. Completed history was not changed.");
+              }}
+            />
+          </>
         ) : null}
 
         {tab === "routines" ? (

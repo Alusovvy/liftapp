@@ -8,9 +8,15 @@ import { SettingsPage } from "../features/settings/SettingsPage";
 import { TodayPage } from "../features/today/TodayPage";
 import { TrainPage } from "../features/train/TrainPage";
 import {
+  completeActiveWorkout,
+  createActiveWorkoutDraft,
+  type ActiveWorkoutDraft,
+} from "../domain/workout/active-workout";
+import {
   LiftwiseStorageRepository,
   type StorageLoadResult,
 } from "../infrastructure/local-storage/storage-repository";
+import { WorkoutDraftRepository } from "../infrastructure/local-storage/workout-draft-repository";
 
 const views: PrimaryView[] = ["today", "train", "progress", "body", "library", "settings"];
 
@@ -25,9 +31,17 @@ export function App() {
     () => new LiftwiseStorageRepository(window.localStorage),
     [],
   );
+  const draftRepository = useMemo(
+    () => new WorkoutDraftRepository(window.localStorage),
+    [],
+  );
   const [storageResult] = useState<StorageLoadResult>(() => repository.load());
+  const [draftLoadResult] = useState(() => draftRepository.load());
   const [data, setData] = useState(
     storageResult.status === "loaded" ? storageResult.data : null,
+  );
+  const [workoutDraft, setWorkoutDraft] = useState<ActiveWorkoutDraft | null>(
+    draftLoadResult.status === "loaded" ? draftLoadResult.draft : null,
   );
   const [saveError, setSaveError] = useState<string | null>(null);
 
@@ -110,6 +124,62 @@ export function App() {
     }
   };
 
+  const startWorkout = (routineId?: string) => {
+    if (!data) return;
+    try {
+      const draft = createActiveWorkoutDraft(
+        data,
+        routineId === undefined ? {} : { routineId },
+      );
+      draftRepository.save(draft);
+      setWorkoutDraft(draft);
+      setSaveError(null);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Unknown draft error";
+      setSaveError(`The workout could not be started: ${message}`);
+    }
+  };
+
+  const persistWorkoutDraft = (draft: ActiveWorkoutDraft) => {
+    try {
+      draftRepository.save(draft);
+      setWorkoutDraft(draft);
+      setSaveError(null);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Unknown draft error";
+      setSaveError(`The workout draft was not saved: ${message}`);
+      throw error;
+    }
+  };
+
+  const finishWorkout = () => {
+    if (!data || !workoutDraft) return;
+    try {
+      const completed = completeActiveWorkout(data, workoutDraft);
+      repository.save(completed.data);
+      setData(completed.data);
+      draftRepository.clear();
+      setWorkoutDraft(null);
+      setSaveError(null);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Unknown workout error";
+      setSaveError(`The workout was not finished: ${message}`);
+      throw error;
+    }
+  };
+
+  const discardWorkout = () => {
+    try {
+      draftRepository.clear();
+      setWorkoutDraft(null);
+      setSaveError(null);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Unknown draft error";
+      setSaveError(`The workout draft was not discarded: ${message}`);
+      throw error;
+    }
+  };
+
   return (
     <AppShell
       activeView={view}
@@ -125,6 +195,12 @@ export function App() {
           onDataChange={persistData}
           onImportCommit={persistImport}
           onUndoImport={undoLastImport}
+          workoutDraft={workoutDraft}
+          workoutDraftProblem={draftLoadResult.status === "corrupt" ? draftLoadResult.message : null}
+          onStartWorkout={startWorkout}
+          onWorkoutDraftChange={persistWorkoutDraft}
+          onFinishWorkout={finishWorkout}
+          onDiscardWorkout={discardWorkout}
         />
       ) : null}
       {view === "progress" ? <ProgressPage data={data} /> : null}

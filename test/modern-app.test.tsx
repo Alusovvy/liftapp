@@ -8,6 +8,7 @@ import { beforeEach, describe, test } from "vitest";
 import fixture from "./fixtures/current-data-v9.json";
 import { App } from "../src/app/App";
 import { STORAGE_KEY } from "../src/infrastructure/local-storage/storage-repository";
+import { ACTIVE_WORKOUT_DRAFT_KEY } from "../src/infrastructure/local-storage/workout-draft-repository";
 
 beforeEach(() => {
   window.localStorage.clear();
@@ -174,6 +175,66 @@ describe("modern application shell", () => {
     ));
     assert.equal(importedWorkout.entries[0].sets[0].rir, 3);
     assert.equal(importedWorkout.entries[0].sets[0].effortSource, "defaulted");
+  });
+
+  test("autosaves a routine workout, restores it after remount, and finishes only completed sets", async () => {
+    seed();
+    const user = userEvent.setup();
+    const firstRender = render(<App />);
+
+    await user.click(screen.getByRole("button", { name: /Train/i }));
+    await user.click(screen.getByRole("button", { name: "Start Upper" }));
+
+    const weight = screen.getByLabelText("Dumbbell Bench Press set 1 weight in kg");
+    const reps = screen.getByLabelText("Dumbbell Bench Press set 1 reps");
+    const rir = screen.getByLabelText("Dumbbell Bench Press set 1 RIR");
+    assert.equal((weight as HTMLInputElement).value, "24");
+    assert.equal((reps as HTMLInputElement).value, "10");
+    assert.equal((rir as HTMLInputElement).value, "2");
+    assert.ok(window.localStorage.getItem(ACTIVE_WORKOUT_DRAFT_KEY));
+
+    await user.clear(rir);
+    firstRender.unmount();
+    render(<App />);
+
+    screen.getByText(/Active workout · autosaved locally/i);
+    assert.equal(
+      (screen.getByLabelText("Dumbbell Bench Press set 1 RIR") as HTMLInputElement).value,
+      "",
+    );
+    const finish = screen.getByRole("button", { name: "Finish workout" });
+    assert.equal((finish as HTMLButtonElement).disabled, true);
+
+    await user.click(screen.getByLabelText("Mark Dumbbell Bench Press set 1 complete"));
+    assert.equal((finish as HTMLButtonElement).disabled, false);
+    await user.click(finish);
+
+    await screen.findByText(/Workout saved/i);
+    const saved = JSON.parse(window.localStorage.getItem(STORAGE_KEY) ?? "{}");
+    const workout = saved.workouts.at(-1);
+    assert.equal(workout.name, "Upper");
+    assert.equal(workout.entries.length, 1);
+    assert.equal(workout.entries[0].sets.length, 1);
+    assert.equal(workout.entries[0].sets[0].rir, 3);
+    assert.equal(workout.entries[0].sets[0].effortSource, "manual");
+    assert.equal(window.localStorage.getItem(ACTIVE_WORKOUT_DRAFT_KEY), null);
+  });
+
+  test("requires explicit confirmation before discarding an active workout draft", async () => {
+    seed();
+    const user = userEvent.setup();
+    render(<App />);
+
+    await user.click(screen.getByRole("button", { name: /Train/i }));
+    await user.click(screen.getByRole("button", { name: "Start empty workout" }));
+    await user.click(screen.getByRole("button", { name: "Discard draft" }));
+
+    assert.ok(window.localStorage.getItem(ACTIVE_WORKOUT_DRAFT_KEY));
+    screen.getByRole("button", { name: "Keep workout" });
+    await user.click(screen.getByRole("button", { name: "Confirm discard" }));
+
+    await screen.findByText(/Workout draft discarded/i);
+    assert.equal(window.localStorage.getItem(ACTIVE_WORKOUT_DRAFT_KEY), null);
   });
 
   test("leaves corrupt source text recoverable", () => {

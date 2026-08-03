@@ -9,6 +9,12 @@ import {
   STORAGE_KEY,
   type StoragePort,
 } from "../src/infrastructure/local-storage/storage-repository";
+import {
+  ACTIVE_WORKOUT_DRAFT_KEY,
+  CORRUPT_WORKOUT_DRAFT_KEY,
+  WorkoutDraftRepository,
+} from "../src/infrastructure/local-storage/workout-draft-repository";
+import { createActiveWorkoutDraft } from "../src/domain/workout/active-workout";
 
 class MemoryStorage implements StoragePort {
   private readonly values = new Map<string, string>();
@@ -101,5 +107,30 @@ describe("current persisted schema", () => {
 
     storage.removeItem(IMPORT_UNDO_KEY);
     assert.throws(() => repository.undoLastImport(), /No import undo/i);
+  });
+
+  test("round trips active workout drafts and isolates a corrupt draft from completed data", () => {
+    const storage = new MemoryStorage();
+    const repository = new WorkoutDraftRepository(storage);
+    const data = LiftwiseDataSchema.parse(fixture);
+    const draft = createActiveWorkoutDraft(data, {
+      routineId: "routine-upper",
+      now: "2026-08-03T10:00:00.000Z",
+      createId: () => crypto.randomUUID(),
+    });
+
+    assert.equal(repository.load().status, "empty");
+    repository.save(draft);
+    const loaded = repository.load();
+    assert.equal(loaded.status, "loaded");
+    assert.deepEqual(loaded.status === "loaded" ? loaded.draft : null, draft);
+    repository.clear();
+    assert.equal(repository.load().status, "empty");
+
+    storage.setItem(ACTIVE_WORKOUT_DRAFT_KEY, "{broken");
+    const corrupt = repository.load();
+    assert.equal(corrupt.status, "corrupt");
+    assert.equal(storage.getItem(CORRUPT_WORKOUT_DRAFT_KEY), "{broken");
+    assert.equal(storage.getItem(ACTIVE_WORKOUT_DRAFT_KEY), null);
   });
 });
