@@ -1,0 +1,91 @@
+import type { Muscle } from "../models/schema";
+
+export type ExerciseCatalogItem = {
+  id: string;
+  name: string;
+  primary: Muscle[];
+  secondary: Muscle[];
+  pattern: string;
+  type: string;
+  equipment: string[];
+  equipmentAny: string[];
+  machine: boolean;
+  swapId: string;
+  homeReplacementId: string;
+};
+
+export const EXERCISE_CATALOG: ExerciseCatalogItem[] = [
+  {"id":"bench-press","name":"Barbell Bench Press","primary":["Chest"],"secondary":["Triceps","Shoulders"],"pattern":"Horizontal push","type":"Compound","equipment":["barbell","bench","squatRack"],"equipmentAny":[],"machine":false,"swapId":"db-bench","homeReplacementId":""},
+  {"id":"db-bench","name":"Dumbbell Bench Press","primary":["Chest"],"secondary":["Triceps","Shoulders"],"pattern":"Horizontal push","type":"Compound","equipment":["dumbbells","bench"],"equipmentAny":[],"machine":false,"swapId":"bench-press","homeReplacementId":""},
+  {"id":"incline-db","name":"Incline Dumbbell Bench Press","primary":["Chest"],"secondary":["Shoulders","Triceps"],"pattern":"Incline push","type":"Compound","equipment":["dumbbells","inclineBench"],"equipmentAny":[],"machine":false,"swapId":"db-bench","homeReplacementId":""},
+  {"id":"db-chest-fly","name":"Dumbbell Chest Fly","primary":["Chest"],"secondary":["Shoulders"],"pattern":"Chest isolation","type":"Isolation","equipment":["dumbbells","bench"],"equipmentAny":[],"machine":false,"swapId":"db-bench","homeReplacementId":""},
+  {"id":"push-up","name":"Push-up","primary":["Chest"],"secondary":["Triceps","Shoulders"],"pattern":"Horizontal push","type":"Compound","equipment":[],"equipmentAny":[],"machine":false,"swapId":"db-bench","homeReplacementId":""},
+  {"id":"decline-push-up","name":"Decline Push-up","primary":["Chest"],"secondary":["Triceps","Shoulders"],"pattern":"Decline push","type":"Compound","equipment":["bench"],"equipmentAny":[],"machine":false,"swapId":"push-up","homeReplacementId":""},
+  {"id":"cable-row","name":"Seated Cable Row","primary":["Back"],"secondary":["Biceps"],"pattern":"Horizontal pull","type":"Compound","equipment":["machine"],"equipmentAny":[],"machine":true,"swapId":"one-arm-db-row","homeReplacementId":"one-arm-db-row"},
+  {"id":"chest-row","name":"Chest-Supported Dumbbell Row","primary":["Back"],"secondary":["Biceps"],"pattern":"Horizontal pull","type":"Compound","equipment":["dumbbells","inclineBench"],"equipmentAny":[],"machine":false,"swapId":"one-arm-db-row","homeReplacementId":""},
+  {"id":"one-arm-db-row","name":"One-Arm Dumbbell Row","primary":["Back"],"secondary":["Biceps"],"pattern":"Horizontal pull","type":"Compound","equipment":["dumbbells","bench"],"equipmentAny":[],"machine":false,"swapId":"pull-up","homeReplacementId":""},
+  {"id":"landmine-row","name":"Landmine Row","primary":["Back"],"secondary":["Biceps"],"pattern":"Horizontal pull","type":"Compound","equipment":["barbell"],"equipmentAny":[],"machine":false,"swapId":"one-arm-db-row","homeReplacementId":""},
+  {"id":"lat-pulldown","name":"Lat Pulldown","primary":["Back"],"secondary":["Biceps"],"pattern":"Vertical pull","type":"Compound","equipment":["machine"],"equipmentAny":[],"machine":true,"swapId":"pull-up","homeReplacementId":"pull-up"},
+  {"id":"pull-up","name":"Pull-up","primary":["Back"],"secondary":["Biceps"],"pattern":"Vertical pull","type":"Compound","equipment":["pullupDipBar"],"equipmentAny":[],"machine":false,"swapId":"one-arm-db-row","homeReplacementId":""},
+  {"id":"back-squat","name":"Back Squat","primary":["Quads"],"secondary":["Glutes","Core"],"pattern":"Squat","type":"Compound","equipment":["barbell","squatRack"],"equipmentAny":[],"machine":false,"swapId":"goblet-squat","homeReplacementId":""},
+  {"id":"leg-press","name":"Leg Press","primary":["Quads"],"secondary":["Glutes"],"pattern":"Squat","type":"Compound","equipment":["machine"],"equipmentAny":[],"machine":true,"swapId":"split-squat","homeReplacementId":"split-squat"},
+  {"id":"goblet-squat","name":"Goblet Squat","primary":["Quads"],"secondary":["Glutes","Core"],"pattern":"Squat","type":"Compound","equipment":["dumbbells"],"equipmentAny":[],"machine":false,"swapId":"split-squat","homeReplacementId":""},
+  {"id":"db-squat","name":"Dumbbell Squat","primary":["Quads"],"secondary":["Glutes","Core"],"pattern":"Squat","type":"Compound","equipment":["dumbbells"],"equipmentAny":[],"machine":false,"swapId":"goblet-squat","homeReplacementId":""},
+  {"id":"sumo-squat","name":"Sumo Squat","primary":["Glutes","Quads"],"secondary":["Hamstrings"],"pattern":"Squat","type":"Compound","equipment":[],"equipmentAny":[],"machine":false,"swapId":"goblet-squat","homeReplacementId":""},
+  {"id":"split-squat","name":"Bulgarian Split Squat","primary":["Quads","Glutes"],"secondary":[],"pattern":"Single-leg squat","type":"Compound","equipment":["dumbbells","bench"],"equipmentAny":[],"machine":false,"swapId":"goblet-squat","homeReplacementId":""},
+  {"id":"lunge","name":"Bodyweight Lunge","primary":["Quads","Glutes"],"secondary":["Core"],"pattern":"Single-leg squat","type":"Compound","equipment":[],"equipmentAny":[],"machine":false,"swapId":"split-squat","homeReplacementId":""},
+  {"id":"db-lunge","name":"Dumbbell Lunge","primary":["Quads","Glutes"],"secondary":["Core"],"pattern":"Single-leg squat","type":"Compound","equipment":["dumbbells"],"equipmentAny":[],"machine":false,"swapId":"split-squat","homeReplacementId":""},
+  {"id":"pause-squat","name":"Paused Barbell Squat","primary":["Quads"],"secondary":["Glutes","Core"],"pattern":"Squat","type":"Compound","equipment":["barbell","squatRack"],"equipmentAny":[],"machine":false,"swapId":"back-squat","homeReplacementId":""},
+  {"id":"barbell-deadlift","name":"Barbell Deadlift","primary":["Hamstrings","Glutes"],"secondary":["Back","Core"],"pattern":"Hinge","type":"Compound","equipment":["barbell"],"equipmentAny":[],"machine":false,"swapId":"rdl","homeReplacementId":""},
+  {"id":"db-deadlift","name":"Dumbbell Deadlift","primary":["Hamstrings","Glutes"],"secondary":["Back","Core"],"pattern":"Hinge","type":"Compound","equipment":["dumbbells"],"equipmentAny":[],"machine":false,"swapId":"rdl","homeReplacementId":""},
+  {"id":"rdl","name":"Romanian Deadlift","primary":["Hamstrings"],"secondary":["Glutes","Back"],"pattern":"Hinge","type":"Compound","equipment":[],"equipmentAny":["barbell","dumbbells"],"machine":false,"swapId":"hip-thrust","homeReplacementId":""},
+  {"id":"leg-curl","name":"Seated Leg Curl","primary":["Hamstrings"],"secondary":[],"pattern":"Knee flexion","type":"Isolation","equipment":["machine"],"equipmentAny":[],"machine":true,"swapId":"rdl","homeReplacementId":"rdl"},
+  {"id":"hip-thrust","name":"Hip Thrust","primary":["Glutes"],"secondary":["Hamstrings"],"pattern":"Hip extension","type":"Compound","equipment":["bench"],"equipmentAny":["barbell","dumbbells"],"machine":false,"swapId":"rdl","homeReplacementId":""},
+  {"id":"glute-bridge","name":"Glute Bridge","primary":["Glutes"],"secondary":["Hamstrings"],"pattern":"Hip extension","type":"Isolation","equipment":[],"equipmentAny":[],"machine":false,"swapId":"hip-thrust","homeReplacementId":""},
+  {"id":"lateral-leg-raise","name":"Lateral Leg Raise","primary":["Glutes"],"secondary":[],"pattern":"Hip abduction","type":"Isolation","equipment":[],"equipmentAny":[],"machine":false,"swapId":"clamshell","homeReplacementId":""},
+  {"id":"ohp","name":"Overhead Press","primary":["Shoulders"],"secondary":["Triceps"],"pattern":"Vertical push","type":"Compound","equipment":[],"equipmentAny":["barbell","dumbbells"],"machine":false,"swapId":"db-lateral-raise","homeReplacementId":""},
+  {"id":"db-shoulder-press","name":"Dumbbell Shoulder Press","primary":["Shoulders"],"secondary":["Triceps"],"pattern":"Vertical push","type":"Compound","equipment":["dumbbells"],"equipmentAny":[],"machine":false,"swapId":"ohp","homeReplacementId":""},
+  {"id":"lateral-raise","name":"Cable Lateral Raise","primary":["Shoulders"],"secondary":[],"pattern":"Shoulder isolation","type":"Isolation","equipment":["machine"],"equipmentAny":[],"machine":true,"swapId":"db-lateral-raise","homeReplacementId":"db-lateral-raise"},
+  {"id":"db-lateral-raise","name":"Dumbbell Lateral Raise","primary":["Shoulders"],"secondary":[],"pattern":"Shoulder isolation","type":"Isolation","equipment":["dumbbells"],"equipmentAny":[],"machine":false,"swapId":"ohp","homeReplacementId":""},
+  {"id":"rear-delt-fly","name":"Reverse Pec Deck","primary":["Shoulders"],"secondary":["Back"],"pattern":"Rear-delt isolation","type":"Isolation","equipment":["machine"],"equipmentAny":[],"machine":true,"swapId":"db-rear-delt-fly","homeReplacementId":"db-rear-delt-fly"},
+  {"id":"db-rear-delt-fly","name":"Bent-Over Dumbbell Rear-Delt Fly","primary":["Shoulders"],"secondary":["Back"],"pattern":"Rear-delt isolation","type":"Isolation","equipment":["dumbbells"],"equipmentAny":[],"machine":false,"swapId":"one-arm-db-row","homeReplacementId":""},
+  {"id":"shrug","name":"Dumbbell / Barbell Shrug","primary":["Back"],"secondary":["Shoulders"],"pattern":"Scapular elevation","type":"Isolation","equipment":[],"equipmentAny":["dumbbells","barbell"],"machine":false,"swapId":"one-arm-db-row","homeReplacementId":""},
+  {"id":"curl","name":"Dumbbell Curl","primary":["Biceps"],"secondary":[],"pattern":"Elbow flexion","type":"Isolation","equipment":["dumbbells"],"equipmentAny":[],"machine":false,"swapId":"pull-up","homeReplacementId":""},
+  {"id":"barbell-curl","name":"Barbell Curl","primary":["Biceps"],"secondary":[],"pattern":"Elbow flexion","type":"Isolation","equipment":["barbell"],"equipmentAny":[],"machine":false,"swapId":"curl","homeReplacementId":""},
+  {"id":"21s-curl","name":"21s Bicep Curl","primary":["Biceps"],"secondary":[],"pattern":"Elbow flexion","type":"Isolation","equipment":[],"equipmentAny":["dumbbells","barbell"],"machine":false,"swapId":"curl","homeReplacementId":""},
+  {"id":"concentration-curl","name":"Concentration Curl","primary":["Biceps"],"secondary":[],"pattern":"Elbow flexion","type":"Isolation","equipment":["dumbbells"],"equipmentAny":[],"machine":false,"swapId":"curl","homeReplacementId":""},
+  {"id":"behind-back-wrist-curl","name":"Behind-the-Back Barbell Wrist Curl","primary":[],"secondary":[],"pattern":"Wrist flexion","type":"Isolation","equipment":["barbell"],"equipmentAny":[],"machine":false,"swapId":"","homeReplacementId":""},
+  {"id":"behind-back-bicep-wrist-curl","name":"Behind-the-Back Barbell Bicep Wrist Curl","primary":[],"secondary":[],"pattern":"Wrist flexion","type":"Isolation","equipment":["barbell"],"equipmentAny":[],"machine":false,"swapId":"behind-back-wrist-curl","homeReplacementId":""},
+  {"id":"pressdown","name":"Cable Pressdown","primary":["Triceps"],"secondary":[],"pattern":"Elbow extension","type":"Isolation","equipment":["machine"],"equipmentAny":[],"machine":true,"swapId":"db-triceps-extension","homeReplacementId":"db-triceps-extension"},
+  {"id":"db-triceps-extension","name":"Dumbbell Overhead Triceps Extension","primary":["Triceps"],"secondary":[],"pattern":"Elbow extension","type":"Isolation","equipment":["dumbbells"],"equipmentAny":[],"machine":false,"swapId":"dip","homeReplacementId":""},
+  {"id":"dip","name":"Triceps Dip","primary":["Triceps"],"secondary":["Chest","Shoulders"],"pattern":"Dip","type":"Compound","equipment":["pullupDipBar"],"equipmentAny":[],"machine":false,"swapId":"db-triceps-extension","homeReplacementId":""},
+  {"id":"calf-raise","name":"Dumbbell Standing Calf Raise","primary":["Calves"],"secondary":[],"pattern":"Ankle extension","type":"Isolation","equipment":["dumbbells"],"equipmentAny":[],"machine":false,"swapId":"split-squat","homeReplacementId":""},
+  {"id":"standing-calf-raise","name":"Standing Calf Raise","primary":["Calves"],"secondary":[],"pattern":"Ankle extension","type":"Isolation","equipment":[],"equipmentAny":[],"machine":false,"swapId":"calf-raise","homeReplacementId":""},
+  {"id":"barbell-single-leg-calf-raise","name":"Barbell Single-Leg Standing Calf Raise","primary":["Calves"],"secondary":["Core"],"pattern":"Ankle extension","type":"Isolation","equipment":["barbell","squatRack"],"equipmentAny":[],"machine":false,"swapId":"calf-raise","homeReplacementId":""},
+  {"id":"plank","name":"Cable Pallof Press","primary":["Core"],"secondary":[],"pattern":"Anti-rotation","type":"Isolation","equipment":["machine"],"equipmentAny":[],"machine":true,"swapId":"dead-bug","homeReplacementId":"dead-bug"},
+  {"id":"dead-bug","name":"Dead Bug","primary":["Core"],"secondary":[],"pattern":"Trunk control","type":"Isolation","equipment":[],"equipmentAny":[],"machine":false,"swapId":"pull-up","homeReplacementId":""},
+  {"id":"plank-hold","name":"Plank","primary":["Core"],"secondary":["Shoulders"],"pattern":"Anti-extension","type":"Isolation","equipment":[],"equipmentAny":[],"machine":false,"swapId":"dead-bug","homeReplacementId":""},
+  {"id":"crunch","name":"Crunch","primary":["Core"],"secondary":[],"pattern":"Trunk flexion","type":"Isolation","equipment":[],"equipmentAny":[],"machine":false,"swapId":"dead-bug","homeReplacementId":""},
+  {"id":"flutter-kicks","name":"Flutter Kicks","primary":["Core"],"secondary":[],"pattern":"Trunk flexion","type":"Isolation","equipment":[],"equipmentAny":[],"machine":false,"swapId":"ab-scissors","homeReplacementId":""},
+  {"id":"heel-taps","name":"Heel Taps","primary":["Core"],"secondary":[],"pattern":"Lateral trunk flexion","type":"Isolation","equipment":[],"equipmentAny":[],"machine":false,"swapId":"crunch","homeReplacementId":""},
+  {"id":"lying-leg-raise","name":"Lying Leg Raise","primary":["Core"],"secondary":[],"pattern":"Trunk flexion","type":"Isolation","equipment":[],"equipmentAny":[],"machine":false,"swapId":"parallel-bar-leg-raise","homeReplacementId":""},
+  {"id":"weighted-russian-twist","name":"Weighted Russian Twist","primary":["Core"],"secondary":[],"pattern":"Trunk rotation","type":"Isolation","equipment":["dumbbells"],"equipmentAny":[],"machine":false,"swapId":"dead-bug","homeReplacementId":""},
+  {"id":"bird-dog","name":"Bird Dog","primary":["Core"],"secondary":["Glutes","Back"],"pattern":"Trunk control","type":"Isolation","equipment":[],"equipmentAny":[],"machine":false,"swapId":"dead-bug","homeReplacementId":""},
+  {"id":"ab-scissors","name":"Ab Scissors","primary":["Core"],"secondary":[],"pattern":"Trunk flexion","type":"Isolation","equipment":[],"equipmentAny":[],"machine":false,"swapId":"dead-bug","homeReplacementId":""},
+  {"id":"parallel-bar-leg-raise","name":"Parallel Bar Leg Raise","primary":["Core"],"secondary":["Shoulders"],"pattern":"Trunk flexion","type":"Compound","equipment":["pullupDipBar"],"equipmentAny":[],"machine":false,"swapId":"ab-scissors","homeReplacementId":""},
+  {"id":"clamshell","name":"Clamshell","primary":["Glutes"],"secondary":[],"pattern":"Hip abduction","type":"Isolation","equipment":[],"equipmentAny":[],"machine":false,"swapId":"frog-pump","homeReplacementId":""},
+  {"id":"frog-pump","name":"Frog Pump","primary":["Glutes"],"secondary":["Hamstrings"],"pattern":"Hip extension","type":"Isolation","equipment":[],"equipmentAny":[],"machine":false,"swapId":"hip-thrust","homeReplacementId":""},
+  {"id":"lying-neck-curl","name":"Lying Neck Curl","primary":[],"secondary":[],"pattern":"Neck flexion","type":"Isolation","equipment":["bench"],"equipmentAny":[],"machine":false,"swapId":"","homeReplacementId":""},
+];
+
+export const EXERCISE_BY_ID = new Map(EXERCISE_CATALOG.map((exercise) => [exercise.id, exercise]));
+
+export function isExerciseAvailable(
+  exercise: ExerciseCatalogItem,
+  equipment: Record<string, boolean>,
+): boolean {
+  const hasAllRequired = exercise.equipment.every((item) => equipment[item] !== false);
+  const hasAnyAlternative = exercise.equipmentAny.length === 0
+    || exercise.equipmentAny.some((item) => equipment[item] !== false);
+  return hasAllRequired && hasAnyAlternative;
+}

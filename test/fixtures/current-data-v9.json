@@ -1,0 +1,176 @@
+{
+  "schemaVersion": 9,
+  "profile": {
+    "name": "Fixture athlete",
+    "goal": "hypertrophy",
+    "days": 4,
+    "experience": "intermediate",
+    "equipment": {
+      "dumbbells": true,
+      "barbell": true,
+      "bench": true,
+      "pullupDipBar": true,
+      "squatRack": false,
+      "inclineBench": false,
+      "machine": false
+    },
+    "equipmentProfileVersion": 3,
+    "showMachineExercises": false,
+    "loadIncrementKg": 2.5,
+    "locale": "en",
+    "units": "kg"
+  },
+  "targets": {
+    "Chest": [8, 14],
+    "Back": [10, 16],
+    "Quads": [8, 14],
+    "Hamstrings": [8, 14],
+    "Glutes": [6, 12],
+    "Shoulders": [8, 14],
+    "Biceps": [6, 12],
+    "Triceps": [6, 12],
+    "Calves": [6, 12],
+    "Core": [4, 10]
+  },
+  "customExercises": [],
+  "routines": [
+    {
+      "id": "routine-upper",
+      "name": "Upper",
+      "notes": "Fixture routine",
+      "weekdays": [1, 4],
+      "entries": [
+        {
+          "exerciseId": "db-bench",
+          "targetSets": 3,
+          "targetRir": 2,
+          "notes": ""
+        },
+        {
+          "exerciseId": "one-arm-db-row",
+          "targetSets": 3,
+          "targetRir": 2,
+          "notes": ""
+        }
+      ],
+      "createdAt": "2026-07-01T08:00:00.000Z"
+    }
+  ],
+  "importAliases": {},
+  "exercisePreferences": {},
+  "favoriteExercises": ["db-bench"],
+  "libraryPreferences": {
+    "availableOnly": true,
+    "density": "comfortable",
+    "sort": "recent"
+  },
+  "importBatches": [
+    {
+      "id": "fitatu-import-fixture",
+      "importedAt": "2026-08-02T08:00:00.000Z",
+      "fileName": "fitatu-fixture.csv",
+      "source": "fitatu-csv",
+      "kind": "nutrition",
+      "workoutCount": 0,
+      "dayCount": 1,
+      "scope": "all",
+      "mode": "merge",
+      "added": 1,
+      "updated": 0,
+      "unchanged": 0,
+      "conflicted": 0,
+      "rejected": 0,
+      "affectedDates": ["2026-08-01"]
+    }
+  ],
+  "bodyMetrics": [
+    {
+      "id": "body-2026-08-01",
+      "date": "2026-08-01",
+      "weightKg": 80.4,
+      "bodyFatPercent": 16.2,
+      "note": "",
+      "recordedAt": "2026-08-01T07:00:00.000Z"
+    }
+  ],
+  "nutritionDays": [
+    {
+      "id": "fitatu-2026-08-01",
+      "date": "2026-08-01",
+      "caloriesKcal": 2410,
+      "proteinG": 146,
+      "carbsG": 260,
+      "fatG": 74,
+      "fiberG": 28,
+      "source": "fitatu-csv",
+      "sourceIdentity": "fitatu:2026-08-01",
+      "contentFingerprint": "fixture-nutrition-fingerprint",
+      "sourceRowCount": 4,
+      "aggregation": "items",
+      "importBatchId": "fitatu-import-fixture",
+      "importedAt": "2026-08-02T08:00:00.000Z"
+    }
+  ],
+  "recoveryCheckins": [
+    {
+      "id": "recovery-2026-08-02",
+      "date": "2026-08-02",
+      "sleepHours": 7.5,
+      "energy": 4,
+      "soreness": 2,
+      "stress": 2,
+      "painConcern": false,
+      "note": "",
+      "recordedAt": "2026-08-02T07:30:00.000Z"
+    }
+  ],
+  "integrations": {
+    "garmin": {
+      "status": "setup-required",
+      "lastSyncAt": null
+    },
+    "fitatu": {
+      "status": "imported",
+      "lastImportAt": "2026-08-02T08:00:00.000Z",
+      "lastFileName": "fitatu-fixture.csv"
+    }
+  },
+  "appMeta": {
+    "lastBackupAt": null,
+    "lastSavedAt": "2026-08-02T08:10:00.000Z"
+  },
+  "workouts": [
+    {
+      "id": "fixture-workout",
+      "source": "manual",
+      "date": "2026-08-01",
+      "name": "Upper",
+      "duration": 52,
+      "notes": "",
+      "startTime": "2026-08-01T16:00:00.000Z",
+      "endTime": "2026-08-01T16:52:00.000Z",
+      "entries": [
+        {
+          "exerciseId": "db-bench",
+          "measurementMode": "load_reps",
+          "loadMode": "per_hand",
+          "repMode": "total",
+          "sets": [
+            {
+              "index": 0,
+              "type": "normal",
+              "measurementMode": "load_reps",
+              "weightKg": 24,
+              "reps": 10,
+              "rir": 3,
+              "effortSource": "manual"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "futureCompatibleField": {
+    "preserved": true
+  }
+}
