@@ -81,6 +81,15 @@ export function AppShell({
             Liftwise
           </button>
           <p>Saved on this device</p>
+          <button
+            className="mobile-settings"
+            type="button"
+            aria-label="Settings & data"
+            aria-current={activeView === "settings" ? "page" : undefined}
+            onClick={() => onNavigate("settings")}
+          >
+            <span aria-hidden="true">⚙</span>
+          </button>
           <a className="legacy-link" href="./index.html">
             Open current workout logger
           </a>

@@ -261,6 +261,90 @@ describe("modern application shell", () => {
     screen.getByText(/do not prove that a recovery input caused/i);
   });
 
+  test("shows neutral body trends and nutrition completeness without filling missing days", async () => {
+    seed({
+      bodyMetrics: [
+        { id: "one", date: "2026-07-15", weightKg: 80, bodyFatPercent: 20, note: "", recordedAt: "" },
+        { id: "two", date: "2026-07-22", weightKg: 79.5, bodyFatPercent: 19.8, note: "", recordedAt: "" },
+        { id: "three", date: "2026-07-29", weightKg: 79, bodyFatPercent: 19.6, note: "", recordedAt: "" },
+      ],
+    });
+    const user = userEvent.setup();
+    render(<App />);
+
+    await user.click(screen.getByRole("button", { name: "Body & nutrition" }));
+    screen.getByRole("heading", { name: "Weight decreased" });
+    screen.getByText(/Median recorded change: -0.5 kg per week/i);
+    screen.getByRole("heading", { name: /Recent nutrition · 1 of 7 days imported/i });
+    screen.getByText(/Missing days are excluded, never treated as zero/i);
+
+    await user.selectOptions(screen.getByLabelText("Measurement"), "bodyFatPercent");
+    screen.getByRole("heading", { name: "Body fat decreased" });
+  });
+
+  test("persists library favorites and availability preferences and explains empty filters", async () => {
+    seed({
+      favoriteExercises: [],
+      libraryPreferences: {
+        ...fixture.libraryPreferences,
+        availableOnly: false,
+      },
+    });
+    const user = userEvent.setup();
+    render(<App />);
+
+    await user.click(screen.getByRole("button", { name: "Library" }));
+    await user.click(screen.getByRole("button", {
+      name: "Add Dumbbell Bench Press to favorites",
+    }));
+    await user.click(screen.getByRole("button", { name: "Available now" }));
+
+    const saved = JSON.parse(window.localStorage.getItem(STORAGE_KEY) ?? "{}");
+    assert.ok(saved.favoriteExercises.includes("db-bench"));
+    assert.equal(saved.libraryPreferences.availableOnly, true);
+
+    await user.type(screen.getByLabelText("Search exercises"), "no-such-exercise");
+    screen.getByText(/No exercise matches every current filter/i);
+    await user.click(screen.getByRole("button", { name: "Clear filters" }));
+    screen.getByText(/matching exercises/i);
+  });
+
+  test("validates and previews a full backup before replacing local data", async () => {
+    seed();
+    window.location.hash = "#settings";
+    const user = userEvent.setup();
+    render(<App />);
+    const fileInput = screen.getByLabelText("Choose Liftwise backup");
+    if (!(fileInput instanceof HTMLInputElement)) throw new Error("Expected backup file input");
+
+    await user.upload(fileInput, new File(["{broken"], "broken.json", {
+      type: "application/json",
+    }));
+    await screen.findByRole("alert");
+    screen.getByText(/Current local data was not changed/i);
+
+    const restored = {
+      ...fixture,
+      profile: { ...fixture.profile, name: "Restored athlete" },
+      workouts: [],
+    };
+    await user.upload(fileInput, new File([JSON.stringify(restored)], "backup.json", {
+      type: "application/json",
+    }));
+    await screen.findByRole("heading", { name: /Restored athlete · schema v9/i });
+    const replace = screen.getByRole("button", { name: "Replace with this backup" });
+    assert.equal((replace as HTMLButtonElement).disabled, true);
+
+    await user.click(screen.getByRole("checkbox", {
+      name: /replace all current local data/i,
+    }));
+    await user.click(replace);
+    await screen.findByText(/Backup restored/i);
+    const saved = JSON.parse(window.localStorage.getItem(STORAGE_KEY) ?? "{}");
+    assert.equal(saved.profile.name, "Restored athlete");
+    assert.equal(saved.workouts.length, 0);
+  });
+
   test("leaves corrupt source text recoverable", () => {
     window.localStorage.setItem(STORAGE_KEY, "{broken");
     render(<App />);

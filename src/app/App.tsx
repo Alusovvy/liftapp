@@ -180,6 +180,38 @@ export function App() {
     }
   };
 
+  const exportBackup = () => {
+    if (!data) return;
+    try {
+      const serialized = repository.export(data);
+      const blob = new Blob([serialized], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const anchor = document.createElement("a");
+      anchor.href = url;
+      anchor.download = `liftwise-backup-${new Date().toISOString().slice(0, 10)}.json`;
+      anchor.click();
+      URL.revokeObjectURL(url);
+      setSaveError(null);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Unknown export error";
+      setSaveError(`The backup could not be exported: ${message}`);
+    }
+  };
+
+  const restoreBackup = (restored: typeof data) => {
+    try {
+      repository.save(restored);
+      draftRepository.clear();
+      setWorkoutDraft(null);
+      setData(restored);
+      setSaveError(null);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Unknown restore error";
+      setSaveError(`The backup could not be restored: ${message}`);
+      throw error;
+    }
+  };
+
   return (
     <AppShell
       activeView={view}
@@ -204,9 +236,15 @@ export function App() {
         />
       ) : null}
       {view === "progress" ? <ProgressPage data={data} onOpenTrain={() => navigate("train")} /> : null}
-      {view === "body" ? <BodyNutritionPage data={data} /> : null}
-      {view === "library" ? <LibraryPage data={data} /> : null}
-      {view === "settings" ? <SettingsPage data={data} /> : null}
+      {view === "body" ? <BodyNutritionPage data={data} onOpenImport={() => navigate("train")} /> : null}
+      {view === "library" ? <LibraryPage data={data} onDataChange={persistData} /> : null}
+      {view === "settings" ? (
+        <SettingsPage
+          data={data}
+          onExport={exportBackup}
+          onRestore={restoreBackup}
+        />
+      ) : null}
     </AppShell>
   );
 }

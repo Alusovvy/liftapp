@@ -4,6 +4,18 @@ This document describes the behavior implemented by the current Liftwise applica
 
 Implementation baseline: local data schema version 9.
 
+The repository currently ships two compatible entries during the incremental
+transformation:
+
+- `/modern.html` is the primary React/TypeScript experience for Today, focused
+  workouts, reviewed imports, routine optimization, Progress, Body & nutrition,
+  Library, and Settings & data.
+- `/` retains authoring and correction workflows that have not yet been migrated.
+
+Both entries use the same validated local dataset. The exact remaining migration,
+hardening, accessibility, PWA, and validation work is specified in
+[`REMAINING-WORK-SPEC.md`](REMAINING-WORK-SPEC.md).
+
 ## 1. Product and technical scope
 
 Liftwise is a local-first workout tracker focused on muscle-building training. Vite builds it into static files, so the deployed application does not require an account or application server.

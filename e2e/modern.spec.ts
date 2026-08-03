@@ -211,6 +211,85 @@ test("keeps progress decisions auditable and usable on a narrow screen", async (
   await expect(page.getByText(/do not prove that a recovery input caused/i)).toBeVisible();
 });
 
+test("keeps body context neutral, library choices persistent, and backup restore explicit", async ({ page }) => {
+  const phaseData = {
+    ...fixture,
+    favoriteExercises: [],
+    libraryPreferences: {
+      ...fixture.libraryPreferences,
+      availableOnly: false,
+    },
+    bodyMetrics: [
+      { id: "body-1", date: "2026-07-15", weightKg: 80, bodyFatPercent: 20, note: "", recordedAt: "" },
+      { id: "body-2", date: "2026-07-22", weightKg: 79.5, bodyFatPercent: 19.8, note: "", recordedAt: "" },
+      { id: "body-3", date: "2026-07-29", weightKg: 79, bodyFatPercent: 19.6, note: "", recordedAt: "" },
+    ],
+  };
+  await openModernApp(page, phaseData);
+
+  await page.getByRole("button", { name: "Body & nutrition" }).click();
+  await expect(page.getByRole("heading", { name: "Weight decreased" })).toBeVisible();
+  await expect(page.getByText(/Missing days are excluded, never treated as zero/i)).toBeVisible();
+
+  await page.getByRole("button", { name: "Library", exact: true }).click();
+  await page.getByRole("button", { name: "Add Dumbbell Bench Press to favorites" }).click();
+  await page.getByRole("button", { name: "Available now" }).click();
+  const preferences = await page.evaluate((key) => {
+    const data = JSON.parse(window.localStorage.getItem(key) ?? "{}");
+    return {
+      favorite: data.favoriteExercises.includes("db-bench"),
+      availableOnly: data.libraryPreferences.availableOnly,
+    };
+  }, storageKey);
+  expect(preferences).toEqual({ favorite: true, availableOnly: true });
+
+  await page.getByRole("button", { name: /Settings & data/ }).click();
+  await expect(page.getByRole("heading", { name: "Data safety" })).toBeVisible();
+  const downloadPromise = page.waitForEvent("download");
+  await page.getByRole("button", { name: "Download JSON backup" }).click();
+  const download = await downloadPromise;
+  expect(download.suggestedFilename()).toMatch(/^liftwise-backup-\d{4}-\d{2}-\d{2}\.json$/);
+
+  const replacement = {
+    ...phaseData,
+    profile: { ...phaseData.profile, name: "Restored in browser" },
+    workouts: [],
+  };
+  await page.getByLabel("Choose Liftwise backup").setInputFiles({
+    name: "replacement.json",
+    mimeType: "application/json",
+    buffer: Buffer.from(JSON.stringify(replacement)),
+  });
+  await expect(page.getByRole("heading", {
+    name: /Restored in browser · schema v9/i,
+  })).toBeVisible();
+  await expect(page.getByRole("button", {
+    name: "Replace with this backup",
+  })).toBeDisabled();
+  await page.getByRole("checkbox", {
+    name: /replace all current local data/i,
+  }).check();
+
+  const accessibility = await new AxeBuilder({ page })
+    .withTags(["wcag2a", "wcag2aa", "wcag21a", "wcag21aa"])
+    .analyze();
+  expect(accessibility.violations.filter(
+    ({ impact }) => impact === "serious" || impact === "critical",
+  )).toEqual([]);
+  const dimensions = await page.evaluate(() => ({
+    viewport: document.documentElement.clientWidth,
+    content: document.documentElement.scrollWidth,
+  }));
+  expect(dimensions.content).toBeLessThanOrEqual(dimensions.viewport);
+
+  await page.getByRole("button", { name: "Replace with this backup" }).click();
+  await expect(page.getByText(/Backup restored/i)).toBeVisible();
+  const restoredName = await page.evaluate((key) => (
+    JSON.parse(window.localStorage.getItem(key) ?? "{}").profile.name
+  ), storageKey);
+  expect(restoredName).toBe("Restored in browser");
+});
+
 test("keeps the primary experience usable at 320 pixels", async ({ page }) => {
   await openModernApp(page);
 

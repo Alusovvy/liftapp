@@ -3,22 +3,43 @@
 Liftwise is a local-first workout tracker that turns logged working sets into simple, explainable training prompts. It is an installable Vite web app: browser data stays local, and the production build remains deployable as static files without an account or application server.
 
 See [`FUNCTIONALITY.md`](FUNCTIONALITY.md) for the complete implemented feature, calculation, import/export, validation, and data-model reference.
+The approved work that remains after the current checkpoint is tracked in
+[`REMAINING-WORK-SPEC.md`](REMAINING-WORK-SPEC.md).
 
-## Run it locally
+## Launch the current app
 
 ```bash
 npm install
-npm run dev
+npm start
 ```
 
-Then open the URL printed by Vite (normally `http://localhost:5173`). Build deployable files with `npm run build`; `npm run preview` serves that production build locally. Any static HTTPS hosting service can publish the generated `dist/` directory. The generated service worker makes the application shell available offline after its first successful load.
+This starts Vite and opens the primary React/TypeScript interface at
+`http://localhost:5173/modern.html`. If the browser cannot be opened
+automatically, copy the URL printed by Vite and append `/modern.html`.
 
-Run the regression suite with:
+The transformation is intentionally at a stable coexistence checkpoint. The
+modern interface contains the decision-first Today, focused workout, imports,
+optimizer, Progress, Body & nutrition, Library, and backup/restore surfaces.
+Actions that have not yet been migrated link to the complete legacy tools at
+`http://localhost:5173/`; both interfaces read and validate the same local data.
+
+To check and preview the production build:
+
+```bash
+npm run check
+npm run test:e2e
+npm run preview:modern
+```
+
+Any static HTTPS hosting service can publish the generated `dist/` directory.
+The legacy interface remains the current PWA fallback until the final
+single-interface/PWA migration described in `REMAINING-WORK-SPEC.md`.
+
+Additional regression commands:
 
 ```bash
 npm test
 npm run test:coverage
-npm run check
 ```
 
 ## What it does
