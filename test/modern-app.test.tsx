@@ -1,6 +1,7 @@
 // @vitest-environment jsdom
 
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
 import { render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, test } from "vitest";
@@ -117,6 +118,62 @@ describe("modern application shell", () => {
     const undone = JSON.parse(window.localStorage.getItem(STORAGE_KEY) ?? "{}");
     assert.equal(undone.routines[0].entries.length, 2);
     assert.equal(undone.routineRevisions.length, 2);
+  });
+
+  test("routes Fitatu selection through preview, confirm, and exact import undo", async () => {
+    seed();
+    const user = userEvent.setup();
+    render(<App />);
+
+    await user.click(screen.getByRole("button", { name: /Train/i }));
+    await user.click(screen.getByRole("tab", { name: "Import" }));
+    await user.click(screen.getByRole("button", { name: /Meal \/ Fitatu import/i }));
+    const input = screen.getByLabelText("Fitatu meal-plan CSV");
+    if (!(input instanceof HTMLInputElement)) throw new Error("Expected Fitatu file input");
+    await user.upload(input, new File([
+      readFileSync("test/fixtures/fitatu-meal-plan.csv", "utf8"),
+    ], "fitatu-meal-plan.csv", { type: "text/csv" }));
+
+    await screen.findByRole("heading", { name: "Review fitatu-meal-plan.csv" });
+    screen.getByText(/Nothing has been written yet/);
+    await user.click(screen.getByRole("button", { name: "Confirm import" }));
+
+    await screen.findByText(/2 nutrition days added/i);
+    const imported = JSON.parse(window.localStorage.getItem(STORAGE_KEY) ?? "{}");
+    assert.equal(imported.nutritionDays.length, 3);
+    assert.equal(imported.importBatches.at(-1).kind, "nutrition");
+
+    await user.click(screen.getByRole("button", { name: "Undo last import" }));
+    await screen.findByText(/exact pre-import data was restored/i);
+    const restored = JSON.parse(window.localStorage.getItem(STORAGE_KEY) ?? "{}");
+    assert.equal(restored.nutritionDays.length, 1);
+  });
+
+  test("imports workout CSV with visible preview and traceable default RIR", async () => {
+    seed();
+    const user = userEvent.setup();
+    render(<App />);
+
+    await user.click(screen.getByRole("button", { name: /Train/i }));
+    await user.click(screen.getByRole("tab", { name: "Import" }));
+    await user.click(screen.getByRole("button", { name: /^Workout import/i }));
+    const input = screen.getByLabelText("Workout CSV");
+    if (!(input instanceof HTMLInputElement)) throw new Error("Expected workout file input");
+    await user.upload(input, new File([
+      readFileSync("test/fixtures/hevy-workouts.csv", "utf8"),
+    ], "hevy-workouts.csv", { type: "text/csv" }));
+
+    await screen.findByRole("heading", { name: "Review hevy-workouts.csv" });
+    screen.getByText(/unmapped custom exercises/i);
+    await user.click(screen.getByRole("button", { name: "Confirm import" }));
+
+    await screen.findByText(/1 workout added/i);
+    const imported = JSON.parse(window.localStorage.getItem(STORAGE_KEY) ?? "{}");
+    const importedWorkout = imported.workouts.find((workout: { source?: string }) => (
+      workout.source === "hevy-csv"
+    ));
+    assert.equal(importedWorkout.entries[0].sets[0].rir, 3);
+    assert.equal(importedWorkout.entries[0].sets[0].effortSource, "defaulted");
   });
 
   test("leaves corrupt source text recoverable", () => {

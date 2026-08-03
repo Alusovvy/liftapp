@@ -59,6 +59,7 @@ a { color: inherit; }
 .topbar-actions { display: flex; align-items: center; gap: 8px; }
 .text-button, .secondary-button, .dark-button, .primary-button { border: 0; border-radius: 9px; font-size: 12px; font-weight: 700; transition: transform .16s ease, box-shadow .16s ease, background .16s ease; }
 .text-button { padding: 10px 9px; color: var(--muted); background: transparent; }
+.topbar-actions a.text-button { text-decoration: none; }
 .text-button:hover { color: var(--ink); }
 .import-label { cursor: pointer; }
 .import-label input { display: none; }

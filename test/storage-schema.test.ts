@@ -4,6 +4,7 @@ import { describe, test } from "vitest";
 import { LiftwiseDataSchema } from "../src/domain/models/schema";
 import {
   CORRUPT_STORAGE_KEY,
+  IMPORT_UNDO_KEY,
   LiftwiseStorageRepository,
   STORAGE_KEY,
   type StoragePort,
@@ -86,5 +87,19 @@ describe("current persisted schema", () => {
 
     assert.equal(result.status, "corrupt");
     assert.match(result.status === "corrupt" ? result.message : "", /validation/i);
+  });
+
+  test("treats malformed import undo records as unavailable", () => {
+    const storage = new MemoryStorage();
+    const repository = new LiftwiseStorageRepository(storage);
+    storage.setItem(IMPORT_UNDO_KEY, "{broken");
+    assert.equal(repository.hasImportUndo(), false);
+
+    storage.setItem(IMPORT_UNDO_KEY, JSON.stringify({ snapshot: 42 }));
+    assert.equal(repository.hasImportUndo(), false);
+    assert.throws(() => repository.undoLastImport(), /invalid/i);
+
+    storage.removeItem(IMPORT_UNDO_KEY);
+    assert.throws(() => repository.undoLastImport(), /No import undo/i);
   });
 });

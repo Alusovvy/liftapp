@@ -82,6 +82,34 @@ export function App() {
     }
   };
 
+  const persistImport = (
+    next: typeof data,
+    previous: typeof data,
+    batchId: string,
+  ) => {
+    try {
+      repository.saveWithImportUndo(next, previous, batchId);
+      setData(next);
+      setSaveError(null);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Unknown storage error";
+      setSaveError(`The import was not saved: ${message}`);
+      throw error;
+    }
+  };
+
+  const undoLastImport = () => {
+    try {
+      const restored = repository.undoLastImport();
+      setData(restored);
+      setSaveError(null);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Unknown undo error";
+      setSaveError(`Import undo failed: ${message}`);
+      throw error;
+    }
+  };
+
   return (
     <AppShell
       activeView={view}
@@ -90,7 +118,15 @@ export function App() {
     >
       {saveError ? <div className="save-error" role="alert">{saveError}</div> : null}
       {view === "today" ? <TodayPage data={data} onOpenProgress={() => navigate("progress")} /> : null}
-      {view === "train" ? <TrainPage data={data} onDataChange={persistData} /> : null}
+      {view === "train" ? (
+        <TrainPage
+          data={data}
+          importUndoAvailable={repository.hasImportUndo()}
+          onDataChange={persistData}
+          onImportCommit={persistImport}
+          onUndoImport={undoLastImport}
+        />
+      ) : null}
       {view === "progress" ? <ProgressPage data={data} /> : null}
       {view === "body" ? <BodyNutritionPage data={data} /> : null}
       {view === "library" ? <LibraryPage data={data} /> : null}

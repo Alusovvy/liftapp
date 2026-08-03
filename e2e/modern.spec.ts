@@ -1,6 +1,7 @@
 import AxeBuilder from "@axe-core/playwright";
 import { expect, test, type Page } from "@playwright/test";
 import fixture from "../test/fixtures/current-data-v9.json" with { type: "json" };
+import path from "node:path";
 
 const storageKey = "liftwise-data-v1";
 
@@ -64,6 +65,73 @@ test("has no serious or critical automated accessibility findings", async ({ pag
   );
 
   expect(blocking).toEqual([]);
+});
+
+test("imports the supplied Fitatu format through preview, confirm, and undo", async ({ page }) => {
+  await openModernApp(page);
+
+  await page.getByRole("button", { name: "Train", exact: true }).click();
+  await page.getByRole("tab", { name: "Import" }).click();
+  await page.getByRole("button", { name: /^Meal \/ Fitatu import/i }).click();
+  await page.getByLabel("Fitatu meal-plan CSV").setInputFiles(
+    path.resolve("test/fixtures/fitatu-meal-plan.csv"),
+  );
+
+  await expect(page.getByRole("heading", {
+    name: "Review fitatu-meal-plan.csv",
+  })).toBeVisible();
+  await expect(page.getByText(/Nothing has been written yet/)).toBeVisible();
+  const previewAccessibility = await new AxeBuilder({ page })
+    .withTags(["wcag2a", "wcag2aa", "wcag21a", "wcag21aa"])
+    .analyze();
+  expect(previewAccessibility.violations.filter(
+    ({ impact }) => impact === "serious" || impact === "critical",
+  )).toEqual([]);
+  await page.getByRole("button", { name: "Confirm import" }).click();
+  await expect(page.getByText(/2 nutrition days added/)).toBeVisible();
+
+  await page.getByRole("button", { name: "Undo last import" }).click();
+  await expect(page.getByText(/exact pre-import data was restored/)).toBeVisible();
+
+  await page.getByLabel("Fitatu meal-plan CSV").setInputFiles({
+    name: "wrong.csv",
+    mimeType: "text/csv",
+    buffer: Buffer.from("wrong,columns\none,two"),
+  });
+  await expect(page.getByRole("alert")).toContainText("Import stopped safely");
+  await expect(page.getByRole("alert")).toContainText("existing data was not changed");
+});
+
+test("imports workout CSV with traceable default effort and source history", async ({ page }) => {
+  await openModernApp(page);
+
+  await page.getByRole("button", { name: "Train", exact: true }).click();
+  await page.getByRole("tab", { name: "Import" }).click();
+  await page.getByRole("button", { name: /^Workout import/i }).click();
+  await page.getByLabel("Workout CSV").setInputFiles(
+    path.resolve("test/fixtures/hevy-workouts.csv"),
+  );
+
+  await expect(page.getByRole("heading", {
+    name: "Review hevy-workouts.csv",
+  })).toBeVisible();
+  await expect(page.getByText(/unmapped custom exercises/i)).toBeVisible();
+  await page.getByRole("button", { name: "Confirm import" }).click();
+  await expect(page.getByText(/1 workout added/)).toBeVisible();
+
+  const importedSet = await page.evaluate((key) => {
+    const data = JSON.parse(window.localStorage.getItem(key) ?? "{}");
+    const workout = data.workouts.find((item: { source?: string }) => item.source === "hevy-csv");
+    return workout.entries[0].sets[0];
+  }, storageKey);
+  expect(importedSet).toMatchObject({
+    rir: 3,
+    effortSource: "defaulted",
+    defaultedRir: true,
+  });
+
+  await page.getByRole("tab", { name: "History" }).click();
+  await expect(page.getByText("Imported").first()).toBeVisible();
 });
 
 test("keeps the primary experience usable at 320 pixels", async ({ page }) => {

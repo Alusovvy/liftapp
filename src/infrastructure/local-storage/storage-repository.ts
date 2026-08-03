@@ -2,6 +2,7 @@ import { LiftwiseDataSchema, type LiftwiseData } from "../../domain/models/schem
 
 export const STORAGE_KEY = "liftwise-data-v1";
 export const CORRUPT_STORAGE_KEY = "liftwise-data-corrupt";
+export const IMPORT_UNDO_KEY = "liftwise-import-undo";
 
 export interface StoragePort {
   getItem(key: string): string | null;
@@ -54,6 +55,57 @@ export class LiftwiseStorageRepository {
   import(raw: string): LiftwiseData {
     const parsed: unknown = JSON.parse(raw);
     return LiftwiseDataSchema.parse(parsed);
+  }
+
+  saveWithImportUndo(
+    data: LiftwiseData,
+    previousData: LiftwiseData,
+    batchId: string,
+    createdAt = new Date().toISOString(),
+  ): void {
+    const validated = LiftwiseDataSchema.parse(data);
+    const validatedPrevious = LiftwiseDataSchema.parse(previousData);
+    const previousUndo = this.storage.getItem(IMPORT_UNDO_KEY);
+    try {
+      this.storage.setItem(IMPORT_UNDO_KEY, JSON.stringify({
+        batchId,
+        createdAt,
+        snapshot: JSON.stringify(validatedPrevious),
+      }));
+      this.storage.setItem(STORAGE_KEY, JSON.stringify(validated));
+    } catch (error) {
+      try {
+        if (previousUndo === null) this.storage.removeItem(IMPORT_UNDO_KEY);
+        else this.storage.setItem(IMPORT_UNDO_KEY, previousUndo);
+      } catch {
+        // Preserve the original storage error; recovery tools can inspect either snapshot.
+      }
+      throw error;
+    }
+  }
+
+  hasImportUndo(): boolean {
+    try {
+      const raw = this.storage.getItem(IMPORT_UNDO_KEY);
+      if (!raw) return false;
+      const record = JSON.parse(raw) as { snapshot?: unknown };
+      return typeof record.snapshot === "string";
+    } catch {
+      return false;
+    }
+  }
+
+  undoLastImport(): LiftwiseData {
+    const raw = this.storage.getItem(IMPORT_UNDO_KEY);
+    if (!raw) throw new Error("No import undo snapshot is available.");
+    const record = JSON.parse(raw) as { snapshot?: unknown };
+    if (typeof record.snapshot !== "string") {
+      throw new Error("The import undo snapshot is invalid.");
+    }
+    const restored = this.import(record.snapshot);
+    this.save(restored);
+    this.storage.removeItem(IMPORT_UNDO_KEY);
+    return restored;
   }
 
   private preserveCorrupt(raw: string): void {

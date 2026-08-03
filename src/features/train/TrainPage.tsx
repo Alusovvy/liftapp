@@ -1,11 +1,19 @@
 import { useState } from "react";
 import type { LiftwiseData } from "../../domain/models/schema";
 import { EXERCISE_BY_ID } from "../../domain/exercises/catalog";
+import { ImportPage } from "./import/ImportPage";
 import { OptimizePlanPage } from "./optimize/OptimizePlanPage";
 
 type TrainPageProps = {
   data: LiftwiseData;
+  importUndoAvailable: boolean;
   onDataChange: (data: LiftwiseData) => void;
+  onImportCommit: (
+    data: LiftwiseData,
+    previousData: LiftwiseData,
+    batchId: string,
+  ) => void;
+  onUndoImport: () => void;
 };
 
 type TrainTab = "workout" | "routines" | "optimize" | "history" | "import";
@@ -18,7 +26,13 @@ const tabs: Array<{ id: TrainTab; label: string }> = [
   { id: "import", label: "Import" },
 ];
 
-export function TrainPage({ data, onDataChange }: TrainPageProps) {
+export function TrainPage({
+  data,
+  importUndoAvailable,
+  onDataChange,
+  onImportCommit,
+  onUndoImport,
+}: TrainPageProps) {
   const [tab, setTab] = useState<TrainTab>("workout");
   const latest = [...data.workouts].sort((a, b) => b.date.localeCompare(a.date))[0];
 
@@ -114,21 +128,12 @@ export function TrainPage({ data, onDataChange }: TrainPageProps) {
         ) : null}
 
         {tab === "import" ? (
-          <div className="import-choice">
-            <div>
-              <p className="eyebrow">Step 1 of 4</p>
-              <h2>What are you importing?</h2>
-              <p>Choose the data type before opening a file picker.</p>
-            </div>
-            <a className="import-option" href="./index.html">
-              <strong>Workout import</strong>
-              <span>Exercise sessions, sets, effort, and source provenance</span>
-            </a>
-            <a className="import-option" href="./index.html">
-              <strong>Meal / Fitatu import</strong>
-              <span>Daily calories, protein, carbohydrates, fat, and fiber</span>
-            </a>
-          </div>
+          <ImportPage
+            data={data}
+            undoAvailable={importUndoAvailable}
+            onCommit={onImportCommit}
+            onUndo={onUndoImport}
+          />
         ) : null}
       </section>
     </div>
