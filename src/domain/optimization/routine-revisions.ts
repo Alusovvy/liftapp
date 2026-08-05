@@ -4,15 +4,13 @@ import type {
   Routine,
   RoutineRevision,
 } from "../models/schema";
-import type {
-  CoverageChange,
-  OptimizationOpportunity,
-  RoutineEntryChange,
-} from "./types";
+import type { CoverageChange, OptimizationOpportunity, RoutineEntryChange } from "./types";
 
 export class StaleRoutineRevisionError extends Error {
   constructor() {
-    super("The routine changed after this preview was created. Review the updated plan before applying.");
+    super(
+      "The routine changed after this preview was created. Review the updated plan before applying.",
+    );
     this.name = "StaleRoutineRevisionError";
   }
 }
@@ -45,9 +43,11 @@ export function routineRevisionToken(routine: Routine): string {
 }
 
 function nextRevision(data: LiftwiseData, routineId: string): number {
-  return data.routineRevisions
-    .filter((revision) => revision.routineId === routineId)
-    .reduce((highest, revision) => Math.max(highest, revision.revision), 0) + 1;
+  return (
+    data.routineRevisions
+      .filter((revision) => revision.routineId === routineId)
+      .reduce((highest, revision) => Math.max(highest, revision.revision), 0) + 1
+  );
 }
 
 function replacementEntry(
@@ -56,8 +56,7 @@ function replacementEntry(
   firstSourceId: string,
 ): Routine["entries"][number] {
   const existing = current.entries.find((entry) => entry.exerciseId === proposal.exerciseId);
-  const source = existing
-    ?? current.entries.find((entry) => entry.exerciseId === firstSourceId);
+  const source = existing ?? current.entries.find((entry) => entry.exerciseId === firstSourceId);
   return {
     exerciseId: proposal.exerciseId,
     targetSets: proposal.targetSets,
@@ -77,9 +76,11 @@ export function routineAfterOpportunity(
   if (!proposedEntries.length) {
     throw new RoutineRevisionError("A routine proposal must contain at least one exercise.");
   }
-  if (proposedEntries.some(({ targetSets }) => (
-    !Number.isInteger(targetSets) || targetSets < 1 || targetSets > 20
-  ))) {
+  if (
+    proposedEntries.some(
+      ({ targetSets }) => !Number.isInteger(targetSets) || targetSets < 1 || targetSets > 20,
+    )
+  ) {
     throw new RoutineRevisionError("Proposed sets must be whole numbers between 1 and 20.");
   }
 
@@ -91,13 +92,12 @@ export function routineAfterOpportunity(
 
   const firstSourceIndex = routine.entries.findIndex(({ exerciseId }) => sourceIds.has(exerciseId));
   const untouched = routine.entries.filter(({ exerciseId }) => !sourceIds.has(exerciseId));
-  const replacements = proposedEntries.map((proposal) => (
-    replacementEntry(routine, proposal, firstSourceId)
-  ));
+  const replacements = proposedEntries.map((proposal) =>
+    replacementEntry(routine, proposal, firstSourceId),
+  );
   const insertionIndex = routine.entries
     .slice(0, firstSourceIndex)
-    .filter(({ exerciseId }) => !sourceIds.has(exerciseId))
-    .length;
+    .filter(({ exerciseId }) => !sourceIds.has(exerciseId)).length;
   const entries = [...untouched];
   entries.splice(insertionIndex, 0, ...replacements);
 
@@ -116,9 +116,8 @@ export function coverageForProposedEntries(
     return opportunity.coverage.map((item) => ({
       ...item,
       after: proposedSets,
-      tone: proposedSets === item.before
-        ? "preserved"
-        : proposedSets > item.before ? "gained" : "lost",
+      tone:
+        proposedSets === item.before ? "preserved" : proposedSets > item.before ? "gained" : "lost",
     }));
   }
   if (opportunity.kind === "time_saving_tradeoff") {
@@ -128,9 +127,12 @@ export function coverageForProposedEntries(
         return {
           ...item,
           after: compoundSets,
-          tone: compoundSets === item.before
-            ? "preserved"
-            : compoundSets > item.before ? "gained" : "lost",
+          tone:
+            compoundSets === item.before
+              ? "preserved"
+              : compoundSets > item.before
+                ? "gained"
+                : "lost",
         };
       }
       if (index === 2) {

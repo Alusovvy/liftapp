@@ -83,34 +83,30 @@ describe("typed workout CSV import", () => {
       "Upper,2026-08-01T16:00:00.000Z,Dumbbell Bench Press,0,52.91,10",
       "Upper,not-a-date,Dumbbell Bench Press,1,52.91,10",
     ].join("\n");
-    const pending = parseWorkoutCsv(
-      csv,
-      "partial.csv",
-      new Date("2026-08-03T10:00:00.000Z"),
-    );
+    const pending = parseWorkoutCsv(csv, "partial.csv", new Date("2026-08-03T10:00:00.000Z"));
 
     assert.equal(pending.workouts[0]?.entries[0]?.sets[0]?.weightKg, 24);
     assert.equal(pending.rejectedRows.length, 1);
     assert.match(pending.warnings.join(" "), /pounds/i);
-    assert.throws(() => commitWorkoutImport({
-      data: LiftwiseDataSchema.parse(fixture),
-      pending,
-      mode: "merge",
-      acceptValidRowsOnly: false,
-    }), /Confirm that only valid rows/i);
+    assert.throws(
+      () =>
+        commitWorkoutImport({
+          data: LiftwiseDataSchema.parse(fixture),
+          pending,
+          mode: "merge",
+          acceptValidRowsOnly: false,
+        }),
+      /Confirm that only valid rows/i,
+    );
   });
 
   test("supports alternate headers, Hevy dates, generic kilograms, warmups, and explicit RIR", () => {
     const csv = [
       "workout_name,date,exercise_name,set_type,weight,reps,rir",
-      "\"\",\"01 Aug 2026, 16:00\",Dumbbell Bicep Curl,warmup,8,12,",
-      "\"\",\"01 Aug 2026, 16:00\",Dumbbell Bicep Curl,normal,12,10,1",
+      '"","01 Aug 2026, 16:00",Dumbbell Bicep Curl,warmup,8,12,',
+      '"","01 Aug 2026, 16:00",Dumbbell Bicep Curl,normal,12,10,1',
     ].join("\n");
-    const pending = parseWorkoutCsv(
-      csv,
-      "alternate.csv",
-      new Date("2026-08-03T10:00:00.000Z"),
-    );
+    const pending = parseWorkoutCsv(csv, "alternate.csv", new Date("2026-08-03T10:00:00.000Z"));
     const workout = pending.workouts[0];
 
     assert.equal(workout?.name, "Imported workout");
@@ -176,10 +172,11 @@ describe("typed workout CSV import", () => {
 
   test("reports duplicate headers and rejects invalid rows without creating an empty import", () => {
     assert.throws(
-      () => parseWorkoutCsv(
-        "title,title,start_time,exercise_title\nA,A,2026-08-01T10:00:00Z,Curl",
-        "duplicate.csv",
-      ),
+      () =>
+        parseWorkoutCsv(
+          "title,title,start_time,exercise_title\nA,A,2026-08-01T10:00:00Z,Curl",
+          "duplicate.csv",
+        ),
       /duplicate column/i,
     );
     const invalid = [
@@ -201,9 +198,6 @@ describe("typed workout CSV import", () => {
       () => parseWorkoutCsv("wrong,columns\none,two", "wrong.csv"),
       /does not look like/i,
     );
-    assert.throws(
-      () => parseWorkoutCsv("x".repeat(10_000_001), "large.csv"),
-      /10 MB/i,
-    );
+    assert.throws(() => parseWorkoutCsv("x".repeat(10_000_001), "large.csv"), /10 MB/i);
   });
 });

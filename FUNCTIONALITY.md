@@ -184,11 +184,11 @@ Warm-ups are preserved but excluded from working-set calculations. Drop sets are
 
 ### Measurement modes
 
-| Mode | Required set values |
-|---|---|
-| Load + reps | Non-negative load and repetitions |
-| Reps only | Repetitions |
-| Duration | Positive duration in seconds |
+| Mode                | Required set values                                        |
+| ------------------- | ---------------------------------------------------------- |
+| Load + reps         | Non-negative load and repetitions                          |
+| Reps only           | Repetitions                                                |
+| Duration            | Positive duration in seconds                               |
 | Distance + duration | Positive distance and duration; optional/non-negative load |
 
 All qualified non-warm-up modes count as working sets. Timed and distance work is compared only with matching measurement/load conventions.

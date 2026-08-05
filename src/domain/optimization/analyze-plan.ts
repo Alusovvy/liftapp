@@ -4,11 +4,7 @@ import {
   type ExerciseCatalogItem,
 } from "../exercises/catalog";
 import type { Routine } from "../models/schema";
-import {
-  DO_NOT_COMBINE,
-  SAME_ROLE_GROUPS,
-  TIME_SAVING_RELATIONSHIPS,
-} from "./relationship-graph";
+import { DO_NOT_COMBINE, SAME_ROLE_GROUPS, TIME_SAVING_RELATIONSHIPS } from "./relationship-graph";
 import type {
   DoNotCombineObservation,
   OptimizationAnalysisInput,
@@ -54,7 +50,8 @@ function sameRoleOpportunities(
     const matching = group.exerciseIds
       .map((id) => byExerciseId.get(id))
       .filter((entry): entry is Routine["entries"][number] => Boolean(entry));
-    if (matching.length < 2 || matching.some((entry) => protectedIds.has(entry.exerciseId))) return [];
+    if (matching.length < 2 || matching.some((entry) => protectedIds.has(entry.exerciseId)))
+      return [];
 
     const [retained, removed] = matching;
     if (!retained || !removed) return [];
@@ -64,40 +61,49 @@ function sameRoleOpportunities(
     const retainedExercise = EXERCISE_BY_ID.get(retained.exerciseId);
     if (!retainedExercise || !isExerciseAvailable(retainedExercise, input.equipment)) return [];
 
-    return [{
-      id: `same-role:${input.routine.id}:${group.id}:${retained.exerciseId}`,
-      kind: "same_role" as const,
-      label: "Similar planned role",
-      title: `Use one ${group.roleLabel} variation instead of two`,
-      summary: `Keep ${retainedExercise.name} and consolidate ${targetSets} already planned sets into one exercise.`,
-      routineId: input.routine.id,
-      sourceEntries: matching.map(entryChange),
-      proposedEntries: [{
-        exerciseId: retained.exerciseId,
-        exerciseName: retainedExercise.name,
-        targetSets,
-      }],
-      preserved: [
-        `${targetSets} direct planned sets`,
-        `${group.roleLabel} role`,
-        "Current weekly frequency",
-      ],
-      changed: [
-        `${EXERCISE_BY_ID.get(removed.exerciseId)?.name ?? removed.exerciseId} is removed from this routine`,
-        "One exercise setup is removed",
-        "Exercise-specific practice becomes less varied",
-      ],
-      coverage: [{
-        label: `${retainedExercise.primary.join(" + ")} direct work`,
-        before: targetSets,
-        after: targetSets,
-        unit: "direct sets" as const,
-        tone: "preserved" as const,
-      }],
-      evidence: evidenceFor(matching.map((entry) => entry.exerciseId), appearances),
-      ruleIds: ["optimization.same-role", `relationship.${group.id}`],
-      caveats: group.caveats,
-    }];
+    return [
+      {
+        id: `same-role:${input.routine.id}:${group.id}:${retained.exerciseId}`,
+        kind: "same_role" as const,
+        label: "Similar planned role",
+        title: `Use one ${group.roleLabel} variation instead of two`,
+        summary: `Keep ${retainedExercise.name} and consolidate ${targetSets} already planned sets into one exercise.`,
+        routineId: input.routine.id,
+        sourceEntries: matching.map(entryChange),
+        proposedEntries: [
+          {
+            exerciseId: retained.exerciseId,
+            exerciseName: retainedExercise.name,
+            targetSets,
+          },
+        ],
+        preserved: [
+          `${targetSets} direct planned sets`,
+          `${group.roleLabel} role`,
+          "Current weekly frequency",
+        ],
+        changed: [
+          `${EXERCISE_BY_ID.get(removed.exerciseId)?.name ?? removed.exerciseId} is removed from this routine`,
+          "One exercise setup is removed",
+          "Exercise-specific practice becomes less varied",
+        ],
+        coverage: [
+          {
+            label: `${retainedExercise.primary.join(" + ")} direct work`,
+            before: targetSets,
+            after: targetSets,
+            unit: "direct sets" as const,
+            tone: "preserved" as const,
+          },
+        ],
+        evidence: evidenceFor(
+          matching.map((entry) => entry.exerciseId),
+          appearances,
+        ),
+        ruleIds: ["optimization.same-role", `relationship.${group.id}`],
+        caveats: group.caveats,
+      },
+    ];
   });
 }
 
@@ -117,42 +123,52 @@ function equipmentOpportunities(
   const appearances = input.completedAppearances ?? {};
   return input.routine.entries.flatMap((entry) => {
     const exercise = EXERCISE_BY_ID.get(entry.exerciseId);
-    if (!exercise || isExerciseAvailable(exercise, input.equipment) || protectedIds.has(entry.exerciseId)) return [];
+    if (
+      !exercise ||
+      isExerciseAvailable(exercise, input.equipment) ||
+      protectedIds.has(entry.exerciseId)
+    )
+      return [];
     const replacement = replacementExercise(exercise, input.equipment);
     if (!replacement) return [];
 
-    return [{
-      id: `equipment:${input.routine.id}:${exercise.id}:${replacement.id}`,
-      kind: "equipment_alternative" as const,
-      label: "Equipment alternative",
-      title: `Replace ${exercise.name}`,
-      summary: `${replacement.name} is available with your current equipment and fills the closest reviewed broad role.`,
-      routineId: input.routine.id,
-      sourceEntries: [entryChange(entry)],
-      proposedEntries: [{
-        exerciseId: replacement.id,
-        exerciseName: replacement.name,
-        targetSets: entry.targetSets,
-      }],
-      preserved: [
-        `${entry.targetSets} planned sets`,
-        `${replacement.pattern} training role`,
-      ],
-      changed: [
-        `Equipment changes from ${exercise.equipment.join(" + ") || "bodyweight"} to ${replacement.equipment.join(" + ") || "bodyweight"}`,
-        "Exercise-specific strength and technique practice change",
-      ],
-      coverage: [{
-        label: `${replacement.primary.join(" + ")} direct work`,
-        before: entry.targetSets,
-        after: entry.targetSets,
-        unit: "direct sets" as const,
-        tone: "preserved" as const,
-      }],
-      evidence: evidenceFor([entry.exerciseId], appearances),
-      ruleIds: ["optimization.equipment-alternative"],
-      caveats: ["This is a similar broad role, not proof of an identical strength or hypertrophy effect."],
-    }];
+    return [
+      {
+        id: `equipment:${input.routine.id}:${exercise.id}:${replacement.id}`,
+        kind: "equipment_alternative" as const,
+        label: "Equipment alternative",
+        title: `Replace ${exercise.name}`,
+        summary: `${replacement.name} is available with your current equipment and fills the closest reviewed broad role.`,
+        routineId: input.routine.id,
+        sourceEntries: [entryChange(entry)],
+        proposedEntries: [
+          {
+            exerciseId: replacement.id,
+            exerciseName: replacement.name,
+            targetSets: entry.targetSets,
+          },
+        ],
+        preserved: [`${entry.targetSets} planned sets`, `${replacement.pattern} training role`],
+        changed: [
+          `Equipment changes from ${exercise.equipment.join(" + ") || "bodyweight"} to ${replacement.equipment.join(" + ") || "bodyweight"}`,
+          "Exercise-specific strength and technique practice change",
+        ],
+        coverage: [
+          {
+            label: `${replacement.primary.join(" + ")} direct work`,
+            before: entry.targetSets,
+            after: entry.targetSets,
+            unit: "direct sets" as const,
+            tone: "preserved" as const,
+          },
+        ],
+        evidence: evidenceFor([entry.exerciseId], appearances),
+        ruleIds: ["optimization.equipment-alternative"],
+        caveats: [
+          "This is a similar broad role, not proof of an identical strength or hypertrophy effect.",
+        ],
+      },
+    ];
   });
 }
 
@@ -173,63 +189,67 @@ function timeSavingOpportunities(
     if (!compoundExercise || !isolationExercise) return [];
     const proposedSets = Math.min(MAX_AUTOMATIC_CONSOLIDATED_SETS, compound.targetSets + 1);
 
-    return [{
-      id: `time-saving:${input.routine.id}:${relationship.id}`,
-      kind: "time_saving_tradeoff" as const,
-      label: "Saves time; changes direct work",
-      title: `Use more ${compoundExercise.name} and remove ${isolationExercise.name}`,
-      summary: "This removes one exercise setup, but it does not preserve the same direct isolation work.",
-      routineId: input.routine.id,
-      sourceEntries: [entryChange(compound), entryChange(isolation)],
-      proposedEntries: [{
-        exerciseId: compound.exerciseId,
-        exerciseName: compoundExercise.name,
-        targetSets: proposedSets,
-      }],
-      preserved: [`${compoundExercise.pattern} role`],
-      changed: [
-        `${relationship.directMuscleLabel} direct work decreases from ${isolation.targetSets} sets to 0`,
-        `${compoundExercise.name} increases from ${compound.targetSets} to ${proposedSets} sets`,
-        "One exercise setup is removed",
-      ],
-      coverage: [
-        {
-          label: `${compoundExercise.primary.join(" + ")} direct work`,
-          before: compound.targetSets,
-          after: proposedSets,
-          unit: "direct sets" as const,
-          tone: proposedSets > compound.targetSets ? "gained" as const : "preserved" as const,
-        },
-        {
-          label: `${relationship.directMuscleLabel} direct work`,
-          before: isolation.targetSets,
-          after: 0,
-          unit: "direct sets" as const,
-          tone: "lost" as const,
-        },
-        {
-          label: `${relationship.directMuscleLabel} secondary work`,
-          before: compound.targetSets * 0.5,
-          after: proposedSets * 0.5,
-          unit: "secondary weighted sets" as const,
-          tone: "changed" as const,
-        },
-      ],
-      evidence: evidenceFor([compound.exerciseId, isolation.exerciseId], appearances),
-      ruleIds: ["optimization.time-saving-tradeoff", `relationship.${relationship.id}`],
-      caveats: [
-        relationship.caveat,
-        "Secondary weighted sets are a planning heuristic and are not biologically equivalent to direct sets.",
-      ],
-    }];
+    return [
+      {
+        id: `time-saving:${input.routine.id}:${relationship.id}`,
+        kind: "time_saving_tradeoff" as const,
+        label: "Saves time; changes direct work",
+        title: `Use more ${compoundExercise.name} and remove ${isolationExercise.name}`,
+        summary:
+          "This removes one exercise setup, but it does not preserve the same direct isolation work.",
+        routineId: input.routine.id,
+        sourceEntries: [entryChange(compound), entryChange(isolation)],
+        proposedEntries: [
+          {
+            exerciseId: compound.exerciseId,
+            exerciseName: compoundExercise.name,
+            targetSets: proposedSets,
+          },
+        ],
+        preserved: [`${compoundExercise.pattern} role`],
+        changed: [
+          `${relationship.directMuscleLabel} direct work decreases from ${isolation.targetSets} sets to 0`,
+          `${compoundExercise.name} increases from ${compound.targetSets} to ${proposedSets} sets`,
+          "One exercise setup is removed",
+        ],
+        coverage: [
+          {
+            label: `${compoundExercise.primary.join(" + ")} direct work`,
+            before: compound.targetSets,
+            after: proposedSets,
+            unit: "direct sets" as const,
+            tone: proposedSets > compound.targetSets ? ("gained" as const) : ("preserved" as const),
+          },
+          {
+            label: `${relationship.directMuscleLabel} direct work`,
+            before: isolation.targetSets,
+            after: 0,
+            unit: "direct sets" as const,
+            tone: "lost" as const,
+          },
+          {
+            label: `${relationship.directMuscleLabel} secondary work`,
+            before: compound.targetSets * 0.5,
+            after: proposedSets * 0.5,
+            unit: "secondary weighted sets" as const,
+            tone: "changed" as const,
+          },
+        ],
+        evidence: evidenceFor([compound.exerciseId, isolation.exerciseId], appearances),
+        ruleIds: ["optimization.time-saving-tradeoff", `relationship.${relationship.id}`],
+        caveats: [
+          relationship.caveat,
+          "Secondary weighted sets are a planning heuristic and are not biologically equivalent to direct sets.",
+        ],
+      },
+    ];
   });
 }
 
 function doNotCombineObservations(routine: Routine): DoNotCombineObservation[] {
   const ids = new Set(routine.entries.map((entry) => entry.exerciseId));
-  return DO_NOT_COMBINE
-    .filter(({ exerciseIds }) => exerciseIds.every((id) => ids.has(id)))
-    .map(({ exerciseIds, reason }) => {
+  return DO_NOT_COMBINE.filter(({ exerciseIds }) => exerciseIds.every((id) => ids.has(id))).map(
+    ({ exerciseIds, reason }) => {
       const first = EXERCISE_BY_ID.get(exerciseIds[0])?.name ?? exerciseIds[0];
       const second = EXERCISE_BY_ID.get(exerciseIds[1])?.name ?? exerciseIds[1];
       return {
@@ -238,7 +258,8 @@ function doNotCombineObservations(routine: Routine): DoNotCombineObservation[] {
         title: `Keep ${first} and ${second} distinct`,
         reason,
       };
-    });
+    },
+  );
 }
 
 export function analyzeRoutineOptimization(
@@ -253,11 +274,12 @@ export function analyzeRoutineOptimization(
     ...equipmentOpportunities(input, protectedIds),
     ...sameRoleOpportunities(input, protectedIds),
     ...timeSavingOpportunities(input, protectedIds),
-  ].filter((opportunity) => (
-    !suppressedIds.has(opportunity.id)
-    && !suppressedRelationshipIds.has(opportunity.id)
-    && !opportunity.ruleIds.some((ruleId) => suppressedRelationshipIds.has(ruleId))
-  ));
+  ].filter(
+    (opportunity) =>
+      !suppressedIds.has(opportunity.id) &&
+      !suppressedRelationshipIds.has(opportunity.id) &&
+      !opportunity.ruleIds.some((ruleId) => suppressedRelationshipIds.has(ruleId)),
+  );
 
   if (candidates.some((opportunity) => opportunity.kind === "equipment_alternative")) {
     ruleTrace.push("optimization.equipment-alternative");

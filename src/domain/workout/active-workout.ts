@@ -49,10 +49,9 @@ type DraftOptions = {
   createId?: () => string;
 };
 
-type SetPatch = Partial<Pick<
-  ActiveWorkoutDraftSet,
-  "weightKg" | "reps" | "rir" | "completed" | "type"
->>;
+type SetPatch = Partial<
+  Pick<ActiveWorkoutDraftSet, "weightKg" | "reps" | "rir" | "completed" | "type">
+>;
 
 type PreviousSet = {
   weightKg: number | null;
@@ -60,16 +59,18 @@ type PreviousSet = {
 };
 
 function defaultId(): string {
-  return globalThis.crypto?.randomUUID?.()
-    ?? `draft-${Date.now()}-${Math.random().toString(36).slice(2)}`;
+  return (
+    globalThis.crypto?.randomUUID?.() ??
+    `draft-${Date.now()}-${Math.random().toString(36).slice(2)}`
+  );
 }
 
 function latestExerciseSets(data: LiftwiseData, exerciseId: string): PreviousSet[] {
-  const workouts = [...data.workouts].sort((left, right) => (
+  const workouts = [...data.workouts].sort((left, right) =>
     (right.endTime ?? `${right.date}T23:59:59`).localeCompare(
       left.endTime ?? `${left.date}T23:59:59`,
-    )
-  ));
+    ),
+  );
   const entry = workouts
     .flatMap((workout) => workout.entries)
     .find((candidate) => candidate.exerciseId === exerciseId);
@@ -110,9 +111,9 @@ function routineEntryToDraft(
     id: createId(),
     exerciseId: routineEntry.exerciseId,
     notes: routineEntry.notes,
-    sets: Array.from({ length: routineEntry.targetSets }, (_, index) => (
-      makeSet(previous[index] ?? previous.at(-1), rir, createId)
-    )),
+    sets: Array.from({ length: routineEntry.targetSets }, (_, index) =>
+      makeSet(previous[index] ?? previous.at(-1), rir, createId),
+    ),
   };
 }
 
@@ -137,9 +138,7 @@ export function createActiveWorkoutDraft(
     notes: routine?.notes ?? "",
     startedAt: now,
     updatedAt: now,
-    entries: routine?.entries.map((entry) => (
-      routineEntryToDraft(data, entry, createId)
-    )) ?? [],
+    entries: routine?.entries.map((entry) => routineEntryToDraft(data, entry, createId)) ?? [],
   });
 }
 
@@ -153,14 +152,17 @@ export function addExerciseToDraft(
     throw new Error("This exercise is already in the active workout.");
   }
   if (!exerciseId) throw new Error("Choose an exercise first.");
-  const known = EXERCISE_BY_ID.has(exerciseId)
-    || data.customExercises.some((exercise) => exercise.id === exerciseId);
+  const known =
+    EXERCISE_BY_ID.has(exerciseId) ||
+    data.customExercises.some((exercise) => exercise.id === exerciseId);
   if (!known) {
-    const inHistoryOrPlan = data.workouts.some((workout) => (
-      workout.entries.some((entry) => entry.exerciseId === exerciseId)
-    )) || data.routines.some((routine) => (
-      routine.entries.some((entry) => entry.exerciseId === exerciseId)
-    ));
+    const inHistoryOrPlan =
+      data.workouts.some((workout) =>
+        workout.entries.some((entry) => entry.exerciseId === exerciseId),
+      ) ||
+      data.routines.some((routine) =>
+        routine.entries.some((entry) => entry.exerciseId === exerciseId),
+      );
     if (!inHistoryOrPlan) throw new Error("The selected exercise is no longer available.");
   }
   const createId = options.createId ?? defaultId;
@@ -168,12 +170,15 @@ export function addExerciseToDraft(
   return ActiveWorkoutDraftSchema.parse({
     ...draft,
     updatedAt: options.now ?? new Date().toISOString(),
-    entries: [...draft.entries, {
-      id: createId(),
-      exerciseId,
-      notes: "",
-      sets: [makeSet(previous[0], DEFAULT_ACTIVE_RIR, createId)],
-    }],
+    entries: [
+      ...draft.entries,
+      {
+        id: createId(),
+        exerciseId,
+        notes: "",
+        sets: [makeSet(previous[0], DEFAULT_ACTIVE_RIR, createId)],
+      },
+    ],
   });
 }
 
@@ -190,14 +195,23 @@ export function addSetToDraft(
     const last = entry.sets.at(-1);
     return {
       ...entry,
-      sets: [...entry.sets, {
-        ...makeSet(last ? {
-          weightKg: last.weightKg,
-          reps: last.reps,
-        } : undefined, last?.rir ?? DEFAULT_ACTIVE_RIR, createId),
-        referenceWeightKg: last?.referenceWeightKg ?? null,
-        referenceReps: last?.referenceReps ?? null,
-      }],
+      sets: [
+        ...entry.sets,
+        {
+          ...makeSet(
+            last
+              ? {
+                  weightKg: last.weightKg,
+                  reps: last.reps,
+                }
+              : undefined,
+            last?.rir ?? DEFAULT_ACTIVE_RIR,
+            createId,
+          ),
+          referenceWeightKg: last?.referenceWeightKg ?? null,
+          referenceReps: last?.referenceReps ?? null,
+        },
+      ],
     };
   });
   if (!found) throw new Error("The exercise is no longer in this workout.");
@@ -216,18 +230,18 @@ export function updateDraftSet(
   now = new Date().toISOString(),
 ): ActiveWorkoutDraft {
   let found = false;
-  const entries = draft.entries.map((entry) => (
+  const entries = draft.entries.map((entry) =>
     entry.id === entryId
       ? {
-        ...entry,
-        sets: entry.sets.map((set) => {
-          if (set.id !== setId) return set;
-          found = true;
-          return { ...set, ...patch };
-        }),
-      }
-      : entry
-  ));
+          ...entry,
+          sets: entry.sets.map((set) => {
+            if (set.id !== setId) return set;
+            found = true;
+            return { ...set, ...patch };
+          }),
+        }
+      : entry,
+  );
   if (!found) throw new Error("The set is no longer in this workout.");
   return ActiveWorkoutDraftSchema.parse({ ...draft, entries, updatedAt: now });
 }
@@ -253,11 +267,11 @@ export function removeSetFromDraft(
   return ActiveWorkoutDraftSchema.parse({
     ...draft,
     updatedAt: now,
-    entries: draft.entries.map((candidate) => (
+    entries: draft.entries.map((candidate) =>
       candidate.id === entryId
         ? { ...candidate, sets: candidate.sets.filter((set) => set.id !== setId) }
-        : candidate
-    )),
+        : candidate,
+    ),
   });
 }
 
@@ -281,9 +295,7 @@ export function activeWorkoutReadiness(draft: ActiveWorkoutDraft): {
   totalSets: number;
   errors: string[];
 } {
-  const completed = draft.entries.flatMap((entry) => (
-    entry.sets.filter((set) => set.completed)
-  ));
+  const completed = draft.entries.flatMap((entry) => entry.sets.filter((set) => set.completed));
   const errors: string[] = [];
   if (!draft.name.trim()) errors.push("Give the workout a name.");
   if (!completed.length) errors.push("Complete at least one set.");
@@ -333,38 +345,37 @@ export function completeActiveWorkout(
     entries: parsedDraft.entries.flatMap((entry) => {
       const completed = entry.sets.filter((set) => set.completed);
       if (!completed.length) return [];
-      return [{
-        exerciseId: entry.exerciseId,
-        exerciseNotes: entry.notes,
-        measurementMode: "load_reps" as const,
-        loadMode: null,
-        repMode: "total" as const,
-        sets: completed.map((set, index) => {
-          const rir = set.rir ?? DEFAULT_ACTIVE_RIR;
-          return {
-            index,
-            sourceSetId: null,
-            type: set.type,
-            measurementMode: "load_reps" as const,
-            weightKg: set.weightKg,
-            reps: set.reps,
-            rir,
-            manualRir: rir,
-            rirManual: true,
-            effortSource: "manual",
-          };
-        }),
-      }];
+      return [
+        {
+          exerciseId: entry.exerciseId,
+          exerciseNotes: entry.notes,
+          measurementMode: "load_reps" as const,
+          loadMode: null,
+          repMode: "total" as const,
+          sets: completed.map((set, index) => {
+            const rir = set.rir ?? DEFAULT_ACTIVE_RIR;
+            return {
+              index,
+              sourceSetId: null,
+              type: set.type,
+              measurementMode: "load_reps" as const,
+              weightKg: set.weightKg,
+              reps: set.reps,
+              rir,
+              manualRir: rir,
+              rirManual: true,
+              effortSource: "manual",
+            };
+          }),
+        },
+      ];
     }),
   });
   return {
     workout,
     data: LiftwiseDataSchema.parse({
       ...data,
-      workouts: [
-        ...data.workouts.filter((candidate) => candidate.id !== workout.id),
-        workout,
-      ],
+      workouts: [...data.workouts.filter((candidate) => candidate.id !== workout.id), workout],
       appMeta: { ...data.appMeta, lastSavedAt: now },
     }),
   };

@@ -1,10 +1,7 @@
 import assert from "node:assert/strict";
 import { describe, test } from "vitest";
 import { buildAttentionPlan } from "../src/domain/coaching/attention-engine";
-import {
-  classifyEvidence,
-  evidenceLabel,
-} from "../src/domain/coaching/evidence-sufficiency";
+import { classifyEvidence, evidenceLabel } from "../src/domain/coaching/evidence-sufficiency";
 import { calculateWeeklyDose } from "../src/domain/coaching/weekly-dose";
 import type { AttentionEngineInput } from "../src/domain/coaching/types";
 import type { Workout } from "../src/domain/models/schema";
@@ -24,14 +21,16 @@ describe("attention priority ladder", () => {
       painConcern: true,
       recoveryCaution: true,
       scheduledRoutine: { id: "lower", name: "Lower" },
-      weeklyGaps: [{
-        muscle: "Quads",
-        currentSets: 0,
-        minimumSets: 8,
-        maximumSets: 14,
-        availableExerciseCount: 4,
-        evidence: "enough-evidence",
-      }],
+      weeklyGaps: [
+        {
+          muscle: "Quads",
+          currentSets: 0,
+          minimumSets: 8,
+          maximumSets: 14,
+          availableExerciseCount: 4,
+          evidence: "enough-evidence",
+        },
+      ],
     });
 
     assert.equal(result.primary.kind, "safety");
@@ -59,14 +58,16 @@ describe("attention priority ladder", () => {
     const result = buildAttentionPlan({
       ...baseline,
       scheduledRoutine: { id: "upper", name: "Upper", estimatedMinutes: 45 },
-      weeklyGaps: [{
-        muscle: "Back",
-        currentSets: 5,
-        minimumSets: 10,
-        maximumSets: 16,
-        availableExerciseCount: 3,
-        evidence: "enough-evidence",
-      }],
+      weeklyGaps: [
+        {
+          muscle: "Back",
+          currentSets: 5,
+          minimumSets: 10,
+          maximumSets: 16,
+          availableExerciseCount: 3,
+          evidence: "enough-evidence",
+        },
+      ],
     });
 
     assert.equal(result.primary.kind, "planned-session");
@@ -91,14 +92,16 @@ describe("attention priority ladder", () => {
         count: 1,
         description: "One useful session is needed.",
       },
-      weeklyGaps: [{
-        muscle: "Chest",
-        currentSets: 0,
-        minimumSets: 8,
-        maximumSets: 14,
-        availableExerciseCount: 2,
-        evidence: "need-data",
-      }],
+      weeklyGaps: [
+        {
+          muscle: "Chest",
+          currentSets: 0,
+          minimumSets: 8,
+          maximumSets: 14,
+          availableExerciseCount: 2,
+          evidence: "need-data",
+        },
+      ],
     });
 
     assert.equal(result.primary.kind, "data-quality");
@@ -181,20 +184,24 @@ describe("attention priority ladder", () => {
     const performance = buildAttentionPlan({
       ...baseline,
       missingBaseline: { count: 0, description: "Not active" },
-      performanceReviews: [{
-        exerciseId: "curl",
-        exerciseName: "Dumbbell Curl",
-        reason: "Three comparable exposures are flat.",
-        evidence: "emerging",
-      }],
+      performanceReviews: [
+        {
+          exerciseId: "curl",
+          exerciseName: "Dumbbell Curl",
+          reason: "Three comparable exposures are flat.",
+          evidence: "emerging",
+        },
+      ],
     });
     const abovePlan = buildAttentionPlan({
       ...baseline,
-      abovePlanMuscles: [{
-        muscle: "Chest",
-        currentSets: 18,
-        maximumSets: 14,
-      }],
+      abovePlanMuscles: [
+        {
+          muscle: "Chest",
+          currentSets: 18,
+          maximumSets: 14,
+        },
+      ],
     });
     const maintenance = buildAttentionPlan(baseline);
 
@@ -219,11 +226,13 @@ describe("attention priority ladder", () => {
       ...baseline,
       scheduledRoutine: { id: "upper", name: "Upper" },
       performanceReviews: [repeated, repeated],
-      abovePlanMuscles: [{
-        muscle: "Chest",
-        currentSets: 18,
-        maximumSets: 14,
-      }],
+      abovePlanMuscles: [
+        {
+          muscle: "Chest",
+          currentSets: 18,
+          maximumSets: 14,
+        },
+      ],
     });
 
     assert.deepEqual(
@@ -257,10 +266,22 @@ describe("attention priority ladder", () => {
 
 describe("evidence sufficiency", () => {
   test("uses named states rather than a numeric confidence score", () => {
-    assert.equal(classifyEvidence({ observations: 0, requiredObservations: 3, hasBaseline: false }), "need-data");
-    assert.equal(classifyEvidence({ observations: 0, requiredObservations: 3, hasBaseline: true }), "need-data");
-    assert.equal(classifyEvidence({ observations: 2, requiredObservations: 3, hasBaseline: true }), "emerging");
-    assert.equal(classifyEvidence({ observations: 3, requiredObservations: 3, hasBaseline: true }), "enough-evidence");
+    assert.equal(
+      classifyEvidence({ observations: 0, requiredObservations: 3, hasBaseline: false }),
+      "need-data",
+    );
+    assert.equal(
+      classifyEvidence({ observations: 0, requiredObservations: 3, hasBaseline: true }),
+      "need-data",
+    );
+    assert.equal(
+      classifyEvidence({ observations: 2, requiredObservations: 3, hasBaseline: true }),
+      "emerging",
+    );
+    assert.equal(
+      classifyEvidence({ observations: 3, requiredObservations: 3, hasBaseline: true }),
+      "enough-evidence",
+    );
     assert.equal(evidenceLabel("need-data"), "Need data");
     assert.equal(evidenceLabel("emerging"), "Emerging");
     assert.equal(evidenceLabel("enough-evidence"), "Enough evidence");
@@ -269,26 +290,32 @@ describe("evidence sufficiency", () => {
 
 describe("weekly dose characterization", () => {
   test("counts qualified primary sets as one and secondary sets as one half", () => {
-    const workouts: Workout[] = [{
-      id: "dose-fixture",
-      date: "2026-08-01",
-      name: "Upper",
-      notes: "",
-      entries: [{
-        exerciseId: "db-bench",
-        sets: [
-          { type: "warmup", reps: 10 },
-          { type: "normal", reps: 10 },
-          { type: "normal", reps: 8 },
+    const workouts: Workout[] = [
+      {
+        id: "dose-fixture",
+        date: "2026-08-01",
+        name: "Upper",
+        notes: "",
+        entries: [
+          {
+            exerciseId: "db-bench",
+            sets: [
+              { type: "warmup", reps: 10 },
+              { type: "normal", reps: 10 },
+              { type: "normal", reps: 8 },
+            ],
+          },
         ],
-      }],
-    }];
+      },
+    ];
 
-    const dose = calculateWeeklyDose(workouts, [{
-      id: "db-bench",
-      primary: ["Chest"],
-      secondary: ["Triceps", "Shoulders"],
-    }]);
+    const dose = calculateWeeklyDose(workouts, [
+      {
+        id: "db-bench",
+        primary: ["Chest"],
+        secondary: ["Triceps", "Shoulders"],
+      },
+    ]);
 
     assert.equal(dose.Chest, 2);
     assert.equal(dose.Triceps, 1);
@@ -296,39 +323,41 @@ describe("weekly dose characterization", () => {
   });
 
   test("qualifies duration and distance work without counting empty or unmapped sets", () => {
-    const workouts: Workout[] = [{
-      id: "mixed-dose-fixture",
-      date: "2026-08-02",
-      name: "Conditioning",
-      notes: "",
-      entries: [
-        {
-          exerciseId: "plank",
-          sets: [
-            { type: "normal", measurementMode: "duration", durationSeconds: 45 },
-            { type: "normal", measurementMode: "duration", durationSeconds: 0 },
-          ],
-        },
-        {
-          exerciseId: "carry",
-          sets: [
-            { type: "normal", measurementMode: "distance_duration", distanceMeters: 30 },
-            { type: "normal", measurementMode: "distance_duration", distanceMeters: 0 },
-          ],
-        },
-        {
-          exerciseId: "unmapped",
-          sets: [{ type: "normal", reps: 12 }],
-        },
-        {
-          exerciseId: "curl",
-          sets: [
-            { type: "normal", reps: 0 },
-            { type: "normal", reps: 1 },
-          ],
-        },
-      ],
-    }];
+    const workouts: Workout[] = [
+      {
+        id: "mixed-dose-fixture",
+        date: "2026-08-02",
+        name: "Conditioning",
+        notes: "",
+        entries: [
+          {
+            exerciseId: "plank",
+            sets: [
+              { type: "normal", measurementMode: "duration", durationSeconds: 45 },
+              { type: "normal", measurementMode: "duration", durationSeconds: 0 },
+            ],
+          },
+          {
+            exerciseId: "carry",
+            sets: [
+              { type: "normal", measurementMode: "distance_duration", distanceMeters: 30 },
+              { type: "normal", measurementMode: "distance_duration", distanceMeters: 0 },
+            ],
+          },
+          {
+            exerciseId: "unmapped",
+            sets: [{ type: "normal", reps: 12 }],
+          },
+          {
+            exerciseId: "curl",
+            sets: [
+              { type: "normal", reps: 0 },
+              { type: "normal", reps: 1 },
+            ],
+          },
+        ],
+      },
+    ];
 
     const dose = calculateWeeklyDose(workouts, [
       { id: "plank", primary: ["Core"], secondary: [] },

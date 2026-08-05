@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 
-export type PrimaryView = "today" | "train" | "progress" | "body" | "library" | "settings";
+export type PrimaryView =
+  "today" | "train" | "progress" | "body" | "library" | "compare" | "settings";
 
 type AppShellProps = {
   activeView: PrimaryView;
@@ -19,17 +20,15 @@ const navigation: Array<{
   { id: "progress", label: "Progress", icon: "⌁" },
   { id: "body", label: "Body & nutrition", icon: "◇" },
   { id: "library", label: "Library", icon: "▦" },
+  { id: "compare", label: "Compare", icon: "⇄" },
 ];
 
-export function AppShell({
-  activeView,
-  athleteName,
-  onNavigate,
-  children,
-}: AppShellProps) {
+export function AppShell({ activeView, athleteName, onNavigate, children }: AppShellProps) {
   return (
     <div className="modern-shell">
-      <a className="skip-link" href="#main-content">Skip to content</a>
+      <a className="skip-link" href="#main-content">
+        Skip to content
+      </a>
       <aside className="app-rail" aria-label="Primary">
         <button
           className="brand-button"
@@ -37,7 +36,9 @@ export function AppShell({
           onClick={() => onNavigate("today")}
           aria-label="Liftwise home"
         >
-          <span className="brand-mark" aria-hidden="true">L</span>
+          <span className="brand-mark" aria-hidden="true">
+            L
+          </span>
           <span>Liftwise</span>
         </button>
         <nav className="primary-nav">
@@ -49,7 +50,9 @@ export function AppShell({
               aria-current={activeView === item.id ? "page" : undefined}
               onClick={() => onNavigate(item.id)}
             >
-              <span className="nav-symbol" aria-hidden="true">{item.icon}</span>
+              <span className="nav-symbol" aria-hidden="true">
+                {item.icon}
+              </span>
               <span>{item.label}</span>
             </button>
           ))}
@@ -73,14 +76,10 @@ export function AppShell({
       </aside>
       <div className="app-workspace">
         <header className="modern-topbar">
-          <button
-            className="mobile-brand"
-            type="button"
-            onClick={() => onNavigate("today")}
-          >
+          <button className="mobile-brand" type="button" onClick={() => onNavigate("today")}>
             Liftwise
           </button>
-          <p>Saved on this device</p>
+          <p>Saved to your account</p>
           <button
             className="mobile-settings"
             type="button"
@@ -90,11 +89,10 @@ export function AppShell({
           >
             <span aria-hidden="true">⚙</span>
           </button>
-          <a className="legacy-link" href="./index.html">
-            Open current workout logger
-          </a>
         </header>
-        <main id="main-content" tabIndex={-1}>{children}</main>
+        <main id="main-content" tabIndex={-1}>
+          {children}
+        </main>
       </div>
     </div>
   );

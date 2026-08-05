@@ -16,33 +16,33 @@ The goal is to distinguish correctness work from optional product expansion. The
 
 ## Implementation result
 
-| ID | Result |
-|---|---|
-| C1 | Implemented: source identity, content fingerprint, correction upsert, unchanged skip, manual-RIR overlay, and conflicts for unmatched manual sets |
-| C2 | Implemented: explicit effort provenance, dirty-only RIR saving, intentional clear state, and labelled derived/manual effort |
-| C3 | Implemented: file/row limits, range validation, rejected-row reasons, report download, and explicit partial-import approval |
-| C4 | Implemented: pre-migration recovery snapshot, validation, render-before-commit, and corrupt-data recovery UI |
-| C5 | Implemented: Data & Backup center, persistence/size/count/backup/import status, and large-operation safeguards |
-| F1 | Implemented incrementally: Vite module/build structure, pure `src/domain.js`, isolated `src/ui/import-chooser.js`, and Vitest domain/component/jsdom integration coverage; the remaining browser controllers stay in `src/app.js` for gradual extraction |
-| W1 | Implemented: debounced drafts, reload resume/discard, close warning, and unload protection |
-| W2 | Implemented: repeat without effort, saved routines, weekday assignment, start/delete actions |
-| W3 | Implemented: load+reps, reps-only, duration, and distance+duration manual set modes |
-| W4 | Implemented: explicit total/per-hand/added-bodyweight/assistance/no-load and total/per-side conventions |
-| W5 | Implemented: change preview, bounded import history, conflict counts, persistent result, and one-step undo |
-| W6 | Implemented: source sessions remain distinct; same-day exercise aggregation is derived for display |
-| W7 | Implemented: missing-only filter, keyboard navigation, apply-below, and dirty-only writes |
-| W8 | Implemented: session/exercise search, source/date/RIR filters, pagination, state retention, and earliest-week stop |
-| W9 | Implemented: a scheduled routine becomes the next-session base; coverage work is an optional adjustment |
-| A1 | Implemented: larger critical text/targets, improved contrast, keyboard chart/map access, focus handling, and 320 px reflow |
-| I1 | Implemented: exercise charts, text tables, records, PR markers, and set-type filter |
-| I2 | Implemented: muscle-status analysis moved from Body metrics to Coach insights |
-| I3 | Implemented: muscle/equipment/availability/favorite/sort/density filters and custom-exercise mapping/merge management |
-| I4 | Implemented: body-metric editing, same-day replace confirmation, conditions, chart windows, and useful comparisons |
-| I5 | Implemented: 30-day recovery history and workout recovery snapshots/context |
-| P1 | Selective rendering and bounded pagination implemented; IndexedDB remains intentionally deferred until measured need |
-| P2 | Implemented: web manifest, icon, service worker, offline shell, and update/cache status |
-| P3 | Implemented for units and primary interface: kg/lb conversion plus English/Polish navigation/headings/actions; full detailed-copy translation remains deferred |
-| P4 | Implemented as the recommended demotion: Garmin is a Data & Backup roadmap detail, not a prominent functional card |
+| ID  | Result                                                                                                                                                                                                                                                   |
+| --- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| C1  | Implemented: source identity, content fingerprint, correction upsert, unchanged skip, manual-RIR overlay, and conflicts for unmatched manual sets                                                                                                        |
+| C2  | Implemented: explicit effort provenance, dirty-only RIR saving, intentional clear state, and labelled derived/manual effort                                                                                                                              |
+| C3  | Implemented: file/row limits, range validation, rejected-row reasons, report download, and explicit partial-import approval                                                                                                                              |
+| C4  | Implemented: pre-migration recovery snapshot, validation, render-before-commit, and corrupt-data recovery UI                                                                                                                                             |
+| C5  | Implemented: Data & Backup center, persistence/size/count/backup/import status, and large-operation safeguards                                                                                                                                           |
+| F1  | Implemented incrementally: Vite module/build structure, pure `src/domain.js`, isolated `src/ui/import-chooser.js`, and Vitest domain/component/jsdom integration coverage; the remaining browser controllers stay in `src/app.js` for gradual extraction |
+| W1  | Implemented: debounced drafts, reload resume/discard, close warning, and unload protection                                                                                                                                                               |
+| W2  | Implemented: repeat without effort, saved routines, weekday assignment, start/delete actions                                                                                                                                                             |
+| W3  | Implemented: load+reps, reps-only, duration, and distance+duration manual set modes                                                                                                                                                                      |
+| W4  | Implemented: explicit total/per-hand/added-bodyweight/assistance/no-load and total/per-side conventions                                                                                                                                                  |
+| W5  | Implemented: change preview, bounded import history, conflict counts, persistent result, and one-step undo                                                                                                                                               |
+| W6  | Implemented: source sessions remain distinct; same-day exercise aggregation is derived for display                                                                                                                                                       |
+| W7  | Implemented: missing-only filter, keyboard navigation, apply-below, and dirty-only writes                                                                                                                                                                |
+| W8  | Implemented: session/exercise search, source/date/RIR filters, pagination, state retention, and earliest-week stop                                                                                                                                       |
+| W9  | Implemented: a scheduled routine becomes the next-session base; coverage work is an optional adjustment                                                                                                                                                  |
+| A1  | Implemented: larger critical text/targets, improved contrast, keyboard chart/map access, focus handling, and 320 px reflow                                                                                                                               |
+| I1  | Implemented: exercise charts, text tables, records, PR markers, and set-type filter                                                                                                                                                                      |
+| I2  | Implemented: muscle-status analysis moved from Body metrics to Coach insights                                                                                                                                                                            |
+| I3  | Implemented: muscle/equipment/availability/favorite/sort/density filters and custom-exercise mapping/merge management                                                                                                                                    |
+| I4  | Implemented: body-metric editing, same-day replace confirmation, conditions, chart windows, and useful comparisons                                                                                                                                       |
+| I5  | Implemented: 30-day recovery history and workout recovery snapshots/context                                                                                                                                                                              |
+| P1  | Selective rendering and bounded pagination implemented; IndexedDB remains intentionally deferred until measured need                                                                                                                                     |
+| P2  | Implemented: web manifest, icon, service worker, offline shell, and update/cache status                                                                                                                                                                  |
+| P3  | Implemented for units and primary interface: kg/lb conversion plus English/Polish navigation/headings/actions; full detailed-copy translation remains deferred                                                                                           |
+| P4  | Implemented as the recommended demotion: Garmin is a Data & Backup roadmap detail, not a prominent functional card                                                                                                                                       |
 
 Also completed during acceptance:
 
@@ -63,21 +63,21 @@ Questions: C1, W5
 
 Priority meanings:
 
-| Priority | Meaning |
-|---|---|
-| P0 | Data correctness, recoverability, or behavior that currently contradicts the UI |
-| P1 | High-value workflow and usability improvement |
-| P2 | Valuable enhancement after the core is reliable |
-| P3 | Optional expansion or strategic decision |
+| Priority | Meaning                                                                         |
+| -------- | ------------------------------------------------------------------------------- |
+| P0       | Data correctness, recoverability, or behavior that currently contradicts the UI |
+| P1       | High-value workflow and usability improvement                                   |
+| P2       | Valuable enhancement after the core is reliable                                 |
+| P3       | Optional expansion or strategic decision                                        |
 
 Effort estimates are relative:
 
-| Size | Meaning |
-|---|---|
-| S | Localized change |
-| M | Several related components or one schema change |
-| L | Cross-cutting feature or substantial UI/data work |
-| XL | Architectural or product-scope project |
+| Size | Meaning                                           |
+| ---- | ------------------------------------------------- |
+| S    | Localized change                                  |
+| M    | Several related components or one schema change   |
+| L    | Cross-cutting feature or substantial UI/data work |
+| XL   | Architectural or product-scope project            |
 
 ## 2. Current strengths worth preserving
 
@@ -143,39 +143,39 @@ No large feature should be built before C1–C5 have regression coverage.
 
 ## 5. Summary decision table
 
-| ID | Proposal | Priority | Size | Recommendation |
-|---|---|---:|---:|---|
-| C1 | Upsert corrected Hevy workouts instead of blindly skipping them | P0 | L | Approve |
-| C2 | Rework effort provenance and update only touched RIR fields | P0 | M | Approve |
-| C3 | Add strict CSV validation and rejected-row reporting | P0 | M | Approve |
-| C4 | Add recoverable, transactional data migrations | P0 | M | Approve |
-| C5 | Add storage-health and backup safeguards | P0 | M | Approve |
-| F1 | Extract a tested domain core and add regression fixtures | P0 | L | Approve |
-| W1 | Autosave workout drafts and warn before discarding edits | P1 | M | Approve |
-| W2 | Add repeat-workout and reusable routine templates | P1 | L | Approve |
-| W3 | Support reps, duration, and distance set modes | P1 | L | Approve |
-| W4 | Define load/repetition conventions for unilateral and bodyweight work | P1 | L | Approve after design choice |
-| W5 | Add import history, conflict preview, and import undo | P1 | L | Approve after C1 |
-| W6 | Preserve source sessions while keeping daily exercise aggregation | P1 | XL | Approve concept; design first |
-| W7 | Improve high-volume RIR entry | P1 | M | Approve after C2 |
-| W8 | Add workout search, exercise/date filters, and useful week navigation | P1 | M | Approve |
-| W9 | Reframe or integrate the generated next session with real routines | P1 | L | Approve after W2 |
-| A1 | Improve text size, contrast, targets, and chart keyboard access | P1 | M | Approve |
-| I1 | Add exercise progress charts and record history | P2 | L | Approve |
-| I2 | Separate training-status analysis from Body metrics | P2 | M | Approve |
-| I3 | Rework library discovery and custom-exercise management | P2 | L | Approve |
-| I4 | Improve body-metric editing and trend comparisons | P2 | M | Consider |
-| I5 | Make recovery history useful instead of stored-only data | P2 | M | Consider |
-| P1 | Move large datasets to IndexedDB and render views selectively | P2 | XL | Defer until needed |
-| P2 | Add installable offline/PWA support | P2 | M | Consider |
-| P3 | Add localization and display-unit preferences | P2 | L | Consider |
-| P4 | Decide whether Garmin is a real roadmap item or should be demoted | P3 | XL/S | Decide explicitly |
+| ID  | Proposal                                                              | Priority | Size | Recommendation                |
+| --- | --------------------------------------------------------------------- | -------: | ---: | ----------------------------- |
+| C1  | Upsert corrected Hevy workouts instead of blindly skipping them       |       P0 |    L | Approve                       |
+| C2  | Rework effort provenance and update only touched RIR fields           |       P0 |    M | Approve                       |
+| C3  | Add strict CSV validation and rejected-row reporting                  |       P0 |    M | Approve                       |
+| C4  | Add recoverable, transactional data migrations                        |       P0 |    M | Approve                       |
+| C5  | Add storage-health and backup safeguards                              |       P0 |    M | Approve                       |
+| F1  | Extract a tested domain core and add regression fixtures              |       P0 |    L | Approve                       |
+| W1  | Autosave workout drafts and warn before discarding edits              |       P1 |    M | Approve                       |
+| W2  | Add repeat-workout and reusable routine templates                     |       P1 |    L | Approve                       |
+| W3  | Support reps, duration, and distance set modes                        |       P1 |    L | Approve                       |
+| W4  | Define load/repetition conventions for unilateral and bodyweight work |       P1 |    L | Approve after design choice   |
+| W5  | Add import history, conflict preview, and import undo                 |       P1 |    L | Approve after C1              |
+| W6  | Preserve source sessions while keeping daily exercise aggregation     |       P1 |   XL | Approve concept; design first |
+| W7  | Improve high-volume RIR entry                                         |       P1 |    M | Approve after C2              |
+| W8  | Add workout search, exercise/date filters, and useful week navigation |       P1 |    M | Approve                       |
+| W9  | Reframe or integrate the generated next session with real routines    |       P1 |    L | Approve after W2              |
+| A1  | Improve text size, contrast, targets, and chart keyboard access       |       P1 |    M | Approve                       |
+| I1  | Add exercise progress charts and record history                       |       P2 |    L | Approve                       |
+| I2  | Separate training-status analysis from Body metrics                   |       P2 |    M | Approve                       |
+| I3  | Rework library discovery and custom-exercise management               |       P2 |    L | Approve                       |
+| I4  | Improve body-metric editing and trend comparisons                     |       P2 |    M | Consider                      |
+| I5  | Make recovery history useful instead of stored-only data              |       P2 |    M | Consider                      |
+| P1  | Move large datasets to IndexedDB and render views selectively         |       P2 |   XL | Defer until needed            |
+| P2  | Add installable offline/PWA support                                   |       P2 |    M | Consider                      |
+| P3  | Add localization and display-unit preferences                         |       P2 |    L | Consider                      |
+| P4  | Decide whether Garmin is a real roadmap item or should be demoted     |       P3 | XL/S | Decide explicitly             |
 
 ## 6. Correctness and data-integrity proposals
 
 ### C1. Upsert corrected Hevy workouts
 
-Decision: [ ] Approve  [ ] Reject  [ ] Defer
+Decision: [ ] Approve [ ] Reject [ ] Defer
 
 Priority: P0  
 Size: L
@@ -232,7 +232,7 @@ If a changed source set no longer matches safely, show a conflict rather than si
 
 ### C2. Rework effort provenance and dirty-field saving
 
-Decision: [ ] Approve  [ ] Reject  [ ] Defer
+Decision: [ ] Approve [ ] Reject [ ] Defer
 
 Priority: P0  
 Size: M
@@ -292,7 +292,7 @@ Display rules:
 
 ### C3. Strict CSV validation and rejected-row reporting
 
-Decision: [ ] Approve  [ ] Reject  [ ] Defer
+Decision: [ ] Approve [ ] Reject [ ] Defer
 
 Priority: P0  
 Size: M
@@ -355,7 +355,7 @@ Do not silently coerce structurally invalid training data.
 
 ### C4. Transactional and recoverable migrations
 
-Decision: [ ] Approve  [ ] Reject  [ ] Defer
+Decision: [ ] Approve [ ] Reject [ ] Defer
 
 Priority: P0  
 Size: M
@@ -394,7 +394,7 @@ If load fails:
 
 ### C5. Storage health and backup safeguards
 
-Decision: [ ] Approve  [ ] Reject  [ ] Defer
+Decision: [ ] Approve [ ] Reject [ ] Defer
 
 Priority: P0  
 Size: M
@@ -438,7 +438,7 @@ Add prompts:
 
 ### F1. Extract a tested domain core
 
-Decision: [ ] Approve  [ ] Reject  [ ] Defer
+Decision: [ ] Approve [ ] Reject [ ] Defer
 
 Priority: P0  
 Size: L
@@ -514,7 +514,7 @@ This has limited immediate UI impact but lowers the risk of every later proposal
 
 ### W1. Workout drafts and unsaved-change protection
 
-Decision: [ ] Approve  [ ] Reject  [ ] Defer
+Decision: [ ] Approve [ ] Reject [ ] Defer
 
 Priority: P1  
 Size: M
@@ -541,7 +541,7 @@ The workout dialog closes on its close button, Escape, or backdrop click. A long
 
 ### W2. Repeat workout and routine templates
 
-Decision: [ ] Approve  [ ] Reject  [ ] Defer
+Decision: [ ] Approve [ ] Reject [ ] Defer
 
 Priority: P1  
 Size: L
@@ -572,7 +572,7 @@ Copy structure and targets, not completed RIR or notes describing a past perform
 
 ### W3. Repetition, duration, and distance set modes
 
-Decision: [ ] Approve  [ ] Reject  [ ] Defer
+Decision: [ ] Approve [ ] Reject [ ] Defer
 
 Priority: P1  
 Size: L
@@ -616,7 +616,7 @@ Muscle coverage can still credit a completed non-warm-up set, but the UI must ex
 
 ### W4. Explicit load and side conventions
 
-Decision: [ ] Approve  [ ] Reject  [ ] Defer
+Decision: [ ] Approve [ ] Reject [ ] Defer
 
 Priority: P1  
 Size: L
@@ -672,7 +672,7 @@ Recommendation: built-in default plus user override stored from an effective dat
 
 ### W5. Import center with change preview and undo
 
-Decision: [ ] Approve  [ ] Reject  [ ] Defer
+Decision: [ ] Approve [ ] Reject [ ] Defer
 
 Priority: P1  
 Size: L
@@ -708,7 +708,7 @@ Undo should be based on a bounded pre-import transaction snapshot or reversible 
 
 ### W6. Preserve source sessions inside daily aggregation
 
-Decision: [ ] Approve  [ ] Reject  [ ] Defer
+Decision: [ ] Approve [ ] Reject [ ] Defer
 
 Priority: P1  
 Size: XL
@@ -765,7 +765,7 @@ This is a substantial schema and UI change. It should be designed with C1 before
 
 ### W7. Faster RIR entry
 
-Decision: [ ] Approve  [ ] Reject  [ ] Defer
+Decision: [ ] Approve [ ] Reject [ ] Defer
 
 Priority: P1  
 Size: M
@@ -795,7 +795,7 @@ Do not auto-fill RIR as completed data merely because a target existed.
 
 ### W8. Workout search and historical navigation
 
-Decision: [ ] Approve  [ ] Reject  [ ] Defer
+Decision: [ ] Approve [ ] Reject [ ] Defer
 
 Priority: P1  
 Size: M
@@ -826,7 +826,7 @@ Add:
 
 ### W9. Reframe “Next session” or integrate it with routines
 
-Decision: [ ] Approve  [ ] Reject  [ ] Defer
+Decision: [ ] Approve [ ] Reject [ ] Defer
 
 Priority: P1  
 Size: L
@@ -869,7 +869,7 @@ Recommendation: implement Option A first; adopt Option B only after routines exi
 
 ### A1. Readability and interaction-target audit
 
-Decision: [ ] Approve  [ ] Reject  [ ] Defer
+Decision: [ ] Approve [ ] Reject [ ] Defer
 
 Priority: P1  
 Size: M
@@ -900,7 +900,7 @@ The interface uses many 8–10 px labels and muted low-contrast metadata. Delete
 
 ### I1. Exercise progress charts and personal records
 
-Decision: [ ] Approve  [ ] Reject  [ ] Defer
+Decision: [ ] Approve [ ] Reject [ ] Defer
 
 Priority: P2  
 Size: L
@@ -926,7 +926,7 @@ Do not compare incompatible load modes from W4 or measurement modes from W3.
 
 ### I2. Separate training status from body composition
 
-Decision: [ ] Approve  [ ] Reject  [ ] Defer
+Decision: [ ] Approve [ ] Reject [ ] Defer
 
 Priority: P2  
 Size: M
@@ -959,7 +959,7 @@ This reduces page length and clarifies that the colored body map reflects traini
 
 ### I3. Library discovery and custom-exercise management
 
-Decision: [ ] Approve  [ ] Reject  [ ] Defer
+Decision: [ ] Approve [ ] Reject [ ] Defer
 
 Priority: P2  
 Size: L
@@ -1004,7 +1004,7 @@ source provider + normalized source title -> canonical exercise ID
 
 ### I4. Body-metric editing and better deltas
 
-Decision: [ ] Approve  [ ] Reject  [ ] Defer
+Decision: [ ] Approve [ ] Reject [ ] Defer
 
 Priority: P2  
 Size: M
@@ -1021,7 +1021,7 @@ Avoid adding calorie or medical interpretation.
 
 ### I5. Recovery history and workout context
 
-Decision: [ ] Approve  [ ] Reject  [ ] Defer
+Decision: [ ] Approve [ ] Reject [ ] Defer
 
 Priority: P2  
 Size: M
@@ -1043,7 +1043,7 @@ No correlation should be presented as causation.
 
 ### P1. IndexedDB and selective rendering
 
-Decision: [ ] Approve  [ ] Reject  [ ] Defer
+Decision: [ ] Approve [ ] Reject [ ] Defer
 
 Priority: P2  
 Size: XL
@@ -1069,7 +1069,7 @@ Approve selective rendering and pagination when F1 is implemented. Defer Indexed
 
 ### P2. Installable offline app
 
-Decision: [ ] Approve  [ ] Reject  [ ] Defer
+Decision: [ ] Approve [ ] Reject [ ] Defer
 
 Priority: P2  
 Size: M
@@ -1091,7 +1091,7 @@ This makes “local-first” work without a running local server after installat
 
 ### P3. Localization and unit preferences
 
-Decision: [ ] Approve  [ ] Reject  [ ] Defer
+Decision: [ ] Approve [ ] Reject [ ] Defer
 
 Priority: P2  
 Size: L
@@ -1114,7 +1114,7 @@ Exercise canonical IDs remain language-independent. Aliases can be language-spec
 
 ### P4. Decide the Garmin strategy
 
-Decision: [ ] Approve integration  [ ] Demote UI  [ ] Keep as-is  [ ] Remove
+Decision: [ ] Approve integration [ ] Demote UI [ ] Keep as-is [ ] Remove
 
 Priority: P3  
 Size: XL for integration; S to demote

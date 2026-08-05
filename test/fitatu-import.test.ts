@@ -74,11 +74,9 @@ describe("typed Fitatu import", () => {
 
     const changedPending = {
       ...pending,
-      days: pending.days.map((day, index) => (
-        index === 0
-          ? { ...day, caloriesKcal: 900, contentFingerprint: "changed" }
-          : day
-      )),
+      days: pending.days.map((day, index) =>
+        index === 0 ? { ...day, caloriesKcal: 900, contentFingerprint: "changed" } : day,
+      ),
     };
     const changed = buildFitatuImportPlan(committed.data, changedPending, "merge");
     assert.deepEqual(changed.counts, { added: 0, updated: 1, unchanged: 1 });
@@ -128,20 +126,20 @@ describe("typed Fitatu import", () => {
       "2026-08-02,Snack,Valid,500,30,20,40",
       "2026-08-05,Snack,Future,500,30,20,40",
     ].join("\n");
-    const pending = parseFitatuCsv(
-      csv,
-      "partial.csv",
-      new Date("2026-08-03T10:00:00.000Z"),
-    );
+    const pending = parseFitatuCsv(csv, "partial.csv", new Date("2026-08-03T10:00:00.000Z"));
     const data = LiftwiseDataSchema.parse(fixture);
 
     assert.equal(pending.rejectedRows.length, 1);
-    assert.throws(() => commitFitatuImport({
-      data,
-      pending,
-      mode: "merge",
-      acceptValidRowsOnly: false,
-    }), /Confirm that only valid rows/i);
+    assert.throws(
+      () =>
+        commitFitatuImport({
+          data,
+          pending,
+          mode: "merge",
+          acceptValidRowsOnly: false,
+        }),
+      /Confirm that only valid rows/i,
+    );
   });
 
   test("reports metadata, delimiter, total-row aggregation, and rejected-row decisions", () => {
@@ -151,11 +149,7 @@ describe("typed Fitatu import", () => {
       "2026-08-02;Daily total;Summary;500;30;20;40",
       "2026-08-05;Snack;Future;400;20;10;50",
     ].join("\n");
-    const pending = parseFitatuCsv(
-      csv,
-      "summarized.csv",
-      new Date("2026-08-03T10:00:00.000Z"),
-    );
+    const pending = parseFitatuCsv(csv, "summarized.csv", new Date("2026-08-03T10:00:00.000Z"));
 
     assert.equal(pending.days.length, 1);
     assert.equal(pending.days[0]?.aggregation, "daily-total");
@@ -173,11 +167,7 @@ describe("typed Fitatu import", () => {
       "Date\tMeal\tProducts and dishes\tcalories (kcal)\tProtein (g)\tFats (g)\tCarbohydrates (g)",
       "2026-08-02\tSnack\tFood\t500\t30\t20\t40",
     ].join("\n");
-    const pending = parseFitatuCsv(
-      csv,
-      "tab-separated.csv",
-      new Date("2026-08-03T10:00:00.000Z"),
-    );
+    const pending = parseFitatuCsv(csv, "tab-separated.csv", new Date("2026-08-03T10:00:00.000Z"));
 
     assert.match(pending.warnings.join(" "), /2 metadata rows/);
     assert.match(pending.warnings.join(" "), /tab-separated/);
@@ -200,11 +190,11 @@ describe("typed Fitatu import", () => {
     });
     const changedPending = {
       ...pending,
-      days: pending.days.map((day, index) => (
+      days: pending.days.map((day, index) =>
         index === 0
           ? { ...day, caloriesKcal: 999, contentFingerprint: "updated-fingerprint" }
-          : day
-      )),
+          : day,
+      ),
     };
     const second = commitFitatuImport({
       data: first.data,
@@ -228,9 +218,6 @@ describe("typed Fitatu import", () => {
       () => parseFitatuCsv("not,a,fitatu,file", "wrong.csv"),
       /nutrition rows|does not look like/i,
     );
-    assert.throws(
-      () => parseFitatuCsv("x".repeat(10_000_001), "large.csv"),
-      /10 MB/i,
-    );
+    assert.throws(() => parseFitatuCsv("x".repeat(10_000_001), "large.csv"), /10 MB/i);
   });
 });

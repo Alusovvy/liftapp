@@ -73,7 +73,20 @@ function parseDate(value: string): Date | null {
     /^(\d{1,2})\s+([A-Za-z]{3})\s+(\d{4}),?\s+(\d{1,2}):(\d{2})(?::(\d{2}))?$/,
   );
   if (hevy) {
-    const months = ["jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec"];
+    const months = [
+      "jan",
+      "feb",
+      "mar",
+      "apr",
+      "may",
+      "jun",
+      "jul",
+      "aug",
+      "sep",
+      "oct",
+      "nov",
+      "dec",
+    ];
     const month = months.indexOf(hevy[2]!.toLowerCase());
     if (month >= 0) {
       return new Date(
@@ -136,9 +149,9 @@ const reviewedAliases = new Map<string, string>([
 
 function exerciseIdFor(name: string): string {
   const normalized = normalizeText(name);
-  return catalogByName.get(normalized)
-    ?? reviewedAliases.get(normalized)
-    ?? `custom-${hash(normalized)}`;
+  return (
+    catalogByName.get(normalized) ?? reviewedAliases.get(normalized) ?? `custom-${hash(normalized)}`
+  );
 }
 
 function normalizedImportedSet(input: {
@@ -187,11 +200,17 @@ export function parseWorkoutCsv(
   if (new Set(headers).size !== headers.length) {
     throw new Error("The CSV contains duplicate column names.");
   }
-  const hasTitle = headers.some((header) => ["title", "workout_title", "workout_name"].includes(header));
+  const hasTitle = headers.some((header) =>
+    ["title", "workout_title", "workout_name"].includes(header),
+  );
   const hasStart = headers.some((header) => ["start_time", "date"].includes(header));
-  const hasExercise = headers.some((header) => ["exercise_title", "exercise_name"].includes(header));
+  const hasExercise = headers.some((header) =>
+    ["exercise_title", "exercise_name"].includes(header),
+  );
   if (!hasTitle || !hasStart || !hasExercise) {
-    throw new Error("This does not look like a workout CSV. Expected title, start_time, and exercise_title columns.");
+    throw new Error(
+      "This does not look like a workout CSV. Expected title, start_time, and exercise_title columns.",
+    );
   }
 
   const records: CsvRecord[] = valueRows.map((values, index) => ({
@@ -200,7 +219,8 @@ export function parseWorkoutCsv(
     __columnMismatch: String(values.length !== headers.length),
   }));
   const usesPounds = headers.includes("weight_lbs") || headers.includes("weight_lb");
-  const usesGenericWeight = !usesPounds && !headers.includes("weight_kg") && headers.includes("weight");
+  const usesGenericWeight =
+    !usesPounds && !headers.includes("weight_kg") && headers.includes("weight");
   const warnings: string[] = [];
   if (usesPounds) warnings.push("Weights in pounds will be converted to kilograms.");
   if (usesGenericWeight) warnings.push("The generic weight column is treated as kilograms.");
@@ -218,13 +238,15 @@ export function parseWorkoutCsv(
 
   records.forEach((record) => {
     const reasons: string[] = [];
-    const title = recordValue(record, "title", "workout_title", "workout_name") || "Imported workout";
+    const title =
+      recordValue(record, "title", "workout_title", "workout_name") || "Imported workout";
     const exerciseName = recordValue(record, "exercise_title", "exercise_name");
     const start = parseDate(recordValue(record, "start_time", "date"));
     if (record.__columnMismatch === "true") reasons.push("column count does not match the header");
     if (!exerciseName) reasons.push("exercise title is missing");
     if (!start) reasons.push("start date is invalid");
-    if (start && dateKey(start) > dateKey(now)) reasons.push("future workout dates are not accepted");
+    if (start && dateKey(start) > dateKey(now))
+      reasons.push("future workout dates are not accepted");
 
     const endRaw = recordValue(record, "end_time");
     const end = endRaw ? parseDate(endRaw) : null;
@@ -280,17 +302,20 @@ export function parseWorkoutCsv(
     }
     const entry = workout.entries.get(entryKey)!;
     const index = setIndex.value ?? entry.sets.length;
-    const weightKg = kg.value
-      ?? (pounds.value === null ? generic.value : Math.round(pounds.value * KG_PER_POUND * 100) / 100);
-    entry.sets.push(normalizedImportedSet({
-      index,
-      type: recordValue(record, "set_type") || "normal",
-      weightKg,
-      reps: reps.value,
-      rawRpe: rpe.value,
-      explicitImportedRir: rir.value,
-      sourceSetId: `${identity}:${entryKey}:${index}`,
-    }));
+    const weightKg =
+      kg.value ??
+      (pounds.value === null ? generic.value : Math.round(pounds.value * KG_PER_POUND * 100) / 100);
+    entry.sets.push(
+      normalizedImportedSet({
+        index,
+        type: recordValue(record, "set_type") || "normal",
+        weightKg,
+        reps: reps.value,
+        rawRpe: rpe.value,
+        explicitImportedRir: rir.value,
+        sourceSetId: `${identity}:${entryKey}:${index}`,
+      }),
+    );
     exerciseCounts.set(exerciseName, (exerciseCounts.get(exerciseName) ?? 0) + 1);
   });
 
@@ -313,10 +338,14 @@ export function parseWorkoutCsv(
       setCount,
     }));
   if (unmatchedExercises.length) {
-    warnings.push(`${unmatchedExercises.length} exercise${unmatchedExercises.length === 1 ? "" : "s"} will be kept as unmapped custom exercises.`);
+    warnings.push(
+      `${unmatchedExercises.length} exercise${unmatchedExercises.length === 1 ? "" : "s"} will be kept as unmapped custom exercises.`,
+    );
   }
   if (rejectedRows.length) {
-    warnings.push(`${rejectedRows.length} invalid row${rejectedRows.length === 1 ? " was" : "s were"} rejected.`);
+    warnings.push(
+      `${rejectedRows.length} invalid row${rejectedRows.length === 1 ? " was" : "s were"} rejected.`,
+    );
   }
 
   return {
@@ -327,9 +356,11 @@ export function parseWorkoutCsv(
     rejectedRows,
     acceptedRowCount: records.length - rejectedRows.length,
     totalRowCount: records.length,
-    setCount: normalizedWorkouts.reduce((total, workout) => (
-      total + workout.entries.reduce((entryTotal, entry) => entryTotal + entry.sets.length, 0)
-    ), 0),
+    setCount: normalizedWorkouts.reduce(
+      (total, workout) =>
+        total + workout.entries.reduce((entryTotal, entry) => entryTotal + entry.sets.length, 0),
+      0,
+    ),
     dateRange: dateRange(normalizedWorkouts),
     unmatchedExercises,
   };
@@ -341,9 +372,11 @@ export function buildWorkoutImportPlan(
   mode: WorkoutImportMode,
 ): WorkoutImportPlan {
   const changes = pending.workouts.map((incoming): WorkoutImportChange => {
-    const existing = mode === "replace"
-      ? null
-      : data.workouts.find((workout) => workout.sourceIdentity === incoming.sourceIdentity) ?? null;
+    const existing =
+      mode === "replace"
+        ? null
+        : (data.workouts.find((workout) => workout.sourceIdentity === incoming.sourceIdentity) ??
+          null);
     const comparison = compareSourceWorkout(existing, incoming) as {
       status: WorkoutImportStatus;
       incoming: Workout;
@@ -373,7 +406,14 @@ function customExercise({ id, name }: { id: string; name: string }): CustomExerc
   return {
     id,
     name,
-    short: name.split(/\s+/).slice(0, 2).map((part) => part[0]).join("").toUpperCase().slice(0, 5) || "EX",
+    short:
+      name
+        .split(/\s+/)
+        .slice(0, 2)
+        .map((part) => part[0])
+        .join("")
+        .toUpperCase()
+        .slice(0, 5) || "EX",
     primary: [],
     secondary: [],
     pattern: "Imported",
@@ -416,10 +456,12 @@ export function commitWorkoutImport(input: {
     batchId = `workout-import-${Date.now()}`,
   } = input;
   if (pending.rejectedRows.length && !acceptValidRowsOnly) {
-    throw new Error("Confirm that only valid rows should be imported after reviewing rejected rows.");
+    throw new Error(
+      "Confirm that only valid rows should be imported after reviewing rejected rows.",
+    );
   }
   const plan = buildWorkoutImportPlan(data, pending, mode);
-  let workouts = mode === "replace" ? [] : [...data.workouts];
+  const workouts = mode === "replace" ? [] : [...data.workouts];
   const affectedDates: string[] = [];
   plan.changes.forEach((change) => {
     if (change.status === "unchanged" || change.status === "conflicted") return;

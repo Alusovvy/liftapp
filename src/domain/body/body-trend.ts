@@ -33,9 +33,7 @@ function rounded(value: number): number {
 function median(values: number[]): number {
   const sorted = [...values].sort((left, right) => left - right);
   const middle = Math.floor(sorted.length / 2);
-  return sorted.length % 2
-    ? sorted[middle]!
-    : (sorted[middle - 1]! + sorted[middle]!) / 2;
+  return sorted.length % 2 ? sorted[middle]! : (sorted[middle - 1]! + sorted[middle]!) / 2;
 }
 
 function reviewReason(
@@ -70,17 +68,19 @@ export function buildBodyTrend(
     })
     .sort((left, right) => left.date.localeCompare(right.date));
   const latest = all.at(-1);
-  const cutoff = latest && window !== "all"
-    ? utcDay(latest.date) - ((window - 1) * 86_400_000)
-    : Number.NEGATIVE_INFINITY;
+  const cutoff =
+    latest && window !== "all"
+      ? utcDay(latest.date) - (window - 1) * 86_400_000
+      : Number.NEGATIVE_INFINITY;
   const selected = all.filter((point) => utcDay(point.date) >= cutoff);
   const points: BodyTrendPoint[] = selected.map((point, index) => ({
     ...point,
     reviewReason: reviewReason(metric, selected[index - 1], point),
   }));
-  const spanDays = points.length > 1
-    ? Math.round((utcDay(points.at(-1)!.date) - utcDay(points[0]!.date)) / 86_400_000)
-    : 0;
+  const spanDays =
+    points.length > 1
+      ? Math.round((utcDay(points.at(-1)!.date) - utcDay(points[0]!.date)) / 86_400_000)
+      : 0;
   const method = `Median change between consecutive recorded measurements; ${
     window === "all" ? "all available history" : `${window}-day window`
   }. No missing days are interpolated.`;
@@ -105,9 +105,12 @@ export function buildBodyTrend(
   });
   const weeklyChange = rounded(median(slopes));
   const stableThreshold = metric === "weightKg" ? 0.1 : 0.15;
-  const direction: BodyTrendDirection = Math.abs(weeklyChange) < stableThreshold
-    ? "stable"
-    : weeklyChange > 0 ? "increased" : "decreased";
+  const direction: BodyTrendDirection =
+    Math.abs(weeklyChange) < stableThreshold
+      ? "stable"
+      : weeklyChange > 0
+        ? "increased"
+        : "decreased";
 
   return {
     metric,

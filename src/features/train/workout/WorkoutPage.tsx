@@ -41,15 +41,14 @@ function parseOptionalNumber(
 }
 
 function exerciseName(data: LiftwiseData, exerciseId: string): string {
-  return EXERCISE_BY_ID.get(exerciseId)?.name
-    ?? data.customExercises.find((exercise) => exercise.id === exerciseId)?.name
-    ?? exerciseId;
+  return (
+    EXERCISE_BY_ID.get(exerciseId)?.name ??
+    data.customExercises.find((exercise) => exercise.id === exerciseId)?.name ??
+    exerciseId
+  );
 }
 
-function referenceLabel(
-  weightKg: number | null,
-  reps: number | null,
-): string {
+function referenceLabel(weightKg: number | null, reps: number | null): string {
   if (weightKg === null && reps === null) return "No previous set";
   if (weightKg === null) return `${reps ?? "—"} reps`;
   return `${weightKg} kg × ${reps ?? "—"}`;
@@ -67,15 +66,15 @@ export function WorkoutPage({
   const [selectedExerciseId, setSelectedExerciseId] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [confirmDiscard, setConfirmDiscard] = useState(false);
-  const latest = [...data.workouts].sort((left, right) => (
-    (right.endTime ?? right.date).localeCompare(left.endTime ?? left.date)
-  ))[0];
+  const latest = [...data.workouts].sort((left, right) =>
+    (right.endTime ?? right.date).localeCompare(left.endTime ?? left.date),
+  )[0];
 
   const availableExercises = useMemo(() => {
     const existing = new Set(draft?.entries.map((entry) => entry.exerciseId) ?? []);
-    const catalog = EXERCISE_CATALOG
-      .filter((exercise) => isExerciseAvailable(exercise, data.profile.equipment))
-      .map((exercise) => ({ id: exercise.id, name: exercise.name }));
+    const catalog = EXERCISE_CATALOG.filter((exercise) =>
+      isExerciseAvailable(exercise, data.profile.equipment),
+    ).map((exercise) => ({ id: exercise.id, name: exercise.name }));
     const custom = data.customExercises.map((exercise) => ({
       id: exercise.id,
       name: exercise.name,
@@ -90,7 +89,9 @@ export function WorkoutPage({
     try {
       onDraftChange(change());
     } catch (caught) {
-      setError(caught instanceof Error ? caught.message : "The workout draft could not be updated.");
+      setError(
+        caught instanceof Error ? caught.message : "The workout draft could not be updated.",
+      );
     }
   };
 
@@ -101,8 +102,8 @@ export function WorkoutPage({
           <p className="eyebrow">Workout workspace</p>
           <h2>Start with a clear plan</h2>
           <p>
-            Previous loads are carried forward to reduce typing. Nothing becomes history until
-            you finish the workout.
+            Previous loads are carried forward to reduce typing. Nothing becomes history until you
+            finish the workout.
           </p>
           {draftProblem ? (
             <div className="import-error" role="alert">
@@ -145,7 +146,9 @@ export function WorkoutPage({
           <aside className="workout-last-session">
             <span>Last completed</span>
             <strong>{latest.name}</strong>
-            <small>{latest.date} · {latest.entries.length} exercises</small>
+            <small>
+              {latest.date} · {latest.entries.length} exercises
+            </small>
           </aside>
         ) : null}
       </div>
@@ -166,23 +169,34 @@ export function WorkoutPage({
             <span>Workout name</span>
             <input
               value={draft.name}
-              onChange={(event) => applyChange(() => (
-                updateDraftDetails(draft, { name: event.target.value })
-              ))}
+              onChange={(event) =>
+                applyChange(() => updateDraftDetails(draft, { name: event.target.value }))
+              }
             />
           </label>
           <p>
             Mark a set done after performing it. Unchecked planning rows are not saved to history.
           </p>
         </div>
-        <div className="workout-progress" aria-label={`${completionPercent}% of planned sets complete`}>
-          <strong>{readiness.completedSets}/{readiness.totalSets}</strong>
+        <div
+          className="workout-progress"
+          aria-label={`${completionPercent}% of planned sets complete`}
+        >
+          <strong>
+            {readiness.completedSets}/{readiness.totalSets}
+          </strong>
           <span>sets complete</span>
-          <div aria-hidden="true"><i style={{ width: `${completionPercent}%` }} /></div>
+          <div aria-hidden="true">
+            <i style={{ width: `${completionPercent}%` }} />
+          </div>
         </div>
       </header>
 
-      {error ? <div className="save-error" role="alert">{error}</div> : null}
+      {error ? (
+        <div className="save-error" role="alert">
+          {error}
+        </div>
+      ) : null}
 
       <div className="rir-explainer">
         <strong>RIR starts at 3 when no target is provided.</strong>
@@ -221,7 +235,10 @@ export function WorkoutPage({
                 {entry.sets.map((set, index) => {
                   const setNumber = index + 1;
                   return (
-                    <div className={`active-set ${set.completed ? "is-complete" : ""}`} key={set.id}>
+                    <div
+                      className={`active-set ${set.completed ? "is-complete" : ""}`}
+                      key={set.id}
+                    >
                       <strong className="set-number">{setNumber}</strong>
                       <span className="set-reference">
                         {referenceLabel(set.referenceWeightKg, set.referenceReps)}
@@ -236,15 +253,16 @@ export function WorkoutPage({
                           max="2000"
                           step={data.profile.loadIncrementKg}
                           value={set.weightKg ?? ""}
-                          onChange={(event) => applyChange(() => updateDraftSet(
-                            draft,
-                            entry.id,
-                            set.id,
-                            { weightKg: parseOptionalNumber(event.target.value, {
-                              minimum: 0,
-                              maximum: 2000,
-                            }) },
-                          ))}
+                          onChange={(event) =>
+                            applyChange(() =>
+                              updateDraftSet(draft, entry.id, set.id, {
+                                weightKg: parseOptionalNumber(event.target.value, {
+                                  minimum: 0,
+                                  maximum: 2000,
+                                }),
+                              }),
+                            )
+                          }
                         />
                       </label>
                       <label>
@@ -256,16 +274,17 @@ export function WorkoutPage({
                           min="1"
                           max="1000"
                           value={set.reps ?? ""}
-                          onChange={(event) => applyChange(() => updateDraftSet(
-                            draft,
-                            entry.id,
-                            set.id,
-                            { reps: parseOptionalNumber(event.target.value, {
-                              minimum: 1,
-                              maximum: 1000,
-                              integer: true,
-                            }) },
-                          ))}
+                          onChange={(event) =>
+                            applyChange(() =>
+                              updateDraftSet(draft, entry.id, set.id, {
+                                reps: parseOptionalNumber(event.target.value, {
+                                  minimum: 1,
+                                  maximum: 1000,
+                                  integer: true,
+                                }),
+                              }),
+                            )
+                          }
                         />
                       </label>
                       <label>
@@ -278,15 +297,16 @@ export function WorkoutPage({
                           max="10"
                           step="0.5"
                           value={set.rir ?? ""}
-                          onChange={(event) => applyChange(() => updateDraftSet(
-                            draft,
-                            entry.id,
-                            set.id,
-                            { rir: parseOptionalNumber(event.target.value, {
-                              minimum: 0,
-                              maximum: 10,
-                            }) },
-                          ))}
+                          onChange={(event) =>
+                            applyChange(() =>
+                              updateDraftSet(draft, entry.id, set.id, {
+                                rir: parseOptionalNumber(event.target.value, {
+                                  minimum: 0,
+                                  maximum: 10,
+                                }),
+                              }),
+                            )
+                          }
                         />
                       </label>
                       <label className="set-complete">
@@ -295,21 +315,22 @@ export function WorkoutPage({
                           aria-label={`Mark ${name} set ${setNumber} complete`}
                           type="checkbox"
                           checked={set.completed}
-                          onChange={(event) => applyChange(() => updateDraftSet(
-                            draft,
-                            entry.id,
-                            set.id,
-                            { completed: event.target.checked },
-                          ))}
+                          onChange={(event) =>
+                            applyChange(() =>
+                              updateDraftSet(draft, entry.id, set.id, {
+                                completed: event.target.checked,
+                              }),
+                            )
+                          }
                         />
                       </label>
                       <button
                         className="set-remove"
                         type="button"
                         aria-label={`Remove ${name} set ${setNumber}`}
-                        onClick={() => applyChange(() => (
-                          removeSetFromDraft(draft, entry.id, set.id)
-                        ))}
+                        onClick={() =>
+                          applyChange(() => removeSetFromDraft(draft, entry.id, set.id))
+                        }
                       >
                         ×
                       </button>
@@ -342,7 +363,9 @@ export function WorkoutPage({
           >
             <option value="">Choose an available exercise</option>
             {availableExercises.map((exercise) => (
-              <option key={exercise.id} value={exercise.id}>{exercise.name}</option>
+              <option key={exercise.id} value={exercise.id}>
+                {exercise.name}
+              </option>
             ))}
           </select>
         </label>
@@ -364,9 +387,9 @@ export function WorkoutPage({
         <textarea
           rows={3}
           value={draft.notes}
-          onChange={(event) => applyChange(() => (
-            updateDraftDetails(draft, { notes: event.target.value })
-          ))}
+          onChange={(event) =>
+            applyChange(() => updateDraftDetails(draft, { notes: event.target.value }))
+          }
           placeholder="Only note what will help you next time."
         />
       </label>
@@ -381,7 +404,10 @@ export function WorkoutPage({
           ) : (
             <>
               <strong>Ready to finish</strong>
-              <span>Only {readiness.completedSets} completed set{readiness.completedSets === 1 ? "" : "s"} will be saved.</span>
+              <span>
+                Only {readiness.completedSets} completed set
+                {readiness.completedSets === 1 ? "" : "s"} will be saved.
+              </span>
             </>
           )}
         </div>
@@ -391,12 +417,20 @@ export function WorkoutPage({
               <button className="button button-danger" type="button" onClick={onDiscard}>
                 Confirm discard
               </button>
-              <button className="text-button" type="button" onClick={() => setConfirmDiscard(false)}>
+              <button
+                className="text-button"
+                type="button"
+                onClick={() => setConfirmDiscard(false)}
+              >
                 Keep workout
               </button>
             </>
           ) : (
-            <button className="text-button danger-text" type="button" onClick={() => setConfirmDiscard(true)}>
+            <button
+              className="text-button danger-text"
+              type="button"
+              onClick={() => setConfirmDiscard(true)}
+            >
               Discard draft
             </button>
           )}

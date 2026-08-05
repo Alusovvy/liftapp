@@ -4,17 +4,15 @@ const INPUT_BY_IMPORT_TYPE = Object.freeze({
   backup: "#backupImportInput",
 });
 
-export function bindImportChooser({
-  root = document,
-  openModal,
-  closeModal,
-} = {}) {
+export function bindImportChooser({ root = document, openModal, closeModal } = {}) {
   if (typeof openModal !== "function" || typeof closeModal !== "function") {
     throw new TypeError("Import chooser requires openModal and closeModal callbacks.");
   }
 
   const handleClick = (event) => {
-    const clickedElement = event.target?.closest?.("[data-open-import-choice], [data-select-import]");
+    const clickedElement = event.target?.closest?.(
+      "[data-open-import-choice], [data-select-import]",
+    );
     if (!clickedElement) return;
 
     if (clickedElement.matches("[data-open-import-choice]")) {

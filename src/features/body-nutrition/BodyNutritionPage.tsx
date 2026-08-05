@@ -21,11 +21,13 @@ function recentDateKeys(days: number): string[] {
   });
 }
 
-function average(days: NutritionDay[], key: keyof Pick<
-  NutritionDay,
-  "caloriesKcal" | "proteinG" | "carbsG" | "fatG" | "fiberG"
->): number | null {
-  const values = days.map((day) => day[key]).filter((value): value is number => typeof value === "number");
+function average(
+  days: NutritionDay[],
+  key: keyof Pick<NutritionDay, "caloriesKcal" | "proteinG" | "carbsG" | "fatG" | "fiberG">,
+): number | null {
+  const values = days
+    .map((day) => day[key])
+    .filter((value): value is number => typeof value === "number");
   if (!values.length) return null;
   return Math.round((values.reduce((sum, value) => sum + value, 0) / values.length) * 10) / 10;
 }
@@ -50,16 +52,19 @@ export function BodyNutritionPage({ data, onOpenImport }: BodyNutritionPageProps
     ["Fat", average(recentNutrition, "fatG"), "g"],
     ["Fiber", average(recentNutrition, "fiberG"), "g"],
   ] as const;
-  const latestNutritionMetrics = latestNutrition ? [
-    ["Calories", latestNutrition.caloriesKcal, "kcal"],
-    ["Protein", latestNutrition.proteinG, "g"],
-    ["Carbohydrates", latestNutrition.carbsG, "g"],
-    ["Fat", latestNutrition.fatG, "g"],
-    ["Fiber", latestNutrition.fiberG, "g"],
-  ] as const : [];
-  const trendTitle = trend.direction === "insufficient"
-    ? "Not enough data for a trend"
-    : `${metricLabels[metric]} ${trend.direction}`;
+  const latestNutritionMetrics = latestNutrition
+    ? ([
+        ["Calories", latestNutrition.caloriesKcal, "kcal"],
+        ["Protein", latestNutrition.proteinG, "g"],
+        ["Carbohydrates", latestNutrition.carbsG, "g"],
+        ["Fat", latestNutrition.fatG, "g"],
+        ["Fiber", latestNutrition.fiberG, "g"],
+      ] as const)
+    : [];
+  const trendTitle =
+    trend.direction === "insufficient"
+      ? "Not enough data for a trend"
+      : `${metricLabels[metric]} ${trend.direction}`;
 
   return (
     <div className="page">
@@ -68,7 +73,8 @@ export function BodyNutritionPage({ data, onOpenImport }: BodyNutritionPageProps
           <p className="eyebrow">Body & nutrition</p>
           <h1>Context without judgment</h1>
           <p className="page-intro">
-            Measurements and Fitatu records stay descriptive. Missing days are never treated as zero.
+            Measurements and Fitatu records stay descriptive. Missing days are never treated as
+            zero.
           </p>
         </div>
       </header>
@@ -85,7 +91,8 @@ export function BodyNutritionPage({ data, onOpenImport }: BodyNutritionPageProps
               </strong>
               <span>{latestBody.date}</span>
               <p>
-                {typeof latestBody.bodyFatPercent === "number" && typeof latestBody.weightKg === "number"
+                {typeof latestBody.bodyFatPercent === "number" &&
+                typeof latestBody.weightKg === "number"
                   ? `${latestBody.bodyFatPercent}% body fat recorded`
                   : typeof latestBody.weightKg === "number"
                     ? "Body-fat percentage not recorded"
@@ -98,14 +105,18 @@ export function BodyNutritionPage({ data, onOpenImport }: BodyNutritionPageProps
               <p>Add a measurement when useful; it is not required for training decisions.</p>
             </>
           )}
-          <a className="button button-secondary" href="./index.html">Manage measurements</a>
+          <a className="button button-secondary" href="./index.html">
+            Manage measurements
+          </a>
         </article>
         <article className="context-card nutrition-completeness-card">
           <p className="card-kicker">Recent nutrition</p>
           <strong className="context-value">{recentNutrition.length} of 7 days</strong>
           <span>imported in the current rolling window</span>
           <p>
-            {latestNutrition ? `Latest recorded day: ${latestNutrition.date}` : "No Fitatu nutrition imported"}
+            {latestNutrition
+              ? `Latest recorded day: ${latestNutrition.date}`
+              : "No Fitatu nutrition imported"}
           </p>
           <button className="button button-secondary" type="button" onClick={onOpenImport}>
             Open Fitatu import
@@ -127,7 +138,10 @@ export function BodyNutritionPage({ data, onOpenImport }: BodyNutritionPageProps
           <div className="body-trend-controls">
             <label>
               <span>Measurement</span>
-              <select value={metric} onChange={(event) => setMetric(event.target.value as BodyTrendMetric)}>
+              <select
+                value={metric}
+                onChange={(event) => setMetric(event.target.value as BodyTrendMetric)}
+              >
                 <option value="weightKg">Weight</option>
                 <option value="bodyFatPercent">Body fat</option>
               </select>
@@ -136,9 +150,11 @@ export function BodyNutritionPage({ data, onOpenImport }: BodyNutritionPageProps
               <span>Window</span>
               <select
                 value={String(window)}
-                onChange={(event) => setWindow(
-                  event.target.value === "all" ? "all" : Number(event.target.value) as 30 | 90,
-                )}
+                onChange={(event) =>
+                  setWindow(
+                    event.target.value === "all" ? "all" : (Number(event.target.value) as 30 | 90),
+                  )
+                }
               >
                 <option value="30">30 days</option>
                 <option value="90">90 days</option>
@@ -149,11 +165,21 @@ export function BodyNutritionPage({ data, onOpenImport }: BodyNutritionPageProps
         </header>
 
         {trend.points.length ? (
-          <div className="body-point-list" role="list" aria-label={`${metricLabels[metric]} raw measurements`}>
+          <div
+            className="body-point-list"
+            role="list"
+            aria-label={`${metricLabels[metric]} raw measurements`}
+          >
             {trend.points.map((point) => (
-              <div role="listitem" key={point.id} className={point.reviewReason ? "needs-review" : ""}>
+              <div
+                role="listitem"
+                key={point.id}
+                className={point.reviewReason ? "needs-review" : ""}
+              >
                 <time dateTime={point.date}>{point.date}</time>
-                <strong>{point.value} {trend.unit}</strong>
+                <strong>
+                  {point.value} {trend.unit}
+                </strong>
                 <span>{point.reviewReason ?? "Recorded value"}</span>
               </div>
             ))}
@@ -171,7 +197,9 @@ export function BodyNutritionPage({ data, onOpenImport }: BodyNutritionPageProps
         <div className="section-heading">
           <div>
             <p className="eyebrow">Rolling context</p>
-            <h2 id="nutrition-average-title">Recent nutrition · {recentNutrition.length} of 7 days imported</h2>
+            <h2 id="nutrition-average-title">
+              Recent nutrition · {recentNutrition.length} of 7 days imported
+            </h2>
           </div>
           <span>
             {data.integrations.fitatu.lastImportAt
@@ -184,7 +212,9 @@ export function BodyNutritionPage({ data, onOpenImport }: BodyNutritionPageProps
           {nutritionMetrics.map(([label, value, unit]) => (
             <div key={label}>
               <dt>{label}</dt>
-              <dd>{value ?? "—"} {value === null ? "" : unit}</dd>
+              <dd>
+                {value ?? "—"} {value === null ? "" : unit}
+              </dd>
             </div>
           ))}
         </dl>
@@ -198,7 +228,9 @@ export function BodyNutritionPage({ data, onOpenImport }: BodyNutritionPageProps
             <p className="eyebrow">Most recent recorded day</p>
             <h3>{latestNutrition?.date ?? "No recorded day"}</h3>
             {latestNutrition ? (
-              <span>Source: {latestNutrition.source} · {latestNutrition.sourceRowCount} source rows</span>
+              <span>
+                Source: {latestNutrition.source} · {latestNutrition.sourceRowCount} source rows
+              </span>
             ) : null}
           </div>
           {latestNutrition ? (
@@ -206,7 +238,9 @@ export function BodyNutritionPage({ data, onOpenImport }: BodyNutritionPageProps
               {latestNutritionMetrics.map(([label, value, unit]) => (
                 <div key={label}>
                   <dt>{label}</dt>
-                  <dd>{value ?? "—"} {value === null ? "" : unit}</dd>
+                  <dd>
+                    {value ?? "—"} {value === null ? "" : unit}
+                  </dd>
                 </div>
               ))}
             </dl>

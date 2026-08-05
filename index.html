@@ -1,23 +1,21 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
   <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta
       name="description"
       content="Liftwise is a local-first workout log with progress charts and evidence-informed training insights."
-    >
+    />
     <title>Liftwise — Train with intent</title>
-    <meta name="theme-color" content="#151713">
-    <link rel="icon" href="icons/liftwise-icon.svg" type="image/svg+xml">
+    <meta name="theme-color" content="#151713" />
+    <link rel="icon" href="icons/liftwise-icon.svg" type="image/svg+xml" />
   </head>
   <body>
     <div class="app-shell">
       <aside class="sidebar" aria-label="Application sidebar">
         <a class="brand" href="#dashboard" aria-label="Liftwise home">
-          <span class="brand-mark" aria-hidden="true">
-            <i></i><i></i><i></i>
-          </span>
+          <span class="brand-mark" aria-hidden="true"> <i></i><i></i><i></i> </span>
           <span>lift<span>wise</span></span>
         </a>
 
@@ -46,9 +44,18 @@
               <strong>Alex's training</strong>
               <span>Hypertrophy · 4 days</span>
             </div>
-            <button id="profileButton" class="icon-button" type="button" aria-label="Edit training profile">⚙</button>
+            <button
+              id="profileButton"
+              class="icon-button"
+              type="button"
+              aria-label="Edit training profile"
+            >
+              ⚙
+            </button>
           </div>
-          <button id="researchButton" class="research-link" type="button"><span>◌</span> Method &amp; sources</button>
+          <button id="researchButton" class="research-link" type="button">
+            <span>◌</span> Method &amp; sources
+          </button>
         </div>
       </aside>
 
@@ -60,12 +67,28 @@
           </div>
           <div class="date-chip" id="todayLabel"></div>
           <div class="mobile-settings-actions">
-            <button id="mobileResearchButton" class="mobile-settings-button" type="button" aria-label="Open method and sources">ⓘ</button>
-            <button id="mobileProfileButton" class="mobile-settings-button" type="button" aria-label="Edit training profile">⚙</button>
+            <button
+              id="mobileResearchButton"
+              class="mobile-settings-button"
+              type="button"
+              aria-label="Open method and sources"
+            >
+              ⓘ
+            </button>
+            <button
+              id="mobileProfileButton"
+              class="mobile-settings-button"
+              type="button"
+              aria-label="Edit training profile"
+            >
+              ⚙
+            </button>
           </div>
           <div class="topbar-actions">
             <a class="text-button" href="./modern.html">New coaching view</a>
-            <button id="dataCenterButton" class="text-button" type="button">Data &amp; backup</button>
+            <button id="dataCenterButton" class="text-button" type="button">
+              Data &amp; backup
+            </button>
             <button id="backupButton" class="text-button" type="button">Backup JSON</button>
             <button id="exportCsvButton" class="text-button" type="button">Export CSV</button>
             <button
@@ -75,25 +98,47 @@
               data-open-import-choice
               commandfor="importChoiceModal"
               command="show-modal"
-            >Import file</button>
-            <input id="importInput" type="file" accept=".csv,text/csv" hidden>
-            <input id="backupImportInput" type="file" accept=".json,application/json" hidden>
-            <button id="newWorkoutButton" class="primary-button" type="button"><span>＋</span> Log workout</button>
+            >
+              Import file
+            </button>
+            <input id="importInput" type="file" accept=".csv,text/csv" hidden />
+            <input id="backupImportInput" type="file" accept=".json,application/json" hidden />
+            <button id="newWorkoutButton" class="primary-button" type="button">
+              <span>＋</span> Log workout
+            </button>
           </div>
         </header>
 
-        <div id="persistentStatus" class="persistent-status" role="status" aria-live="polite" hidden></div>
+        <div
+          id="persistentStatus"
+          class="persistent-status"
+          role="status"
+          aria-live="polite"
+          hidden
+        ></div>
 
         <section id="dashboard" class="view active-view">
           <aside id="storageRecoveryBanner" class="storage-recovery-banner" role="alert" hidden>
-            <div><strong>Stored data needs attention</strong><span id="storageRecoveryMessage"></span></div>
-            <div><button type="button" class="secondary-button compact" data-download-recovery>Download recovery</button><button type="button" class="secondary-button compact" data-restore-recovery>Restore previous snapshot</button><button type="button" class="text-button compact" data-start-fresh>Start fresh</button></div>
+            <div>
+              <strong>Stored data needs attention</strong><span id="storageRecoveryMessage"></span>
+            </div>
+            <div>
+              <button type="button" class="secondary-button compact" data-download-recovery>
+                Download recovery</button
+              ><button type="button" class="secondary-button compact" data-restore-recovery>
+                Restore previous snapshot</button
+              ><button type="button" class="text-button compact" data-start-fresh>
+                Start fresh
+              </button>
+            </div>
           </aside>
           <div class="page-heading">
             <div>
               <p class="eyebrow">TRAINING DASHBOARD</p>
               <h1 id="welcomeHeading">Good morning, Alex.</h1>
-              <p class="subtle" id="dashboardSubtitle">Your plan is balanced. A small pull focus would make it even stronger.</p>
+              <p class="subtle" id="dashboardSubtitle">
+                Your plan is balanced. A small pull focus would make it even stronger.
+              </p>
             </div>
             <div class="week-control" role="group" aria-label="Selected reporting period">
               <button id="prevWeek" type="button" aria-label="Previous week">←</button>
@@ -103,8 +148,13 @@
           </div>
 
           <aside id="demoBanner" class="demo-banner" aria-label="Demo data notice" hidden>
-            <div><strong>Demo workouts are active</strong><span>They illustrate the coaching logic but are not your training history.</span></div>
-            <button id="clearDemoButton" type="button" class="secondary-button compact">Start with an empty log</button>
+            <div>
+              <strong>Demo workouts are active</strong
+              ><span>They illustrate the coaching logic but are not your training history.</span>
+            </div>
+            <button id="clearDemoButton" type="button" class="secondary-button compact">
+              Start with an empty log
+            </button>
           </aside>
 
           <article class="card recovery-card" id="recoveryCard">
@@ -115,21 +165,35 @@
                 <h2 id="recoveryTitle">Add today’s context</h2>
               </div>
             </div>
-            <p id="recoverySummary" class="recovery-summary">A 20-second check-in keeps set targets from automatically becoming “do more” advice on a low-recovery day.</p>
+            <p id="recoverySummary" class="recovery-summary">
+              A 20-second check-in keeps set targets from automatically becoming “do more” advice on
+              a low-recovery day.
+            </p>
             <div id="recoveryFactors" class="recovery-factors" aria-live="polite"></div>
             <div class="recovery-actions">
               <span id="recoveryStatus" class="status-pill neutral">Not checked</span>
-              <button id="recoveryCheckinButton" type="button" class="secondary-button compact">Check readiness</button>
+              <button id="recoveryCheckinButton" type="button" class="secondary-button compact">
+                Check readiness
+              </button>
             </div>
           </article>
 
           <section class="next-session" id="nextSessionCard">
             <div class="next-session-title">
               <span class="section-index">01</span>
-              <div><p class="eyebrow">PRIORITY WORK FOR YOUR NEXT SESSION</p><h2 id="nextSessionName">Upper — Pull focus</h2></div>
+              <div>
+                <p class="eyebrow">PRIORITY WORK FOR YOUR NEXT SESSION</p>
+                <h2 id="nextSessionName">Upper — Pull focus</h2>
+              </div>
             </div>
             <div class="next-session-summary" id="nextSessionSummary"></div>
-            <div class="next-session-actions"><button id="whySessionButton" class="next-session-link" type="button">Why this session?</button><button id="startSuggestedWorkout" class="dark-button" type="button">Review session <span>→</span></button></div>
+            <div class="next-session-actions">
+              <button id="whySessionButton" class="next-session-link" type="button">
+                Why this session?</button
+              ><button id="startSuggestedWorkout" class="dark-button" type="button">
+                Review session <span>→</span>
+              </button>
+            </div>
           </section>
 
           <div class="stat-grid" id="statGrid"></div>
@@ -141,10 +205,20 @@
                   <p class="eyebrow">WEEKLY DOSE</p>
                   <h2>Working sets this week</h2>
                 </div>
-                <div class="card-metric"><strong id="setDelta">+12%</strong><span id="setDeltaLabel">vs. last week</span></div>
+                <div class="card-metric">
+                  <strong id="setDelta">+12%</strong><span id="setDeltaLabel">vs. last week</span>
+                </div>
               </div>
-              <div class="chart-legend"><span><i class="legend-dot lime"></i> Non-warm-up sets</span><span class="muted" id="setTotalLabel">0 sets</span></div>
-              <div class="bar-chart" id="setChart" role="img" aria-label="Working sets by day for the selected week"></div>
+              <div class="chart-legend">
+                <span><i class="legend-dot lime"></i> Non-warm-up sets</span
+                ><span class="muted" id="setTotalLabel">0 sets</span>
+              </div>
+              <div
+                class="bar-chart"
+                id="setChart"
+                role="img"
+                aria-label="Working sets by day for the selected week"
+              ></div>
             </article>
 
             <article class="card readiness-card">
@@ -174,10 +248,16 @@
                   <p class="eyebrow">MUSCLE COVERAGE</p>
                   <h2>Where your sets are going</h2>
                 </div>
-                <button class="text-button compact view-switch" type="button" data-view="insights">Open coach →</button>
+                <button class="text-button compact view-switch" type="button" data-view="insights">
+                  Open coach →
+                </button>
               </div>
               <div id="muscleCoverage" class="muscle-coverage"></div>
-              <p class="card-footnote"><span class="legend-dot lime"></span> In range <span class="legend-dot amber"></span> Below range <span class="legend-dot rose"></span> Above range</p>
+              <p class="card-footnote">
+                <span class="legend-dot lime"></span> In range
+                <span class="legend-dot amber"></span> Below range
+                <span class="legend-dot rose"></span> Above range
+              </p>
             </article>
 
             <article class="card momentum-card">
@@ -191,16 +271,23 @@
               <div id="progressList" class="progress-list"></div>
             </article>
           </div>
-
         </section>
 
         <section id="workouts" class="view">
           <div class="page-heading compact-heading">
-            <div><p class="eyebrow">SESSION HISTORY</p><h1>Your workouts</h1><p class="subtle">Every logged working set feeds your training insights.</p></div>
-            <button id="newWorkoutButton2" class="primary-button" type="button"><span>＋</span> Log workout</button>
+            <div>
+              <p class="eyebrow">SESSION HISTORY</p>
+              <h1>Your workouts</h1>
+              <p class="subtle">Every logged working set feeds your training insights.</p>
+            </div>
+            <button id="newWorkoutButton2" class="primary-button" type="button">
+              <span>＋</span> Log workout
+            </button>
           </div>
           <div class="mobile-data-tools">
-            <button type="button" class="secondary-button" data-open-data-center>Data &amp; backup</button>
+            <button type="button" class="secondary-button" data-open-data-center>
+              Data &amp; backup
+            </button>
             <button type="button" class="secondary-button" data-backup-json>Backup JSON</button>
             <button type="button" class="secondary-button" data-export-csv>Export CSV</button>
             <button
@@ -209,10 +296,17 @@
               data-open-import-choice
               commandfor="importChoiceModal"
               command="show-modal"
-            >Import file</button>
+            >
+              Import file
+            </button>
           </div>
           <section id="routineSection" class="routine-section" hidden>
-            <div class="card-header"><div><p class="eyebrow">ROUTINES</p><h2>Start from a reusable structure</h2></div></div>
+            <div class="card-header">
+              <div>
+                <p class="eyebrow">ROUTINES</p>
+                <h2>Start from a reusable structure</h2>
+              </div>
+            </div>
             <div id="routineList" class="routine-list"></div>
           </section>
           <div class="workout-filter-row">
@@ -224,33 +318,73 @@
             <p id="workoutCountLabel" class="muted"></p>
           </div>
           <div class="workout-search-panel">
-            <label class="workout-search">Search sessions or exercises<input id="workoutSearch" type="search" placeholder="e.g. Bulgarian split squat"></label>
-            <label>Source<select id="workoutSourceFilter"><option value="all">All sources</option><option value="manual">Manual</option><option value="imported">Imported</option></select></label>
-            <label>From<input id="workoutDateFrom" type="date"></label>
-            <label>To<input id="workoutDateTo" type="date"></label>
-            <label class="inline-check"><input id="workoutMissingRir" type="checkbox"> Missing RIR only</label>
-            <button id="resetWorkoutFilters" type="button" class="text-button compact">Reset filters</button>
+            <label class="workout-search"
+              >Search sessions or exercises<input
+                id="workoutSearch"
+                type="search"
+                placeholder="e.g. Bulgarian split squat"
+            /></label>
+            <label
+              >Source<select id="workoutSourceFilter">
+                <option value="all">All sources</option>
+                <option value="manual">Manual</option>
+                <option value="imported">Imported</option>
+              </select></label
+            >
+            <label>From<input id="workoutDateFrom" type="date" /></label>
+            <label>To<input id="workoutDateTo" type="date" /></label>
+            <label class="inline-check"
+              ><input id="workoutMissingRir" type="checkbox" /> Missing RIR only</label
+            >
+            <button id="resetWorkoutFilters" type="button" class="text-button compact">
+              Reset filters
+            </button>
           </div>
           <div id="workoutList" class="workout-list"></div>
         </section>
 
         <section id="insights" class="view">
           <div class="page-heading compact-heading">
-            <div><p class="eyebrow">YOUR TRAINING COACH</p><h1>Make the next set count.</h1><p class="subtle">Rule-based prompts with the logged inputs and “why” behind each recommendation.</p></div>
-            <button id="adjustTargetsButton" class="secondary-button" type="button">Adjust targets</button>
+            <div>
+              <p class="eyebrow">YOUR TRAINING COACH</p>
+              <h1>Make the next set count.</h1>
+              <p class="subtle">
+                Rule-based prompts with the logged inputs and “why” behind each recommendation.
+              </p>
+            </div>
+            <button id="adjustTargetsButton" class="secondary-button" type="button">
+              Adjust targets
+            </button>
           </div>
-          <div class="coach-note"><span>✦</span><p>These are coaching prompts, not medical advice. Keep pain, injuries, and recovery in charge of the plan.</p></div>
+          <div class="coach-note">
+            <span>✦</span>
+            <p>
+              These are coaching prompts, not medical advice. Keep pain, injuries, and recovery in
+              charge of the plan.
+            </p>
+          </div>
           <div class="insight-grid" id="insightGrid"></div>
           <article class="card decision-card">
             <div class="card-header">
-              <div><p class="eyebrow">LOAD &amp; REP DECISIONS</p><h2>What to change next time</h2></div>
-              <span id="progressionContext" class="explain-chip">Based on recent comparable logs</span>
+              <div>
+                <p class="eyebrow">LOAD &amp; REP DECISIONS</p>
+                <h2>What to change next time</h2>
+              </div>
+              <span id="progressionContext" class="explain-chip"
+                >Based on recent comparable logs</span
+              >
             </div>
             <div id="progressionTable" class="progression-table"></div>
           </article>
           <section id="muscleStatusHost" class="muscle-status-host"></section>
           <article class="card recovery-history-card">
-            <div class="card-header"><div><p class="eyebrow">RECOVERY HISTORY</p><h2>Context from the last 30 days</h2></div><span class="explain-chip">Context, not causation</span></div>
+            <div class="card-header">
+              <div>
+                <p class="eyebrow">RECOVERY HISTORY</p>
+                <h2>Context from the last 30 days</h2>
+              </div>
+              <span class="explain-chip">Context, not causation</span>
+            </div>
             <div id="recoveryHistory" class="recovery-history"></div>
           </article>
         </section>
@@ -260,9 +394,14 @@
             <div>
               <p class="eyebrow">BODY METRICS</p>
               <h1>See the trend, not one weigh-in.</h1>
-              <p class="subtle">Log weight and body-fat estimates under consistent conditions alongside your training history.</p>
+              <p class="subtle">
+                Log weight and body-fat estimates under consistent conditions alongside your
+                training history.
+              </p>
             </div>
-            <button id="newMetricButton" class="primary-button" type="button"><span>＋</span> Log measurement</button>
+            <button id="newMetricButton" class="primary-button" type="button">
+              <span>＋</span> Log measurement
+            </button>
           </div>
 
           <div class="stat-grid body-stat-grid">
@@ -279,7 +418,9 @@
             <article class="stat-card body-stat-card protein-stat">
               <span id="dailyProteinLabel" class="stat-label">PROTEIN STARTING POINT</span>
               <strong id="dailyProteinTarget" class="stat-value">—</strong>
-              <span id="dailyProteinDetail" class="stat-detail">Log weight to estimate 1.6 g/kg/day</span>
+              <span id="dailyProteinDetail" class="stat-detail"
+                >Log weight to estimate 1.6 g/kg/day</span
+              >
             </article>
             <article class="stat-card body-stat-card sleep-stat">
               <span class="stat-label">SLEEP BASELINE</span>
@@ -296,10 +437,18 @@
               </div>
               <div class="nutrition-card-actions">
                 <span id="fitatuImportStatus" class="status-pill neutral">NO DATA</span>
-                <label class="secondary-button compact fitatu-import-label">Import Fitatu CSV<input id="fitatuImportInput" type="file" accept=".csv,text/csv"></label>
+                <label class="secondary-button compact fitatu-import-label"
+                  >Import Fitatu CSV<input
+                    id="fitatuImportInput"
+                    type="file"
+                    accept=".csv,text/csv"
+                /></label>
               </div>
             </div>
-            <p class="nutrition-intro">Import a Fitatu CSV export to compare recent protein intake with the practical body-weight-based range. Nutrition stays local in this browser.</p>
+            <p class="nutrition-intro">
+              Import a Fitatu CSV export to compare recent protein intake with the practical
+              body-weight-based range. Nutrition stays local in this browser.
+            </p>
             <div id="nutritionSummary" class="nutrition-summary"></div>
             <div id="nutritionHistory" class="nutrition-history"></div>
           </article>
@@ -313,101 +462,287 @@
                 </div>
                 <span id="muscleMapPeriod" class="trend-label">Rolling 7 days</span>
               </div>
-              <p class="body-muscle-intro">Select a muscle to see its recent exercises and the exact rule behind its status.</p>
+              <p class="body-muscle-intro">
+                Select a muscle to see its recent exercises and the exact rule behind its status.
+              </p>
               <div class="muscle-map-legend" role="group" aria-label="Muscle map status legend">
                 <span><i class="map-status-dot green"></i>On track</span>
                 <span><i class="map-status-dot yellow"></i>Needs attention</span>
                 <span><i class="map-status-dot red"></i>Logged stall</span>
               </div>
               <div class="body-muscle-map-wrap">
-                <svg id="bodyMuscleMap" class="body-muscle-map" viewBox="0 0 620 540" role="group" aria-label="Interactive front and back muscle training-status map">
-                  <text class="muscle-map-view-label" x="160" y="24" text-anchor="middle">FRONT</text>
-                  <text class="muscle-map-view-label" x="460" y="24" text-anchor="middle">BACK</text>
+                <svg
+                  id="bodyMuscleMap"
+                  class="body-muscle-map"
+                  viewBox="0 0 620 540"
+                  role="group"
+                  aria-label="Interactive front and back muscle training-status map"
+                >
+                  <text class="muscle-map-view-label" x="160" y="24" text-anchor="middle">
+                    FRONT
+                  </text>
+                  <text class="muscle-map-view-label" x="460" y="24" text-anchor="middle">
+                    BACK
+                  </text>
 
                   <g class="body-figure" aria-hidden="true">
                     <ellipse class="body-outline" cx="160" cy="55" rx="22" ry="25" />
-                    <path class="body-outline" d="M147 78 L173 78 L178 95 C189 97 199 102 206 109 C199 128 196 147 195 166 C194 190 187 211 176 229 L174 262 C169 271 151 271 146 262 L144 229 C133 211 126 190 125 166 C124 147 121 128 114 109 C121 102 131 97 142 95 Z" />
-                    <path class="body-outline" d="M121 106 C109 114 104 130 105 147 L109 184 C110 195 106 208 102 220 L96 243 C94 250 97 255 102 256 C108 257 111 252 113 246 L122 211 C126 198 128 186 127 170 L126 132 C126 119 130 109 134 102 Z" />
-                    <path class="body-outline" d="M199 106 C211 114 216 130 215 147 L211 184 C210 195 214 208 218 220 L224 243 C226 250 223 255 218 256 C212 257 209 252 207 246 L198 211 C194 198 192 186 193 170 L194 132 C194 119 190 109 186 102 Z" />
-                    <path class="body-outline" d="M146 260 C136 281 135 318 140 350 L145 397 L142 481 C142 492 147 498 153 498 L160 498 L164 399 L161 351 L161 266 Z" />
-                    <path class="body-outline" d="M174 260 C184 281 185 318 180 350 L175 397 L178 481 C178 492 173 498 167 498 L160 498 L156 399 L159 351 L159 266 Z" />
+                    <path
+                      class="body-outline"
+                      d="M147 78 L173 78 L178 95 C189 97 199 102 206 109 C199 128 196 147 195 166 C194 190 187 211 176 229 L174 262 C169 271 151 271 146 262 L144 229 C133 211 126 190 125 166 C124 147 121 128 114 109 C121 102 131 97 142 95 Z"
+                    />
+                    <path
+                      class="body-outline"
+                      d="M121 106 C109 114 104 130 105 147 L109 184 C110 195 106 208 102 220 L96 243 C94 250 97 255 102 256 C108 257 111 252 113 246 L122 211 C126 198 128 186 127 170 L126 132 C126 119 130 109 134 102 Z"
+                    />
+                    <path
+                      class="body-outline"
+                      d="M199 106 C211 114 216 130 215 147 L211 184 C210 195 214 208 218 220 L224 243 C226 250 223 255 218 256 C212 257 209 252 207 246 L198 211 C194 198 192 186 193 170 L194 132 C194 119 190 109 186 102 Z"
+                    />
+                    <path
+                      class="body-outline"
+                      d="M146 260 C136 281 135 318 140 350 L145 397 L142 481 C142 492 147 498 153 498 L160 498 L164 399 L161 351 L161 266 Z"
+                    />
+                    <path
+                      class="body-outline"
+                      d="M174 260 C184 281 185 318 180 350 L175 397 L178 481 C178 492 173 498 167 498 L160 498 L156 399 L159 351 L159 266 Z"
+                    />
 
                     <ellipse class="body-outline" cx="460" cy="55" rx="22" ry="25" />
-                    <path class="body-outline" d="M447 78 L473 78 L478 95 C489 97 499 102 506 109 C499 128 496 147 495 166 C494 190 487 211 476 229 L474 262 C469 271 451 271 446 262 L444 229 C433 211 426 190 425 166 C424 147 421 128 414 109 C421 102 431 97 442 95 Z" />
-                    <path class="body-outline" d="M421 106 C409 114 404 130 405 147 L409 184 C410 195 406 208 402 220 L396 243 C394 250 397 255 402 256 C408 257 411 252 413 246 L422 211 C426 198 428 186 427 170 L426 132 C426 119 430 109 434 102 Z" />
-                    <path class="body-outline" d="M499 106 C511 114 516 130 515 147 L511 184 C510 195 514 208 518 220 L524 243 C526 250 523 255 518 256 C512 257 509 252 507 246 L498 211 C494 198 492 186 493 170 L494 132 C494 119 490 109 486 102 Z" />
-                    <path class="body-outline" d="M446 260 C436 281 435 318 440 350 L445 397 L442 481 C442 492 447 498 453 498 L460 498 L464 399 L461 351 L461 266 Z" />
-                    <path class="body-outline" d="M474 260 C484 281 485 318 480 350 L475 397 L478 481 C478 492 473 498 467 498 L460 498 L456 399 L459 351 L459 266 Z" />
-                    <path class="body-contour" d="M160 102 L160 256 M146 263 L160 274 L174 263 M160 276 L160 486 M460 102 L460 256 M446 263 L460 274 L474 263 M460 276 L460 486" />
+                    <path
+                      class="body-outline"
+                      d="M447 78 L473 78 L478 95 C489 97 499 102 506 109 C499 128 496 147 495 166 C494 190 487 211 476 229 L474 262 C469 271 451 271 446 262 L444 229 C433 211 426 190 425 166 C424 147 421 128 414 109 C421 102 431 97 442 95 Z"
+                    />
+                    <path
+                      class="body-outline"
+                      d="M421 106 C409 114 404 130 405 147 L409 184 C410 195 406 208 402 220 L396 243 C394 250 397 255 402 256 C408 257 411 252 413 246 L422 211 C426 198 428 186 427 170 L426 132 C426 119 430 109 434 102 Z"
+                    />
+                    <path
+                      class="body-outline"
+                      d="M499 106 C511 114 516 130 515 147 L511 184 C510 195 514 208 518 220 L524 243 C526 250 523 255 518 256 C512 257 509 252 507 246 L498 211 C494 198 492 186 493 170 L494 132 C494 119 490 109 486 102 Z"
+                    />
+                    <path
+                      class="body-outline"
+                      d="M446 260 C436 281 435 318 440 350 L445 397 L442 481 C442 492 447 498 453 498 L460 498 L464 399 L461 351 L461 266 Z"
+                    />
+                    <path
+                      class="body-outline"
+                      d="M474 260 C484 281 485 318 480 350 L475 397 L478 481 C478 492 473 498 467 498 L460 498 L456 399 L459 351 L459 266 Z"
+                    />
+                    <path
+                      class="body-contour"
+                      d="M160 102 L160 256 M146 263 L160 274 L174 263 M160 276 L160 486 M460 102 L460 256 M446 263 L460 274 L474 263 M460 276 L460 486"
+                    />
                   </g>
 
-                  <g class="muscle-region" data-muscle-region="Shoulders" role="button" tabindex="0" aria-pressed="false">
+                  <g
+                    class="muscle-region"
+                    data-muscle-region="Shoulders"
+                    role="button"
+                    tabindex="0"
+                    aria-pressed="false"
+                  >
                     <title>Shoulders</title>
-                    <path class="muscle-shape" d="M126 101 C115 104 109 114 110 126 C111 138 119 145 128 144 C135 134 136 117 132 105 Z" />
-                    <path class="muscle-shape" d="M194 101 C205 104 211 114 210 126 C209 138 201 145 192 144 C185 134 184 117 188 105 Z" />
-                    <path class="muscle-shape" d="M426 101 C415 104 409 114 410 126 C411 138 419 145 428 144 C435 134 436 117 432 105 Z" />
-                    <path class="muscle-shape" d="M494 101 C505 104 511 114 510 126 C509 138 501 145 492 144 C485 134 484 117 488 105 Z" />
+                    <path
+                      class="muscle-shape"
+                      d="M126 101 C115 104 109 114 110 126 C111 138 119 145 128 144 C135 134 136 117 132 105 Z"
+                    />
+                    <path
+                      class="muscle-shape"
+                      d="M194 101 C205 104 211 114 210 126 C209 138 201 145 192 144 C185 134 184 117 188 105 Z"
+                    />
+                    <path
+                      class="muscle-shape"
+                      d="M426 101 C415 104 409 114 410 126 C411 138 419 145 428 144 C435 134 436 117 432 105 Z"
+                    />
+                    <path
+                      class="muscle-shape"
+                      d="M494 101 C505 104 511 114 510 126 C509 138 501 145 492 144 C485 134 484 117 488 105 Z"
+                    />
                   </g>
-                  <g class="muscle-region" data-muscle-region="Chest" role="button" tabindex="0" aria-pressed="false">
+                  <g
+                    class="muscle-region"
+                    data-muscle-region="Chest"
+                    role="button"
+                    tabindex="0"
+                    aria-pressed="false"
+                  >
                     <title>Chest</title>
-                    <path class="muscle-shape" d="M134 118 C141 108 154 110 159 121 L159 150 C148 153 137 148 132 138 C129 130 130 122 134 118 Z" />
-                    <path class="muscle-shape" d="M186 118 C179 108 166 110 161 121 L161 150 C172 153 183 148 188 138 C191 130 190 122 186 118 Z" />
+                    <path
+                      class="muscle-shape"
+                      d="M134 118 C141 108 154 110 159 121 L159 150 C148 153 137 148 132 138 C129 130 130 122 134 118 Z"
+                    />
+                    <path
+                      class="muscle-shape"
+                      d="M186 118 C179 108 166 110 161 121 L161 150 C172 153 183 148 188 138 C191 130 190 122 186 118 Z"
+                    />
                   </g>
-                  <g class="muscle-region" data-muscle-region="Biceps" role="button" tabindex="0" aria-pressed="false">
+                  <g
+                    class="muscle-region"
+                    data-muscle-region="Biceps"
+                    role="button"
+                    tabindex="0"
+                    aria-pressed="false"
+                  >
                     <title>Biceps</title>
-                    <path class="muscle-shape" d="M111 129 C105 140 106 164 113 174 C119 168 121 144 118 132 Z" />
-                    <path class="muscle-shape" d="M209 129 C215 140 214 164 207 174 C201 168 199 144 202 132 Z" />
+                    <path
+                      class="muscle-shape"
+                      d="M111 129 C105 140 106 164 113 174 C119 168 121 144 118 132 Z"
+                    />
+                    <path
+                      class="muscle-shape"
+                      d="M209 129 C215 140 214 164 207 174 C201 168 199 144 202 132 Z"
+                    />
                   </g>
-                  <g class="muscle-region" data-muscle-region="Core" role="button" tabindex="0" aria-pressed="false">
+                  <g
+                    class="muscle-region"
+                    data-muscle-region="Core"
+                    role="button"
+                    tabindex="0"
+                    aria-pressed="false"
+                  >
                     <title>Core</title>
-                    <path class="muscle-shape" d="M136 158 C142 153 147 154 150 160 L150 211 C142 208 137 198 136 185 Z" />
-                    <path class="muscle-shape" d="M184 158 C178 153 173 154 170 160 L170 211 C178 208 183 198 184 185 Z" />
+                    <path
+                      class="muscle-shape"
+                      d="M136 158 C142 153 147 154 150 160 L150 211 C142 208 137 198 136 185 Z"
+                    />
+                    <path
+                      class="muscle-shape"
+                      d="M184 158 C178 153 173 154 170 160 L170 211 C178 208 183 198 184 185 Z"
+                    />
                     <rect class="muscle-shape" x="151.5" y="157" width="7" height="16" rx="3" />
                     <rect class="muscle-shape" x="161.5" y="157" width="7" height="16" rx="3" />
                     <rect class="muscle-shape" x="151.5" y="177" width="7" height="17" rx="3" />
                     <rect class="muscle-shape" x="161.5" y="177" width="7" height="17" rx="3" />
                     <rect class="muscle-shape" x="151.5" y="198" width="7" height="16" rx="3" />
                     <rect class="muscle-shape" x="161.5" y="198" width="7" height="16" rx="3" />
-                    <path class="muscle-shape" d="M441 190 C448 181 454 179 460 187 C466 179 472 181 479 190 L476 220 L444 220 Z" />
+                    <path
+                      class="muscle-shape"
+                      d="M441 190 C448 181 454 179 460 187 C466 179 472 181 479 190 L476 220 L444 220 Z"
+                    />
                   </g>
-                  <g class="muscle-region" data-muscle-region="Quads" role="button" tabindex="0" aria-pressed="false">
+                  <g
+                    class="muscle-region"
+                    data-muscle-region="Quads"
+                    role="button"
+                    tabindex="0"
+                    aria-pressed="false"
+                  >
                     <title>Quads</title>
-                    <path class="muscle-shape" d="M145 273 C137 292 138 323 146 343 L156 326 L157 273 Z" />
-                    <path class="muscle-shape" d="M158 273 L160 326 L170 343 C178 323 179 292 171 273 Z" />
+                    <path
+                      class="muscle-shape"
+                      d="M145 273 C137 292 138 323 146 343 L156 326 L157 273 Z"
+                    />
+                    <path
+                      class="muscle-shape"
+                      d="M158 273 L160 326 L170 343 C178 323 179 292 171 273 Z"
+                    />
                   </g>
-                  <g class="muscle-region" data-muscle-region="Calves" role="button" tabindex="0" aria-pressed="false">
+                  <g
+                    class="muscle-region"
+                    data-muscle-region="Calves"
+                    role="button"
+                    tabindex="0"
+                    aria-pressed="false"
+                  >
                     <title>Calves</title>
-                    <path class="muscle-shape" d="M146 405 C138 421 141 449 151 460 L158 442 L157 407 Z" />
-                    <path class="muscle-shape" d="M174 405 C182 421 179 449 169 460 L162 442 L163 407 Z" />
-                    <path class="muscle-shape" d="M446 405 C438 421 441 449 451 460 L458 442 L457 407 Z" />
-                    <path class="muscle-shape" d="M474 405 C482 421 479 449 469 460 L462 442 L463 407 Z" />
+                    <path
+                      class="muscle-shape"
+                      d="M146 405 C138 421 141 449 151 460 L158 442 L157 407 Z"
+                    />
+                    <path
+                      class="muscle-shape"
+                      d="M174 405 C182 421 179 449 169 460 L162 442 L163 407 Z"
+                    />
+                    <path
+                      class="muscle-shape"
+                      d="M446 405 C438 421 441 449 451 460 L458 442 L457 407 Z"
+                    />
+                    <path
+                      class="muscle-shape"
+                      d="M474 405 C482 421 479 449 469 460 L462 442 L463 407 Z"
+                    />
                   </g>
 
-                  <g class="muscle-region" data-muscle-region="Back" role="button" tabindex="0" aria-pressed="false">
+                  <g
+                    class="muscle-region"
+                    data-muscle-region="Back"
+                    role="button"
+                    tabindex="0"
+                    aria-pressed="false"
+                  >
                     <title>Back</title>
-                    <path class="muscle-shape" d="M439 112 C446 102 454 100 460 110 C466 100 474 102 481 112 L470 137 L460 146 L450 137 Z" />
-                    <path class="muscle-shape" d="M438 133 C445 124 453 126 458 139 L458 193 C446 188 438 173 436 153 Z" />
-                    <path class="muscle-shape" d="M482 133 C475 124 467 126 462 139 L462 193 C474 188 482 173 484 153 Z" />
+                    <path
+                      class="muscle-shape"
+                      d="M439 112 C446 102 454 100 460 110 C466 100 474 102 481 112 L470 137 L460 146 L450 137 Z"
+                    />
+                    <path
+                      class="muscle-shape"
+                      d="M438 133 C445 124 453 126 458 139 L458 193 C446 188 438 173 436 153 Z"
+                    />
+                    <path
+                      class="muscle-shape"
+                      d="M482 133 C475 124 467 126 462 139 L462 193 C474 188 482 173 484 153 Z"
+                    />
                   </g>
-                  <g class="muscle-region" data-muscle-region="Triceps" role="button" tabindex="0" aria-pressed="false">
+                  <g
+                    class="muscle-region"
+                    data-muscle-region="Triceps"
+                    role="button"
+                    tabindex="0"
+                    aria-pressed="false"
+                  >
                     <title>Triceps</title>
-                    <path class="muscle-shape" d="M411 130 C405 142 406 165 413 175 C420 168 422 144 419 132 Z" />
-                    <path class="muscle-shape" d="M509 130 C515 142 514 165 507 175 C500 168 498 144 501 132 Z" />
+                    <path
+                      class="muscle-shape"
+                      d="M411 130 C405 142 406 165 413 175 C420 168 422 144 419 132 Z"
+                    />
+                    <path
+                      class="muscle-shape"
+                      d="M509 130 C515 142 514 165 507 175 C500 168 498 144 501 132 Z"
+                    />
                   </g>
-                  <g class="muscle-region" data-muscle-region="Glutes" role="button" tabindex="0" aria-pressed="false">
+                  <g
+                    class="muscle-region"
+                    data-muscle-region="Glutes"
+                    role="button"
+                    tabindex="0"
+                    aria-pressed="false"
+                  >
                     <title>Glutes</title>
-                    <path class="muscle-shape" d="M442 226 C445 213 457 211 460 225 L460 262 C448 259 441 247 442 226 Z" />
-                    <path class="muscle-shape" d="M478 226 C475 213 463 211 460 225 L460 262 C472 259 479 247 478 226 Z" />
+                    <path
+                      class="muscle-shape"
+                      d="M442 226 C445 213 457 211 460 225 L460 262 C448 259 441 247 442 226 Z"
+                    />
+                    <path
+                      class="muscle-shape"
+                      d="M478 226 C475 213 463 211 460 225 L460 262 C472 259 479 247 478 226 Z"
+                    />
                   </g>
-                  <g class="muscle-region" data-muscle-region="Hamstrings" role="button" tabindex="0" aria-pressed="false">
+                  <g
+                    class="muscle-region"
+                    data-muscle-region="Hamstrings"
+                    role="button"
+                    tabindex="0"
+                    aria-pressed="false"
+                  >
                     <title>Hamstrings</title>
-                    <path class="muscle-shape" d="M445 274 C438 295 440 325 448 343 L458 325 L458 273 Z" />
-                    <path class="muscle-shape" d="M462 273 L462 325 L472 343 C480 325 482 295 475 274 Z" />
+                    <path
+                      class="muscle-shape"
+                      d="M445 274 C438 295 440 325 448 343 L458 325 L458 273 Z"
+                    />
+                    <path
+                      class="muscle-shape"
+                      d="M462 273 L462 325 L472 343 C480 325 482 295 475 274 Z"
+                    />
                   </g>
                 </svg>
               </div>
               <p id="muscleMapSummary" class="muscle-map-summary">Training status is loading…</p>
-              <p class="muscle-map-note">Colors reflect logged set coverage and exercise progression—not a direct measurement of muscle growth.</p>
+              <p class="muscle-map-note">
+                Colors reflect logged set coverage and exercise progression—not a direct measurement
+                of muscle growth.
+              </p>
             </article>
 
             <article class="card muscle-detail-card">
@@ -422,9 +757,21 @@
                   <p class="eyebrow">WEIGHT TREND</p>
                   <h2>Body weight</h2>
                 </div>
-                <label class="chart-window-label">Window<select id="bodyChartWindow"><option value="28">4 weeks</option><option value="90" selected>3 months</option><option value="365">1 year</option><option value="all">All</option></select></label>
+                <label class="chart-window-label"
+                  >Window<select id="bodyChartWindow">
+                    <option value="28">4 weeks</option>
+                    <option value="90" selected>3 months</option>
+                    <option value="365">1 year</option>
+                    <option value="all">All</option>
+                  </select></label
+                >
               </div>
-              <div id="weightTrendChart" class="body-trend-chart" role="img" aria-label="Body-weight trend chart"></div>
+              <div
+                id="weightTrendChart"
+                class="body-trend-chart"
+                role="img"
+                aria-label="Body-weight trend chart"
+              ></div>
             </article>
 
             <article class="card body-chart-card">
@@ -435,7 +782,12 @@
                 </div>
                 <span class="trend-label">Same selected window</span>
               </div>
-              <div id="fatTrendChart" class="body-trend-chart body-fat-chart" role="img" aria-label="Body-fat trend chart"></div>
+              <div
+                id="fatTrendChart"
+                class="body-trend-chart body-fat-chart"
+                role="img"
+                aria-label="Body-fat trend chart"
+              ></div>
             </article>
           </div>
 
@@ -449,7 +801,9 @@
                 <span id="bodyMetricCount" class="explain-chip">0 entries</span>
               </div>
               <div id="bodyMetricHistory" class="body-metric-history"></div>
-              <button id="newMetricButton2" class="secondary-button body-log-button" type="button">＋ Log measurement</button>
+              <button id="newMetricButton2" class="secondary-button body-log-button" type="button">
+                ＋ Log measurement
+              </button>
             </article>
 
             <article class="card garmin-setup-card" hidden>
@@ -462,29 +816,76 @@
               </div>
               <div class="garmin-setup-copy">
                 <span class="garmin-mark" aria-hidden="true">G</span>
-                <p>Garmin Connect is not linked yet. This local app needs a secure Garmin authorization and sync service before it can read your data.</p>
+                <p>
+                  Garmin Connect is not linked yet. This local app needs a secure Garmin
+                  authorization and sync service before it can read your data.
+                </p>
               </div>
-              <button id="garminConnectButton" class="secondary-button" type="button">View Garmin setup</button>
+              <button id="garminConnectButton" class="secondary-button" type="button">
+                View Garmin setup
+              </button>
             </article>
           </div>
         </section>
 
         <section id="library" class="view">
           <div class="page-heading compact-heading">
-            <div><p class="eyebrow">MOVEMENT LIBRARY</p><h1>Useful, not magical.</h1><p class="subtle">Your home-gym-compatible movements are shown first. Machine movements are off by default.</p></div>
-            <div class="library-search"><span aria-hidden="true">⌕</span><input id="exerciseSearch" type="search" aria-label="Find an exercise" placeholder="Find an exercise"></div>
+            <div>
+              <p class="eyebrow">MOVEMENT LIBRARY</p>
+              <h1>Useful, not magical.</h1>
+              <p class="subtle">
+                Your home-gym-compatible movements are shown first. Machine movements are off by
+                default.
+              </p>
+            </div>
+            <div class="library-search">
+              <span aria-hidden="true">⌕</span
+              ><input
+                id="exerciseSearch"
+                type="search"
+                aria-label="Find an exercise"
+                placeholder="Find an exercise"
+              />
+            </div>
           </div>
           <div class="library-primary-filters">
-            <label>Muscle<select id="libraryMuscle"><option value="All">All muscles</option></select></label>
-            <label>Equipment<select id="libraryEquipment"><option value="All">All equipment</option></select></label>
-            <label>Sort<select id="librarySort"><option value="recent">Recent / familiar</option><option value="alphabetical">Alphabetical</option><option value="catalog">Catalog order</option></select></label>
-            <label class="inline-check"><input id="libraryAvailableOnly" type="checkbox" checked> Available only</label>
-            <label class="inline-check"><input id="libraryFavoritesOnly" type="checkbox"> Favorites</label>
-            <button id="libraryDensity" type="button" class="secondary-button compact">Compact cards</button>
+            <label
+              >Muscle<select id="libraryMuscle">
+                <option value="All">All muscles</option>
+              </select></label
+            >
+            <label
+              >Equipment<select id="libraryEquipment">
+                <option value="All">All equipment</option>
+              </select></label
+            >
+            <label
+              >Sort<select id="librarySort">
+                <option value="recent">Recent / familiar</option>
+                <option value="alphabetical">Alphabetical</option>
+                <option value="catalog">Catalog order</option>
+              </select></label
+            >
+            <label class="inline-check"
+              ><input id="libraryAvailableOnly" type="checkbox" checked /> Available only</label
+            >
+            <label class="inline-check"
+              ><input id="libraryFavoritesOnly" type="checkbox" /> Favorites</label
+            >
+            <button id="libraryDensity" type="button" class="secondary-button compact">
+              Compact cards
+            </button>
           </div>
           <div class="library-filters" id="libraryFilters"></div>
           <div id="exerciseGrid" class="exercise-grid"></div>
-          <button id="libraryLoadMore" type="button" class="secondary-button load-more-button" hidden>Load more exercises</button>
+          <button
+            id="libraryLoadMore"
+            type="button"
+            class="secondary-button load-more-button"
+            hidden
+          >
+            Load more exercises
+          </button>
         </section>
       </main>
     </div>
@@ -492,32 +893,103 @@
     <dialog id="workoutModal" class="modal workout-modal">
       <form id="workoutForm" method="dialog">
         <div class="modal-header">
-          <div><p id="workoutModalEyebrow" class="eyebrow">NEW SESSION</p><h2 id="workoutModalTitle">Log your workout</h2></div>
-          <button type="button" class="close-button" data-close-modal="workoutModal" aria-label="Close">×</button>
+          <div>
+            <p id="workoutModalEyebrow" class="eyebrow">NEW SESSION</p>
+            <h2 id="workoutModalTitle">Log your workout</h2>
+          </div>
+          <button
+            type="button"
+            class="close-button"
+            data-close-modal="workoutModal"
+            aria-label="Close"
+          >
+            ×
+          </button>
         </div>
         <div class="form-row session-meta">
-          <label>Date<input id="sessionDate" name="date" type="date" required></label>
-          <label>Session name<input id="sessionName" name="name" type="text" placeholder="e.g. Upper A" required></label>
-          <label>Duration (min)<input id="sessionDuration" name="duration" type="number" min="1" max="300" value="60" required></label>
+          <label>Date<input id="sessionDate" name="date" type="date" required /></label>
+          <label
+            >Session name<input
+              id="sessionName"
+              name="name"
+              type="text"
+              placeholder="e.g. Upper A"
+              required
+          /></label>
+          <label
+            >Duration (min)<input
+              id="sessionDuration"
+              name="duration"
+              type="number"
+              min="1"
+              max="300"
+              value="60"
+              required
+          /></label>
         </div>
-        <div class="exercise-entry-heading"><div><p class="eyebrow">SETS</p><span>Choose an exercise suggestion or type your own name. Warm-ups are saved but excluded.</span></div><button id="addExerciseRow" type="button" class="secondary-button compact">＋ Add exercise</button></div>
+        <div class="exercise-entry-heading">
+          <div>
+            <p class="eyebrow">SETS</p>
+            <span
+              >Choose an exercise suggestion or type your own name. Warm-ups are saved but
+              excluded.</span
+            >
+          </div>
+          <button id="addExerciseRow" type="button" class="secondary-button compact">
+            ＋ Add exercise
+          </button>
+        </div>
         <datalist id="exerciseSuggestions"></datalist>
         <div id="exerciseEntries" class="exercise-entries"></div>
-        <label class="notes-label">Session notes<textarea id="sessionNotes" name="notes" placeholder="Sleep, technique notes, how the session felt…"></textarea></label>
-        <div class="modal-footer"><button type="button" class="text-button" data-close-modal="workoutModal">Cancel</button><button id="workoutSubmitButton" class="primary-button" type="submit">Save workout <span>→</span></button></div>
+        <label class="notes-label"
+          >Session notes<textarea
+            id="sessionNotes"
+            name="notes"
+            placeholder="Sleep, technique notes, how the session felt…"
+          ></textarea>
+        </label>
+        <div class="modal-footer">
+          <button type="button" class="text-button" data-close-modal="workoutModal">Cancel</button
+          ><button id="workoutSubmitButton" class="primary-button" type="submit">
+            Save workout <span>→</span>
+          </button>
+        </div>
       </form>
     </dialog>
 
     <dialog id="recoveryModal" class="modal recovery-modal">
       <form id="recoveryForm" method="dialog">
         <div class="modal-header">
-          <div><p class="eyebrow">TODAY’S CONTEXT</p><h2>Recovery check-in</h2></div>
-          <button type="button" class="close-button" data-close-modal="recoveryModal" aria-label="Close">×</button>
+          <div>
+            <p class="eyebrow">TODAY’S CONTEXT</p>
+            <h2>Recovery check-in</h2>
+          </div>
+          <button
+            type="button"
+            class="close-button"
+            data-close-modal="recoveryModal"
+            aria-label="Close"
+          >
+            ×
+          </button>
         </div>
-        <p class="form-help recovery-help">This is a conservative planning check, not a medical readiness test. New or unusual pain always overrides an automated session.</p>
+        <p class="form-help recovery-help">
+          This is a conservative planning check, not a medical readiness test. New or unusual pain
+          always overrides an automated session.
+        </p>
         <div class="recovery-form-grid">
-          <label>Sleep last night (hours)<input id="recoverySleep" type="number" min="0" max="14" step="0.5" inputmode="decimal" required></label>
-          <label>Energy
+          <label
+            >Sleep last night (hours)<input
+              id="recoverySleep"
+              type="number"
+              min="0"
+              max="14"
+              step="0.5"
+              inputmode="decimal"
+              required
+          /></label>
+          <label
+            >Energy
             <select id="recoveryEnergy" required>
               <option value="5">5 — Excellent</option>
               <option value="4">4 — Good</option>
@@ -526,7 +998,8 @@
               <option value="1">1 — Very low</option>
             </select>
           </label>
-          <label>Muscle soreness
+          <label
+            >Muscle soreness
             <select id="recoverySoreness" required>
               <option value="1">1 — None</option>
               <option value="2" selected>2 — Mild</option>
@@ -535,7 +1008,8 @@
               <option value="5">5 — Very high</option>
             </select>
           </label>
-          <label>Life stress
+          <label
+            >Life stress
             <select id="recoveryStress" required>
               <option value="1">1 — Very low</option>
               <option value="2">2 — Low</option>
@@ -545,44 +1019,141 @@
             </select>
           </label>
         </div>
-        <label class="pain-check"><input id="recoveryPainConcern" type="checkbox"><span><strong>New or unusual pain / injury concern</strong><small>This makes “pause and assess” the first recommendation.</small></span></label>
-        <label class="notes-label">Optional note<textarea id="recoveryNote" placeholder="Travel, illness, a sore joint, disrupted sleep…"></textarea></label>
-        <div class="modal-footer"><button type="button" class="text-button" data-close-modal="recoveryModal">Cancel</button><button class="primary-button" type="submit">Save today’s check-in <span>→</span></button></div>
+        <label class="pain-check"
+          ><input id="recoveryPainConcern" type="checkbox" /><span
+            ><strong>New or unusual pain / injury concern</strong
+            ><small>This makes “pause and assess” the first recommendation.</small></span
+          ></label
+        >
+        <label class="notes-label"
+          >Optional note<textarea
+            id="recoveryNote"
+            placeholder="Travel, illness, a sore joint, disrupted sleep…"
+          ></textarea>
+        </label>
+        <div class="modal-footer">
+          <button type="button" class="text-button" data-close-modal="recoveryModal">Cancel</button
+          ><button class="primary-button" type="submit">
+            Save today’s check-in <span>→</span>
+          </button>
+        </div>
       </form>
     </dialog>
 
     <dialog id="profileModal" class="modal profile-modal">
       <form id="profileForm" method="dialog">
-        <div class="modal-header"><div><p class="eyebrow">TRAINING PROFILE</p><h2>Set your context</h2></div><button type="button" class="close-button" data-close-modal="profileModal" aria-label="Close">×</button></div>
-        <input id="profileGoal" type="hidden" value="hypertrophy">
-        <div class="profile-form-grid">
-          <label>Name<input id="profileName" type="text" maxlength="24"></label>
-          <label>Sessions per week<select id="profileDays"><option value="2">2 days</option><option value="3">3 days</option><option value="4">4 days</option><option value="5">5 days</option><option value="6">6 days</option></select></label>
-          <label>Training background<select id="profileExperience"><option value="beginner">Beginner</option><option value="intermediate">Intermediate</option><option value="advanced">Advanced</option></select></label>
-          <label id="profileLoadIncrementLabel">Smallest load jump (kg)<input id="profileLoadIncrement" type="text" inputmode="decimal"></label>
-          <label>Language<select id="profileLocale"><option value="en">English</option><option value="pl">Polski</option></select></label>
-          <label>Display units<select id="profileUnits"><option value="kg">Kilograms (kg)</option><option value="lb">Pounds (lb)</option></select></label>
+        <div class="modal-header">
+          <div>
+            <p class="eyebrow">TRAINING PROFILE</p>
+            <h2>Set your context</h2>
+          </div>
+          <button
+            type="button"
+            class="close-button"
+            data-close-modal="profileModal"
+            aria-label="Close"
+          >
+            ×
+          </button>
         </div>
-        <fieldset class="equipment-fields"><legend>Available equipment</legend><div id="equipmentChecklist" class="equipment-checklist"></div></fieldset>
-        <p class="form-help"><strong>Coaching scope:</strong> Liftwise currently uses one muscle-building model. Training background is saved as context, but does not silently change your ranges. Equipment determines what the app suggests and lets you log; historic imported machine work is kept intact.</p>
-        <div class="modal-footer"><button type="button" class="text-button" data-close-modal="profileModal">Cancel</button><button type="submit" class="primary-button">Save profile</button></div>
+        <input id="profileGoal" type="hidden" value="hypertrophy" />
+        <div class="profile-form-grid">
+          <label>Name<input id="profileName" type="text" maxlength="24" /></label>
+          <label
+            >Sessions per week<select id="profileDays">
+              <option value="2">2 days</option>
+              <option value="3">3 days</option>
+              <option value="4">4 days</option>
+              <option value="5">5 days</option>
+              <option value="6">6 days</option>
+            </select></label
+          >
+          <label
+            >Training background<select id="profileExperience">
+              <option value="beginner">Beginner</option>
+              <option value="intermediate">Intermediate</option>
+              <option value="advanced">Advanced</option>
+            </select></label
+          >
+          <label id="profileLoadIncrementLabel"
+            >Smallest load jump (kg)<input
+              id="profileLoadIncrement"
+              type="text"
+              inputmode="decimal"
+          /></label>
+          <label
+            >Language<select id="profileLocale">
+              <option value="en">English</option>
+              <option value="pl">Polski</option>
+            </select></label
+          >
+          <label
+            >Display units<select id="profileUnits">
+              <option value="kg">Kilograms (kg)</option>
+              <option value="lb">Pounds (lb)</option>
+            </select></label
+          >
+        </div>
+        <fieldset class="equipment-fields">
+          <legend>Available equipment</legend>
+          <div id="equipmentChecklist" class="equipment-checklist"></div>
+        </fieldset>
+        <p class="form-help">
+          <strong>Coaching scope:</strong> Liftwise currently uses one muscle-building model.
+          Training background is saved as context, but does not silently change your ranges.
+          Equipment determines what the app suggests and lets you log; historic imported machine
+          work is kept intact.
+        </p>
+        <div class="modal-footer">
+          <button type="button" class="text-button" data-close-modal="profileModal">Cancel</button
+          ><button type="submit" class="primary-button">Save profile</button>
+        </div>
       </form>
     </dialog>
 
     <dialog id="targetsModal" class="modal targets-modal">
       <form id="targetsForm" method="dialog">
-        <div class="modal-header"><div><p class="eyebrow">MUSCLE TARGETS</p><h2>Personalize weekly set ranges</h2></div><button type="button" class="close-button" data-close-modal="targetsModal" aria-label="Close">×</button></div>
-        <p class="form-help">Enter working-set targets for each muscle. Liftwise counts secondary-muscle work at half credit.</p>
+        <div class="modal-header">
+          <div>
+            <p class="eyebrow">MUSCLE TARGETS</p>
+            <h2>Personalize weekly set ranges</h2>
+          </div>
+          <button
+            type="button"
+            class="close-button"
+            data-close-modal="targetsModal"
+            aria-label="Close"
+          >
+            ×
+          </button>
+        </div>
+        <p class="form-help">
+          Enter working-set targets for each muscle. Liftwise counts secondary-muscle work at half
+          credit.
+        </p>
         <div id="targetsFields" class="targets-fields"></div>
-        <div class="modal-footer"><button type="button" class="text-button" data-close-modal="targetsModal">Cancel</button><button type="submit" class="primary-button">Save targets</button></div>
+        <div class="modal-footer">
+          <button type="button" class="text-button" data-close-modal="targetsModal">Cancel</button
+          ><button type="submit" class="primary-button">Save targets</button>
+        </div>
       </form>
     </dialog>
 
     <dialog id="importChoiceModal" class="modal import-choice-modal">
       <div>
         <div class="modal-header">
-          <div><p class="eyebrow">IMPORT FILE</p><h2>What do you want to import?</h2></div>
-          <button type="button" class="close-button" data-close-modal="importChoiceModal" aria-label="Close">×</button>
+          <div>
+            <p class="eyebrow">IMPORT FILE</p>
+            <h2>What do you want to import?</h2>
+          </div>
+          <button
+            type="button"
+            class="close-button"
+            data-close-modal="importChoiceModal"
+            aria-label="Close"
+          >
+            ×
+          </button>
         </div>
         <div class="import-type-grid">
           <button type="button" class="import-type-card" data-select-import="workout">
@@ -596,83 +1167,235 @@
             <small>Choose a Fitatu meal-plan CSV with products, calories, and macros.</small>
           </button>
         </div>
-        <div class="modal-footer"><button type="button" class="text-button" data-select-import="backup">Restore Liftwise JSON backup</button><button type="button" class="text-button" data-close-modal="importChoiceModal">Cancel</button></div>
+        <div class="modal-footer">
+          <button type="button" class="text-button" data-select-import="backup">
+            Restore Liftwise JSON backup</button
+          ><button type="button" class="text-button" data-close-modal="importChoiceModal">
+            Cancel
+          </button>
+        </div>
       </div>
     </dialog>
 
     <dialog id="importModal" class="modal import-modal">
       <form id="csvImportForm" method="dialog">
         <div class="modal-header">
-          <div><p class="eyebrow">HEVY CSV IMPORT</p><h2>Review before importing</h2></div>
-          <button type="button" class="close-button" data-close-modal="importModal" aria-label="Close">×</button>
+          <div>
+            <p class="eyebrow">HEVY CSV IMPORT</p>
+            <h2>Review before importing</h2>
+          </div>
+          <button
+            type="button"
+            class="close-button"
+            data-close-modal="importModal"
+            aria-label="Close"
+          >
+            ×
+          </button>
         </div>
         <fieldset class="import-mode import-range">
           <legend>Workouts to import</legend>
-          <label><input type="radio" name="importRange" value="all" checked><span><strong>Entire file</strong><small>Import every valid workout found in the CSV.</small></span></label>
-          <label><input type="radio" name="importRange" value="recent"><span><strong>Latest 7 days</strong><small id="recentImportRangeDetail">Use the seven-day window ending on the newest workout in the file.</small></span></label>
+          <label
+            ><input type="radio" name="importRange" value="all" checked /><span
+              ><strong>Entire file</strong
+              ><small>Import every valid workout found in the CSV.</small></span
+            ></label
+          >
+          <label
+            ><input type="radio" name="importRange" value="recent" /><span
+              ><strong>Latest 7 days</strong
+              ><small id="recentImportRangeDetail"
+                >Use the seven-day window ending on the newest workout in the file.</small
+              ></span
+            ></label
+          >
         </fieldset>
         <div id="importSummary" class="import-summary"></div>
         <div id="importWarnings" class="import-warnings"></div>
-        <div class="import-report-actions"><button id="downloadImportErrors" type="button" class="text-button compact">Download rejected-row report</button></div>
+        <div class="import-report-actions">
+          <button id="downloadImportErrors" type="button" class="text-button compact">
+            Download rejected-row report
+          </button>
+        </div>
         <div class="mapping-heading">
-          <div><p class="eyebrow">EXERCISE MAPPING</p><span>Confirm how Hevy exercises should appear in Liftwise.</span></div>
+          <div>
+            <p class="eyebrow">EXERCISE MAPPING</p>
+            <span>Confirm how Hevy exercises should appear in Liftwise.</span>
+          </div>
           <span id="mappingCount" class="explain-chip"></span>
         </div>
         <div id="exerciseMappings" class="exercise-mappings"></div>
-        <div class="mapping-heading"><div><p class="eyebrow">CHANGE PREVIEW</p><span>Source sessions remain separate; day summaries deduplicate exercises.</span></div></div>
+        <div class="mapping-heading">
+          <div>
+            <p class="eyebrow">CHANGE PREVIEW</p>
+            <span>Source sessions remain separate; day summaries deduplicate exercises.</span>
+          </div>
+        </div>
         <div id="importDiff" class="import-diff"></div>
         <fieldset class="import-mode">
           <legend>Import behavior</legend>
-          <label><input type="radio" name="importMode" value="merge" checked><span><strong>Merge safely</strong><small>Add new source sessions, update corrected ones, and keep a deduplicated day summary.</small></span></label>
-          <label><input type="radio" name="importMode" value="replace"><span><strong id="replaceImportLabel">Replace current workouts</strong><small>Clear the current workout history before importing.</small></span></label>
+          <label
+            ><input type="radio" name="importMode" value="merge" checked /><span
+              ><strong>Merge safely</strong
+              ><small
+                >Add new source sessions, update corrected ones, and keep a deduplicated day
+                summary.</small
+              ></span
+            ></label
+          >
+          <label
+            ><input type="radio" name="importMode" value="replace" /><span
+              ><strong id="replaceImportLabel">Replace current workouts</strong
+              ><small>Clear the current workout history before importing.</small></span
+            ></label
+          >
         </fieldset>
-        <label id="acceptValidRowsOnlyWrap" class="partial-import-confirm" hidden><input id="acceptValidRowsOnly" type="checkbox"><span><strong>Import valid rows only</strong><small>I reviewed the rejected-row report and accept that invalid rows will be left out.</small></span></label>
-        <p class="form-help">Warm-up sets are preserved but excluded from working-set volume and muscle coverage. Imported RPE is preserved and used to estimate RIR when available.</p>
-        <div class="modal-footer"><button type="button" class="text-button" data-close-modal="importModal">Cancel</button><button type="submit" class="primary-button">Import workouts <span>→</span></button></div>
+        <label id="acceptValidRowsOnlyWrap" class="partial-import-confirm" hidden
+          ><input id="acceptValidRowsOnly" type="checkbox" /><span
+            ><strong>Import valid rows only</strong
+            ><small
+              >I reviewed the rejected-row report and accept that invalid rows will be left
+              out.</small
+            ></span
+          ></label
+        >
+        <p class="form-help">
+          Warm-up sets are preserved but excluded from working-set volume and muscle coverage.
+          Imported RPE is preserved and used to estimate RIR when available.
+        </p>
+        <div class="modal-footer">
+          <button type="button" class="text-button" data-close-modal="importModal">Cancel</button
+          ><button type="submit" class="primary-button">Import workouts <span>→</span></button>
+        </div>
       </form>
     </dialog>
 
     <dialog id="fitatuImportModal" class="modal import-modal fitatu-import-modal">
       <form id="fitatuImportForm" method="dialog">
         <div class="modal-header">
-          <div><p class="eyebrow">FITATU CSV IMPORT</p><h2>Review nutrition before importing</h2></div>
-          <button type="button" class="close-button" data-close-modal="fitatuImportModal" aria-label="Close">×</button>
+          <div>
+            <p class="eyebrow">FITATU CSV IMPORT</p>
+            <h2>Review nutrition before importing</h2>
+          </div>
+          <button
+            type="button"
+            class="close-button"
+            data-close-modal="fitatuImportModal"
+            aria-label="Close"
+          >
+            ×
+          </button>
         </div>
         <div id="fitatuImportSummary" class="import-summary"></div>
         <div id="fitatuImportWarnings" class="import-warnings"></div>
-        <div class="import-report-actions"><button id="downloadFitatuImportErrors" type="button" class="text-button compact">Download rejected-row report</button></div>
+        <div class="import-report-actions">
+          <button id="downloadFitatuImportErrors" type="button" class="text-button compact">
+            Download rejected-row report
+          </button>
+        </div>
         <div class="mapping-heading">
-          <div><p class="eyebrow">CHANGE PREVIEW</p><span>One normalized calorie and macro summary is stored for each calendar day.</span></div>
+          <div>
+            <p class="eyebrow">CHANGE PREVIEW</p>
+            <span>One normalized calorie and macro summary is stored for each calendar day.</span>
+          </div>
         </div>
         <div id="fitatuImportDiff" class="import-diff fitatu-import-diff"></div>
         <fieldset class="import-mode">
           <legend>Import behavior</legend>
-          <label><input type="radio" name="fitatuImportMode" value="merge" checked><span><strong>Merge safely</strong><small>Add new days, update corrected days, and skip unchanged data.</small></span></label>
-          <label><input type="radio" name="fitatuImportMode" value="replace"><span><strong>Replace Fitatu nutrition</strong><small>Clear previously imported Fitatu days; workouts and body measurements stay untouched.</small></span></label>
+          <label
+            ><input type="radio" name="fitatuImportMode" value="merge" checked /><span
+              ><strong>Merge safely</strong
+              ><small>Add new days, update corrected days, and skip unchanged data.</small></span
+            ></label
+          >
+          <label
+            ><input type="radio" name="fitatuImportMode" value="replace" /><span
+              ><strong>Replace Fitatu nutrition</strong
+              ><small
+                >Clear previously imported Fitatu days; workouts and body measurements stay
+                untouched.</small
+              ></span
+            ></label
+          >
         </fieldset>
-        <label id="acceptFitatuValidRowsOnlyWrap" class="partial-import-confirm" hidden><input id="acceptFitatuValidRowsOnly" type="checkbox"><span><strong>Import valid rows only</strong><small>I reviewed the rejected-row report and accept that invalid or future rows will be left out.</small></span></label>
-        <p class="form-help">Liftwise recognizes Polish and English column names, comma/semicolon/tab separators, decimal commas, item rows, meal totals, and daily totals. It imports calories, protein, carbohydrates, fat, and optional fiber.</p>
-        <div class="modal-footer"><button type="button" class="text-button" data-close-modal="fitatuImportModal">Cancel</button><button type="submit" class="primary-button">Import nutrition <span>→</span></button></div>
+        <label id="acceptFitatuValidRowsOnlyWrap" class="partial-import-confirm" hidden
+          ><input id="acceptFitatuValidRowsOnly" type="checkbox" /><span
+            ><strong>Import valid rows only</strong
+            ><small
+              >I reviewed the rejected-row report and accept that invalid or future rows will be
+              left out.</small
+            ></span
+          ></label
+        >
+        <p class="form-help">
+          Liftwise recognizes Polish and English column names, comma/semicolon/tab separators,
+          decimal commas, item rows, meal totals, and daily totals. It imports calories, protein,
+          carbohydrates, fat, and optional fiber.
+        </p>
+        <div class="modal-footer">
+          <button type="button" class="text-button" data-close-modal="fitatuImportModal">
+            Cancel</button
+          ><button type="submit" class="primary-button">Import nutrition <span>→</span></button>
+        </div>
       </form>
     </dialog>
 
     <dialog id="sessionPlanModal" class="modal plan-modal">
       <div>
-        <div class="modal-header"><div><p class="eyebrow">PLANNING LOGIC</p><h2>Why this session is suggested</h2></div><button type="button" class="close-button" data-close-modal="sessionPlanModal" aria-label="Close">×</button></div>
+        <div class="modal-header">
+          <div>
+            <p class="eyebrow">PLANNING LOGIC</p>
+            <h2>Why this session is suggested</h2>
+          </div>
+          <button
+            type="button"
+            class="close-button"
+            data-close-modal="sessionPlanModal"
+            aria-label="Close"
+          >
+            ×
+          </button>
+        </div>
         <div id="sessionPlanDetail" class="plan-detail"></div>
       </div>
     </dialog>
 
     <dialog id="workoutDetailModal" class="modal workout-detail-modal">
       <div>
-        <div class="modal-header"><div><p class="eyebrow">LOGGED SESSION</p><h2 id="workoutDetailTitle">Workout details</h2></div><button type="button" class="close-button" data-close-modal="workoutDetailModal" aria-label="Close">×</button></div>
+        <div class="modal-header">
+          <div>
+            <p class="eyebrow">LOGGED SESSION</p>
+            <h2 id="workoutDetailTitle">Workout details</h2>
+          </div>
+          <button
+            type="button"
+            class="close-button"
+            data-close-modal="workoutDetailModal"
+            aria-label="Close"
+          >
+            ×
+          </button>
+        </div>
         <div id="workoutDetailContent" class="workout-detail-content"></div>
       </div>
     </dialog>
 
     <dialog id="exerciseHistoryModal" class="modal exercise-history-modal">
       <div>
-        <div class="modal-header"><div><p class="eyebrow">EXERCISE HISTORY</p><h2 id="exerciseHistoryTitle">Exercise history</h2></div><button type="button" class="close-button" data-close-modal="exerciseHistoryModal" aria-label="Close">×</button></div>
+        <div class="modal-header">
+          <div>
+            <p class="eyebrow">EXERCISE HISTORY</p>
+            <h2 id="exerciseHistoryTitle">Exercise history</h2>
+          </div>
+          <button
+            type="button"
+            class="close-button"
+            data-close-modal="exerciseHistoryModal"
+            aria-label="Close"
+          >
+            ×
+          </button>
+        </div>
         <div id="exerciseHistoryContent" class="exercise-history-content"></div>
       </div>
     </dialog>
@@ -680,45 +1403,139 @@
     <dialog id="bodyMetricModal" class="modal body-metric-modal">
       <form id="bodyMetricForm" method="dialog">
         <div class="modal-header">
-          <div><p class="eyebrow">MANUAL CHECK-IN</p><h2 id="bodyMetricModalTitle">Log body metrics</h2></div>
-          <button type="button" class="close-button" data-close-modal="bodyMetricModal" aria-label="Close">×</button>
+          <div>
+            <p class="eyebrow">MANUAL CHECK-IN</p>
+            <h2 id="bodyMetricModalTitle">Log body metrics</h2>
+          </div>
+          <button
+            type="button"
+            class="close-button"
+            data-close-modal="bodyMetricModal"
+            aria-label="Close"
+          >
+            ×
+          </button>
         </div>
-        <p class="form-help body-metric-help">Add weight, body fat, or both. Consistent conditions and a rolling trend are more useful than a single reading.</p>
+        <p class="form-help body-metric-help">
+          Add weight, body fat, or both. Consistent conditions and a rolling trend are more useful
+          than a single reading.
+        </p>
         <div class="form-row body-metric-form-grid">
-          <label>Date<input id="metricDate" name="date" type="date" required></label>
-          <label id="metricWeightLabel">Weight (kg)<input id="metricWeightKg" name="weightKg" type="text" inputmode="decimal" placeholder="e.g. 78.4"></label>
-          <label>Body fat (%)<input id="metricBodyFat" name="bodyFat" type="text" inputmode="decimal" placeholder="e.g. 18.5"></label>
+          <label>Date<input id="metricDate" name="date" type="date" required /></label>
+          <label id="metricWeightLabel"
+            >Weight (kg)<input
+              id="metricWeightKg"
+              name="weightKg"
+              type="text"
+              inputmode="decimal"
+              placeholder="e.g. 78.4"
+          /></label>
+          <label
+            >Body fat (%)<input
+              id="metricBodyFat"
+              name="bodyFat"
+              type="text"
+              inputmode="decimal"
+              placeholder="e.g. 18.5"
+          /></label>
         </div>
-        <label>Measurement conditions<select id="metricCondition"><option value="">Not specified</option><option value="morning-fasted">Morning / fasted</option><option value="morning">Morning</option><option value="evening">Evening</option><option value="other">Other / mixed</option></select></label>
-        <label class="notes-label">Check-in note<textarea id="metricNote" name="note" placeholder="Morning, fasted; new scale; waist measurement…"></textarea></label>
-        <div class="modal-footer"><button type="button" class="text-button" data-close-modal="bodyMetricModal">Cancel</button><button id="bodyMetricSubmitButton" class="primary-button" type="submit">Save measurement <span>→</span></button></div>
+        <label
+          >Measurement conditions<select id="metricCondition">
+            <option value="">Not specified</option>
+            <option value="morning-fasted">Morning / fasted</option>
+            <option value="morning">Morning</option>
+            <option value="evening">Evening</option>
+            <option value="other">Other / mixed</option>
+          </select></label
+        >
+        <label class="notes-label"
+          >Check-in note<textarea
+            id="metricNote"
+            name="note"
+            placeholder="Morning, fasted; new scale; waist measurement…"
+          ></textarea>
+        </label>
+        <div class="modal-footer">
+          <button type="button" class="text-button" data-close-modal="bodyMetricModal">
+            Cancel</button
+          ><button id="bodyMetricSubmitButton" class="primary-button" type="submit">
+            Save measurement <span>→</span>
+          </button>
+        </div>
       </form>
     </dialog>
 
     <dialog id="garminSetupModal" class="modal garmin-setup-modal">
       <div>
         <div class="modal-header">
-          <div><p class="eyebrow">GARMIN CONNECT</p><h2>Setup required</h2></div>
-          <button type="button" class="close-button" data-close-modal="garminSetupModal" aria-label="Close">×</button>
+          <div>
+            <p class="eyebrow">GARMIN CONNECT</p>
+            <h2>Setup required</h2>
+          </div>
+          <button
+            type="button"
+            class="close-button"
+            data-close-modal="garminSetupModal"
+            aria-label="Close"
+          >
+            ×
+          </button>
         </div>
         <div class="garmin-modal-content">
-          <div id="garminModalStatus" class="garmin-setup-status"><span id="garminModalIcon" aria-hidden="true">!</span><div><strong id="garminModalTitle">Not connected</strong><p id="garminModalCopy">No Garmin account has been authorized in Liftwise.</p></div></div>
-          <p id="garminModalDescription">Garmin Connect does not provide an in-browser connection that this static app can safely complete on its own. A future integration needs a server-side OAuth flow, encrypted token storage, and an approved Garmin API connection.</p>
+          <div id="garminModalStatus" class="garmin-setup-status">
+            <span id="garminModalIcon" aria-hidden="true">!</span>
+            <div>
+              <strong id="garminModalTitle">Not connected</strong>
+              <p id="garminModalCopy">No Garmin account has been authorized in Liftwise.</p>
+            </div>
+          </div>
+          <p id="garminModalDescription">
+            Garmin Connect does not provide an in-browser connection that this static app can safely
+            complete on its own. A future integration needs a server-side OAuth flow, encrypted
+            token storage, and an approved Garmin API connection.
+          </p>
           <ol id="garminSetupList" class="garmin-setup-list">
             <li>Configure the Garmin developer application and redirect URL.</li>
             <li>Authorize your Garmin account through the secure connection flow.</li>
             <li>Choose which body-composition fields Liftwise can sync.</li>
           </ol>
-          <a id="garminDeveloperLink" class="garmin-developer-link" href="https://developer.garmin.com/gc-developer-program/" target="_blank" rel="noreferrer">Review Garmin’s developer-program requirements ↗</a>
-          <p class="form-help">Until that setup exists, use manual check-ins above. Your local data stays in this browser.</p>
+          <a
+            id="garminDeveloperLink"
+            class="garmin-developer-link"
+            href="https://developer.garmin.com/gc-developer-program/"
+            target="_blank"
+            rel="noreferrer"
+            >Review Garmin’s developer-program requirements ↗</a
+          >
+          <p class="form-help">
+            Until that setup exists, use manual check-ins above. Your local data stays in this
+            browser.
+          </p>
         </div>
-        <div class="modal-footer"><button type="button" class="primary-button" data-close-modal="garminSetupModal">Got it</button></div>
+        <div class="modal-footer">
+          <button type="button" class="primary-button" data-close-modal="garminSetupModal">
+            Got it
+          </button>
+        </div>
       </div>
     </dialog>
 
     <dialog id="dataCenterModal" class="modal data-center-modal">
       <div>
-        <div class="modal-header"><div><p class="eyebrow">LOCAL DATA</p><h2>Data &amp; backup</h2></div><button type="button" class="close-button" data-close-modal="dataCenterModal" aria-label="Close">×</button></div>
+        <div class="modal-header">
+          <div>
+            <p class="eyebrow">LOCAL DATA</p>
+            <h2>Data &amp; backup</h2>
+          </div>
+          <button
+            type="button"
+            class="close-button"
+            data-close-modal="dataCenterModal"
+            aria-label="Close"
+          >
+            ×
+          </button>
+        </div>
         <p id="storageEstimate" class="form-help">Checking browser storage…</p>
         <div id="dataCenterContent"></div>
       </div>
@@ -726,41 +1543,190 @@
 
     <dialog id="customExerciseModal" class="modal custom-exercise-modal">
       <form id="customExerciseForm" method="dialog">
-        <div class="modal-header"><div><p class="eyebrow">CUSTOM EXERCISE</p><h2 id="customExerciseModalTitle">Edit exercise</h2></div><button type="button" class="close-button" data-close-modal="customExerciseModal" aria-label="Close">×</button></div>
-        <input id="customExerciseId" type="hidden">
-        <div class="profile-form-grid">
-          <label>Name<input id="customExerciseName" type="text" maxlength="100" required></label>
-          <label>Measurement<select id="customExerciseMeasurement"><option value="load_reps">Load + reps</option><option value="reps">Reps only</option><option value="duration">Duration</option><option value="distance_duration">Distance + time</option></select></label>
-          <label>Load convention<select id="customExerciseLoadMode"><option value="total">Total external load</option><option value="per_hand">Per hand</option><option value="added_bodyweight">Added bodyweight load</option><option value="assistance">Assistance</option><option value="none">No external load</option></select></label>
-          <label>Rep convention<select id="customExerciseRepMode"><option value="total">Total reps</option><option value="per_side">Reps per side</option></select></label>
+        <div class="modal-header">
+          <div>
+            <p class="eyebrow">CUSTOM EXERCISE</p>
+            <h2 id="customExerciseModalTitle">Edit exercise</h2>
+          </div>
+          <button
+            type="button"
+            class="close-button"
+            data-close-modal="customExerciseModal"
+            aria-label="Close"
+          >
+            ×
+          </button>
         </div>
-        <fieldset><legend>Primary muscles</legend><div id="customPrimaryMuscles" class="muscle-checkbox-grid"></div></fieldset>
-        <fieldset><legend>Secondary muscles</legend><div id="customSecondaryMuscles" class="muscle-checkbox-grid"></div></fieldset>
-        <label>Aliases (one per line)<textarea id="customExerciseAliases" placeholder="Alternative name"></textarea></label>
-        <label>Merge history into built-in exercise<select id="customExerciseMergeTarget"><option value="">Do not merge</option></select></label>
+        <input id="customExerciseId" type="hidden" />
+        <div class="profile-form-grid">
+          <label>Name<input id="customExerciseName" type="text" maxlength="100" required /></label>
+          <label
+            >Measurement<select id="customExerciseMeasurement">
+              <option value="load_reps">Load + reps</option>
+              <option value="reps">Reps only</option>
+              <option value="duration">Duration</option>
+              <option value="distance_duration">Distance + time</option>
+            </select></label
+          >
+          <label
+            >Load convention<select id="customExerciseLoadMode">
+              <option value="total">Total external load</option>
+              <option value="per_hand">Per hand</option>
+              <option value="added_bodyweight">Added bodyweight load</option>
+              <option value="assistance">Assistance</option>
+              <option value="none">No external load</option>
+            </select></label
+          >
+          <label
+            >Rep convention<select id="customExerciseRepMode">
+              <option value="total">Total reps</option>
+              <option value="per_side">Reps per side</option>
+            </select></label
+          >
+        </div>
+        <fieldset>
+          <legend>Primary muscles</legend>
+          <div id="customPrimaryMuscles" class="muscle-checkbox-grid"></div>
+        </fieldset>
+        <fieldset>
+          <legend>Secondary muscles</legend>
+          <div id="customSecondaryMuscles" class="muscle-checkbox-grid"></div>
+        </fieldset>
+        <label
+          >Aliases (one per line)<textarea
+            id="customExerciseAliases"
+            placeholder="Alternative name"
+          ></textarea>
+        </label>
+        <label
+          >Merge history into built-in exercise<select id="customExerciseMergeTarget">
+            <option value="">Do not merge</option>
+          </select></label
+        >
         <p id="customExerciseUsage" class="form-help"></p>
-        <div class="modal-footer"><button id="deleteCustomExerciseButton" type="button" class="danger-button">Delete</button><button type="button" class="text-button" data-close-modal="customExerciseModal">Cancel</button><button class="primary-button" type="submit">Save exercise</button></div>
+        <div class="modal-footer">
+          <button id="deleteCustomExerciseButton" type="button" class="danger-button">Delete</button
+          ><button type="button" class="text-button" data-close-modal="customExerciseModal">
+            Cancel</button
+          ><button class="primary-button" type="submit">Save exercise</button>
+        </div>
       </form>
     </dialog>
 
     <dialog id="researchModal" class="modal research-modal">
       <div>
-        <div class="modal-header"><div><p class="eyebrow">METHOD</p><h2>How Liftwise makes suggestions</h2></div><button type="button" class="close-button" data-close-modal="researchModal" aria-label="Close">×</button></div>
+        <div class="modal-header">
+          <div>
+            <p class="eyebrow">METHOD</p>
+            <h2>How Liftwise makes suggestions</h2>
+          </div>
+          <button
+            type="button"
+            class="close-button"
+            data-close-modal="researchModal"
+            aria-label="Close"
+          >
+            ×
+          </button>
+        </div>
         <div class="research-content">
-          <div class="research-rule"><span>01</span><div><h3>Working sets are the weekly anchor</h3><p>Raw kilograms moved are not treated as a cross-exercise hypertrophy score. Each non-warm-up primary set counts as 1.0 effective set and secondary work counts as 0.5. Below your selected minimum, Liftwise recommends at most 3 additional direct sets at a time.</p></div></div>
-          <div class="research-rule"><span>02</span><div><h3>Use effort, then progress</h3><p>RIR adds the effort context that set counts cannot. Liftwise adds your configured load increment only after every normal working set reaches the top of the rep range with at least 1 RIR in two recent appearances. Two recent hard appearances below the rep floor trigger a rounded load reduction or an easier bodyweight variation. Otherwise, keep load stable and earn reps.</p></div></div>
-          <div class="research-rule"><span>03</span><div><h3>Recovery can veto “add more”</h3><p>Today’s sleep, energy, soreness, stress, and pain concern act as a conservative gate. A caution or low-recovery check-in holds volume steady; new or unusual pain makes “pause and assess” the first prompt. These thresholds are transparent heuristics, not a validated medical score.</p></div></div>
-          <div class="research-rule"><span>04</span><div><h3>Your equipment is a hard constraint</h3><p>Recommendations and new-session exercise pickers only use the equipment in your profile. Machine and cable movements are hidden by default for a home gym, but remain in imported history so past work is not erased.</p></div></div>
-          <div class="research-rule"><span>05</span><div><h3>Recovery basics support the training</h3><p>For healthy adults, 7 or more hours of regular sleep is a general baseline. When body weight is logged, Liftwise shows 1.6 g/kg/day as a practical protein starting point—not a prescription or a claim that more is always better.</p></div></div>
-          <div class="research-rule"><span>06</span><div><h3>The muscle map uses training evidence</h3><p>Green needs an in-range rolling 7-day set total and a recent direct exercise improvement. Yellow means coverage, comparison data, or volume needs attention. Red needs enough work in two consecutive 7-day windows plus three hard, unchanged direct appearances over at least 21 days. It describes logged performance, not visible muscle growth.</p></div></div>
+          <div class="research-rule">
+            <span>01</span>
+            <div>
+              <h3>Working sets are the weekly anchor</h3>
+              <p>
+                Raw kilograms moved are not treated as a cross-exercise hypertrophy score. Each
+                non-warm-up primary set counts as 1.0 effective set and secondary work counts as
+                0.5. Below your selected minimum, Liftwise recommends at most 3 additional direct
+                sets at a time.
+              </p>
+            </div>
+          </div>
+          <div class="research-rule">
+            <span>02</span>
+            <div>
+              <h3>Use effort, then progress</h3>
+              <p>
+                RIR adds the effort context that set counts cannot. Liftwise adds your configured
+                load increment only after every normal working set reaches the top of the rep range
+                with at least 1 RIR in two recent appearances. Two recent hard appearances below the
+                rep floor trigger a rounded load reduction or an easier bodyweight variation.
+                Otherwise, keep load stable and earn reps.
+              </p>
+            </div>
+          </div>
+          <div class="research-rule">
+            <span>03</span>
+            <div>
+              <h3>Recovery can veto “add more”</h3>
+              <p>
+                Today’s sleep, energy, soreness, stress, and pain concern act as a conservative
+                gate. A caution or low-recovery check-in holds volume steady; new or unusual pain
+                makes “pause and assess” the first prompt. These thresholds are transparent
+                heuristics, not a validated medical score.
+              </p>
+            </div>
+          </div>
+          <div class="research-rule">
+            <span>04</span>
+            <div>
+              <h3>Your equipment is a hard constraint</h3>
+              <p>
+                Recommendations and new-session exercise pickers only use the equipment in your
+                profile. Machine and cable movements are hidden by default for a home gym, but
+                remain in imported history so past work is not erased.
+              </p>
+            </div>
+          </div>
+          <div class="research-rule">
+            <span>05</span>
+            <div>
+              <h3>Recovery basics support the training</h3>
+              <p>
+                For healthy adults, 7 or more hours of regular sleep is a general baseline. When
+                body weight is logged, Liftwise shows 1.6 g/kg/day as a practical protein starting
+                point—not a prescription or a claim that more is always better.
+              </p>
+            </div>
+          </div>
+          <div class="research-rule">
+            <span>06</span>
+            <div>
+              <h3>The muscle map uses training evidence</h3>
+              <p>
+                Green needs an in-range rolling 7-day set total and a recent direct exercise
+                improvement. Yellow means coverage, comparison data, or volume needs attention. Red
+                needs enough work in two consecutive 7-day windows plus three hard, unchanged direct
+                appearances over at least 21 days. It describes logged performance, not visible
+                muscle growth.
+              </p>
+            </div>
+          </div>
           <div class="source-list">
-            <a href="https://pubmed.ncbi.nlm.nih.gov/41843416/" target="_blank" rel="noreferrer">ACSM 2026 position stand: resistance-training prescription ↗</a>
-            <a href="https://www.ncbi.nlm.nih.gov/books/NBK566046/" target="_blank" rel="noreferrer">WHO guidelines: activity and muscle strengthening ↗</a>
-            <a href="https://pubmed.ncbi.nlm.nih.gov/38970765/" target="_blank" rel="noreferrer">Meta-regression: proximity to failure ↗</a>
-            <a href="https://pubmed.ncbi.nlm.nih.gov/41343037/" target="_blank" rel="noreferrer">Meta-regression: volume and training frequency ↗</a>
-            <a href="https://pubmed.ncbi.nlm.nih.gov/39205815/" target="_blank" rel="noreferrer">Meta-analysis: inter-set rest intervals ↗</a>
-            <a href="https://pubmed.ncbi.nlm.nih.gov/28698222/" target="_blank" rel="noreferrer">Meta-analysis: protein and resistance training ↗</a>
-            <a href="https://aasm.org/resources/pdf/adultsleepdurationconsensus.pdf" target="_blank" rel="noreferrer">AASM/SRS adult sleep-duration consensus ↗</a>
+            <a href="https://pubmed.ncbi.nlm.nih.gov/41843416/" target="_blank" rel="noreferrer"
+              >ACSM 2026 position stand: resistance-training prescription ↗</a
+            >
+            <a href="https://www.ncbi.nlm.nih.gov/books/NBK566046/" target="_blank" rel="noreferrer"
+              >WHO guidelines: activity and muscle strengthening ↗</a
+            >
+            <a href="https://pubmed.ncbi.nlm.nih.gov/38970765/" target="_blank" rel="noreferrer"
+              >Meta-regression: proximity to failure ↗</a
+            >
+            <a href="https://pubmed.ncbi.nlm.nih.gov/41343037/" target="_blank" rel="noreferrer"
+              >Meta-regression: volume and training frequency ↗</a
+            >
+            <a href="https://pubmed.ncbi.nlm.nih.gov/39205815/" target="_blank" rel="noreferrer"
+              >Meta-analysis: inter-set rest intervals ↗</a
+            >
+            <a href="https://pubmed.ncbi.nlm.nih.gov/28698222/" target="_blank" rel="noreferrer"
+              >Meta-analysis: protein and resistance training ↗</a
+            >
+            <a
+              href="https://aasm.org/resources/pdf/adultsleepdurationconsensus.pdf"
+              target="_blank"
+              rel="noreferrer"
+              >AASM/SRS adult sleep-duration consensus ↗</a
+            >
           </div>
         </div>
       </div>

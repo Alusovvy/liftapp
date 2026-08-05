@@ -21,14 +21,23 @@ export function LibraryPage({ data, onDataChange }: LibraryPageProps) {
   const [muscle, setMuscle] = useState("All");
   const [equipment, setEquipment] = useState("All");
   const [favoriteOnly, setFavoriteOnly] = useState(false);
-  const patterns = ["All", ...new Set([
-    ...EXERCISE_CATALOG.map((exercise) => exercise.pattern),
-    ...data.customExercises.map((exercise) => exercise.pattern),
-  ])];
-  const equipmentOptions = ["All", ...new Set([
-    ...EXERCISE_CATALOG.flatMap((exercise) => [...exercise.equipment, ...exercise.equipmentAny]),
-    ...data.customExercises.flatMap((exercise) => [...exercise.equipment, ...exercise.equipmentAny]),
-  ])].sort();
+  const patterns = [
+    "All",
+    ...new Set([
+      ...EXERCISE_CATALOG.map((exercise) => exercise.pattern),
+      ...data.customExercises.map((exercise) => exercise.pattern),
+    ]),
+  ];
+  const equipmentOptions = [
+    "All",
+    ...new Set([
+      ...EXERCISE_CATALOG.flatMap((exercise) => [...exercise.equipment, ...exercise.equipmentAny]),
+      ...data.customExercises.flatMap((exercise) => [
+        ...exercise.equipment,
+        ...exercise.equipmentAny,
+      ]),
+    ]),
+  ].sort();
   const recentUse = useMemo(() => {
     const dates = new Map<string, string>();
     data.workouts.forEach((workout) => {
@@ -58,51 +67,58 @@ export function LibraryPage({ data, onDataChange }: LibraryPageProps) {
     });
     return names;
   }, [data.routines]);
-  const allExercises: LibraryExercise[] = [
-    ...EXERCISE_CATALOG.map((exercise) => ({ ...exercise, custom: false })),
-    ...data.customExercises.map((exercise) => ({
-      id: exercise.id,
-      name: exercise.name,
-      primary: exercise.primary,
-      secondary: exercise.secondary,
-      pattern: exercise.pattern,
-      type: exercise.type,
-      equipment: exercise.equipment,
-      equipmentAny: exercise.equipmentAny,
-      machine: exercise.machine,
-      swapId: exercise.swapId,
-      homeReplacementId: exercise.homeReplacementId,
-      custom: true,
-    })),
-  ];
+  const allExercises: LibraryExercise[] = useMemo(
+    () => [
+      ...EXERCISE_CATALOG.map((exercise) => ({ ...exercise, custom: false })),
+      ...data.customExercises.map((exercise) => ({
+        id: exercise.id,
+        name: exercise.name,
+        primary: exercise.primary,
+        secondary: exercise.secondary,
+        pattern: exercise.pattern,
+        type: exercise.type,
+        equipment: exercise.equipment,
+        equipmentAny: exercise.equipmentAny,
+        machine: exercise.machine,
+        swapId: exercise.swapId,
+        homeReplacementId: exercise.homeReplacementId,
+        custom: true,
+      })),
+    ],
+    [data.customExercises],
+  );
   const exercises = useMemo(() => {
     const normalized = query.trim().toLowerCase();
     const catalogOrder = new Map(allExercises.map((exercise, index) => [exercise.id, index]));
-    return allExercises.filter((exercise) => {
-      const available = isExerciseAvailable(exercise, data.profile.equipment);
-      return (
-        (!normalized
-          || exercise.name.toLowerCase().includes(normalized)
-          || exercise.primary.join(" ").toLowerCase().includes(normalized)
-          || exercise.secondary.join(" ").toLowerCase().includes(normalized))
-        && (pattern === "All" || exercise.pattern === pattern)
-        && (muscle === "All" || exercise.primary.includes(muscle as (typeof MUSCLES)[number]))
-        && (equipment === "All"
-          || exercise.equipment.includes(equipment)
-          || exercise.equipmentAny.includes(equipment))
-        && (!favoriteOnly || data.favoriteExercises.includes(exercise.id))
-        && (!data.libraryPreferences.availableOnly || available)
-      );
-    }).sort((left, right) => {
-      if (data.libraryPreferences.sort === "alphabetical") {
-        return left.name.localeCompare(right.name);
-      }
-      if (data.libraryPreferences.sort === "recent") {
-        return (recentUse.get(right.id) ?? "").localeCompare(recentUse.get(left.id) ?? "")
-          || left.name.localeCompare(right.name);
-      }
-      return (catalogOrder.get(left.id) ?? 0) - (catalogOrder.get(right.id) ?? 0);
-    });
+    return allExercises
+      .filter((exercise) => {
+        const available = isExerciseAvailable(exercise, data.profile.equipment);
+        return (
+          (!normalized ||
+            exercise.name.toLowerCase().includes(normalized) ||
+            exercise.primary.join(" ").toLowerCase().includes(normalized) ||
+            exercise.secondary.join(" ").toLowerCase().includes(normalized)) &&
+          (pattern === "All" || exercise.pattern === pattern) &&
+          (muscle === "All" || exercise.primary.includes(muscle as (typeof MUSCLES)[number])) &&
+          (equipment === "All" ||
+            exercise.equipment.includes(equipment) ||
+            exercise.equipmentAny.includes(equipment)) &&
+          (!favoriteOnly || data.favoriteExercises.includes(exercise.id)) &&
+          (!data.libraryPreferences.availableOnly || available)
+        );
+      })
+      .sort((left, right) => {
+        if (data.libraryPreferences.sort === "alphabetical") {
+          return left.name.localeCompare(right.name);
+        }
+        if (data.libraryPreferences.sort === "recent") {
+          return (
+            (recentUse.get(right.id) ?? "").localeCompare(recentUse.get(left.id) ?? "") ||
+            left.name.localeCompare(right.name)
+          );
+        }
+        return (catalogOrder.get(left.id) ?? 0) - (catalogOrder.get(right.id) ?? 0);
+      });
   }, [
     allExercises,
     data.favoriteExercises,
@@ -149,7 +165,8 @@ export function LibraryPage({ data, onDataChange }: LibraryPageProps) {
           <p className="eyebrow">Library</p>
           <h1>Choose by role and constraints</h1>
           <p className="page-intro">
-            Availability, familiarity, and the role in your plan are shown—never a universal “best” score.
+            Availability, familiarity, and the role in your plan are shown—never a universal “best”
+            score.
           </p>
         </div>
         <label className="search-field">
@@ -167,29 +184,37 @@ export function LibraryPage({ data, onDataChange }: LibraryPageProps) {
         <label>
           <span>Movement pattern</span>
           <select value={pattern} onChange={(event) => setPattern(event.target.value)}>
-            {patterns.map((item) => <option key={item}>{item}</option>)}
+            {patterns.map((item) => (
+              <option key={item}>{item}</option>
+            ))}
           </select>
         </label>
         <label>
           <span>Primary muscle</span>
           <select value={muscle} onChange={(event) => setMuscle(event.target.value)}>
             <option>All</option>
-            {MUSCLES.map((item) => <option key={item}>{item}</option>)}
+            {MUSCLES.map((item) => (
+              <option key={item}>{item}</option>
+            ))}
           </select>
         </label>
         <label>
           <span>Equipment</span>
           <select value={equipment} onChange={(event) => setEquipment(event.target.value)}>
-            {equipmentOptions.map((item) => <option key={item}>{item}</option>)}
+            {equipmentOptions.map((item) => (
+              <option key={item}>{item}</option>
+            ))}
           </select>
         </label>
         <label>
           <span>Sort</span>
           <select
             value={data.libraryPreferences.sort}
-            onChange={(event) => updatePreferences({
-              sort: event.target.value as LiftwiseData["libraryPreferences"]["sort"],
-            })}
+            onChange={(event) =>
+              updatePreferences({
+                sort: event.target.value as LiftwiseData["libraryPreferences"]["sort"],
+              })
+            }
           >
             <option value="recent">Recently used</option>
             <option value="alphabetical">Alphabetical</option>
@@ -206,11 +231,15 @@ export function LibraryPage({ data, onDataChange }: LibraryPageProps) {
         </button>
         <button
           type="button"
-          className={data.libraryPreferences.availableOnly ? "filter-toggle active" : "filter-toggle"}
+          className={
+            data.libraryPreferences.availableOnly ? "filter-toggle active" : "filter-toggle"
+          }
           aria-pressed={data.libraryPreferences.availableOnly}
-          onClick={() => updatePreferences({
-            availableOnly: !data.libraryPreferences.availableOnly,
-          })}
+          onClick={() =>
+            updatePreferences({
+              availableOnly: !data.libraryPreferences.availableOnly,
+            })
+          }
         >
           Available now
         </button>
@@ -243,7 +272,9 @@ export function LibraryPage({ data, onDataChange }: LibraryPageProps) {
         </div>
       </div>
 
-      <p className="result-count" aria-live="polite">{exercises.length} matching exercises</p>
+      <p className="result-count" aria-live="polite">
+        {exercises.length} matching exercises
+      </p>
       {exercises.length ? (
         <div className={`library-grid-modern density-${data.libraryPreferences.density}`}>
           {exercises.map((exercise) => {
@@ -266,26 +297,53 @@ export function LibraryPage({ data, onDataChange }: LibraryPageProps) {
                   </button>
                 </div>
                 <h2>{exercise.name}</h2>
-                <p>{exercise.type} · {exercise.primary.join(", ") || "Outside current coverage model"}</p>
+                <p>
+                  {exercise.type} ·{" "}
+                  {exercise.primary.join(", ") || "Outside current coverage model"}
+                </p>
                 <div className="tag-list">
-                  {exercise.primary.map((item) => <span key={item}>{item} · direct</span>)}
-                  {exercise.secondary.map((item) => <span key={item}>{item} · secondary</span>)}
+                  {exercise.primary.map((item) => (
+                    <span key={item}>{item} · direct</span>
+                  ))}
+                  {exercise.secondary.map((item) => (
+                    <span key={item}>{item} · secondary</span>
+                  ))}
                 </div>
                 <div className={available ? "availability-note available" : "availability-note"}>
-                  <strong>{available ? "Available with your equipment" : "Additional equipment needed"}</strong>
+                  <strong>
+                    {available ? "Available with your equipment" : "Additional equipment needed"}
+                  </strong>
                   <span>
                     {exercise.equipment.length
                       ? exercise.equipment.join(" + ")
-                      : exercise.equipmentAny.length ? exercise.equipmentAny.join(" or ") : "Bodyweight"}
+                      : exercise.equipmentAny.length
+                        ? exercise.equipmentAny.join(" or ")
+                        : "Bodyweight"}
                   </span>
                 </div>
                 <details>
                   <summary>Why this may fit</summary>
                   <dl>
-                    <div><dt>Familiarity</dt><dd>{count ? `${count} logged appearance${count === 1 ? "" : "s"}` : "No baseline yet"}</dd></div>
-                    <div><dt>Last used</dt><dd>{recentUse.get(exercise.id) ?? "Not logged"}</dd></div>
-                    <div><dt>Routines</dt><dd>{usedIn.length ? usedIn.join(", ") : "Not in a routine"}</dd></div>
-                    <div><dt>Role</dt><dd>{exercise.pattern}</dd></div>
+                    <div>
+                      <dt>Familiarity</dt>
+                      <dd>
+                        {count
+                          ? `${count} logged appearance${count === 1 ? "" : "s"}`
+                          : "No baseline yet"}
+                      </dd>
+                    </div>
+                    <div>
+                      <dt>Last used</dt>
+                      <dd>{recentUse.get(exercise.id) ?? "Not logged"}</dd>
+                    </div>
+                    <div>
+                      <dt>Routines</dt>
+                      <dd>{usedIn.length ? usedIn.join(", ") : "Not in a routine"}</dd>
+                    </div>
+                    <div>
+                      <dt>Role</dt>
+                      <dd>{exercise.pattern}</dd>
+                    </div>
                   </dl>
                 </details>
               </article>

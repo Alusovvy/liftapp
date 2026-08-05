@@ -1,0 +1,23 @@
+[Unit]
+Description=Liftwise API server
+After=network.target
+
+[Service]
+Type=simple
+User=liftwise
+Group=liftwise
+WorkingDirectory=/opt/liftwise
+EnvironmentFile=/opt/liftwise/.env.production
+ExecStart=/usr/bin/npm run server
+Restart=on-failure
+RestartSec=5
+
+# Basic hardening. Remove/relax any of these if they cause problems on your
+# distro; none are required for Liftwise to work.
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ReadWritePaths=/var/lib/liftwise
+
+[Install]
+WantedBy=multi-user.target

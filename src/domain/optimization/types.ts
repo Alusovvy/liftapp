@@ -1,12 +1,7 @@
 import type { Routine } from "../models/schema";
 
 export type OptimizationObjective =
-  | "save_time"
-  | "simplify"
-  | "add_variety"
-  | "equipment"
-  | "prioritize"
-  | "comfort";
+  "save_time" | "simplify" | "add_variety" | "equipment" | "prioritize" | "comfort";
 
 export type OptimizationOpportunityKind =
   | "same_role"

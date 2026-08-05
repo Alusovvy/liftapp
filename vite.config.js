@@ -44,14 +44,30 @@ export default defineConfig({
       },
     },
   },
+  server: {
+    proxy: {
+      "/api": {
+        target: process.env.LIFTWISE_API_ORIGIN ?? "http://127.0.0.1:3001",
+        changeOrigin: true,
+      },
+    },
+  },
   test: {
     environment: "node",
     include: ["test/**/*.test.{js,ts,tsx}"],
     setupFiles: ["test/setup.ts"],
+    env: {
+      LIFTWISE_DB_PATH: ":memory:",
+    },
     coverage: {
       provider: "v8",
       reporter: ["text", "html"],
-      include: ["src/domain.js", "src/domain/**/*.ts", "src/infrastructure/**/*.ts", "src/ui/**/*.{js,ts,tsx}"],
+      include: [
+        "src/domain.js",
+        "src/domain/**/*.ts",
+        "src/infrastructure/**/*.ts",
+        "src/ui/**/*.{js,ts,tsx}",
+      ],
       thresholds: {
         statements: 80,
         branches: 70,

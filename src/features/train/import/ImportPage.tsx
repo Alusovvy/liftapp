@@ -20,19 +20,17 @@ type PendingImport = PendingFitatuImport | PendingWorkoutImport;
 type ImportPageProps = {
   data: LiftwiseData;
   undoAvailable: boolean;
-  onCommit: (
-    data: LiftwiseData,
-    previousData: LiftwiseData,
-    batchId: string,
-  ) => void;
-  onUndo: () => void;
+  onCommit: (data: LiftwiseData, previousData: LiftwiseData, batchId: string) => Promise<void>;
+  onUndo: () => Promise<void>;
 };
 
 function readFile(file: File): Promise<string> {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
     reader.addEventListener("load", () => resolve(String(reader.result ?? "")));
-    reader.addEventListener("error", () => reject(reader.error ?? new Error("The file could not be read.")));
+    reader.addEventListener("error", () =>
+      reject(reader.error ?? new Error("The file could not be read.")),
+    );
     reader.readAsText(file);
   });
 }
@@ -53,12 +51,7 @@ function countLabel(count: number, singular: string, plural: string): string {
   return `${count} ${count === 1 ? singular : plural}`;
 }
 
-export function ImportPage({
-  data,
-  undoAvailable,
-  onCommit,
-  onUndo,
-}: ImportPageProps) {
+export function ImportPage({ data, undoAvailable, onCommit, onUndo }: ImportPageProps) {
   const [kind, setKind] = useState<ImportKind | null>(null);
   const [pending, setPending] = useState<PendingImport | null>(null);
   const [mode, setMode] = useState<FitatuImportMode>("merge");
@@ -94,9 +87,8 @@ export function ImportPage({
     try {
       if (file.size > 10_000_000) throw new Error("The CSV exceeds the 10 MB safety limit.");
       const text = await readFile(file);
-      const parsed = kind === "nutrition"
-        ? parseFitatuCsv(text, file.name)
-        : parseWorkoutCsv(text, file.name);
+      const parsed =
+        kind === "nutrition" ? parseFitatuCsv(text, file.name) : parseWorkoutCsv(text, file.name);
       setPending(parsed);
       setAcceptValidRowsOnly(false);
       setStatus(
@@ -113,27 +105,29 @@ export function ImportPage({
     }
   };
 
-  const confirmImport = () => {
+  const confirmImport = async () => {
     if (!pending) return;
     setError(null);
     try {
-      const committed = pending.kind === "nutrition"
-        ? commitFitatuImport({
-          data,
-          pending,
-          mode,
-          acceptValidRowsOnly,
-        })
-        : commitWorkoutImport({
-          data,
-          pending,
-          mode,
-          acceptValidRowsOnly,
-        });
-      onCommit(committed.data, committed.previousData, committed.batchId);
-      const added = pending.kind === "nutrition"
-        ? countLabel(committed.counts.added, "nutrition day", "nutrition days")
-        : countLabel(committed.counts.added, "workout", "workouts");
+      const committed =
+        pending.kind === "nutrition"
+          ? commitFitatuImport({
+              data,
+              pending,
+              mode,
+              acceptValidRowsOnly,
+            })
+          : commitWorkoutImport({
+              data,
+              pending,
+              mode,
+              acceptValidRowsOnly,
+            });
+      await onCommit(committed.data, committed.previousData, committed.batchId);
+      const added =
+        pending.kind === "nutrition"
+          ? countLabel(committed.counts.added, "nutrition day", "nutrition days")
+          : countLabel(committed.counts.added, "workout", "workouts");
       setStatus(
         `${added} added · ${committed.counts.updated} updated · ${committed.counts.unchanged} unchanged. Undo is available.`,
       );
@@ -144,10 +138,10 @@ export function ImportPage({
     }
   };
 
-  const undoImport = () => {
+  const undoImport = async () => {
     setError(null);
     try {
-      onUndo();
+      await onUndo();
       setStatus("Import undone. The exact pre-import data was restored.");
       setPending(null);
     } catch (caught) {
@@ -159,7 +153,9 @@ export function ImportPage({
     <div className="import-workspace">
       <header className="import-heading">
         <div>
-          <p className="eyebrow">{kind ? pending ? "Step 3 of 4" : "Step 2 of 4" : "Step 1 of 4"}</p>
+          <p className="eyebrow">
+            {kind ? (pending ? "Step 3 of 4" : "Step 2 of 4") : "Step 1 of 4"}
+          </p>
           <h2>{kind ? "Choose a CSV file" : "What are you importing?"}</h2>
           <p>
             {kind
@@ -168,7 +164,11 @@ export function ImportPage({
           </p>
         </div>
         {kind ? (
-          <button className="text-button" type="button" onClick={() => chooseKind(kind === "nutrition" ? "workouts" : "nutrition")}>
+          <button
+            className="text-button"
+            type="button"
+            onClick={() => chooseKind(kind === "nutrition" ? "workouts" : "nutrition")}
+          >
             Switch to {kind === "nutrition" ? "workout" : "meal"} import
           </button>
         ) : null}
@@ -241,16 +241,29 @@ export function ImportPage({
           <dl className="import-summary-modern">
             <div>
               <dt>{pending.kind === "nutrition" ? "Nutrition days" : "Workouts"}</dt>
-              <dd>{pending.kind === "nutrition" ? pending.days.length : pending.workouts.length}</dd>
+              <dd>
+                {pending.kind === "nutrition" ? pending.days.length : pending.workouts.length}
+              </dd>
             </div>
-            <div><dt>Accepted rows</dt><dd>{pending.acceptedRowCount}</dd></div>
-            <div><dt>Rejected rows</dt><dd>{pending.rejectedRows.length}</dd></div>
-            <div><dt>Changes</dt><dd>{plan.counts.added + plan.counts.updated}</dd></div>
+            <div>
+              <dt>Accepted rows</dt>
+              <dd>{pending.acceptedRowCount}</dd>
+            </div>
+            <div>
+              <dt>Rejected rows</dt>
+              <dd>{pending.rejectedRows.length}</dd>
+            </div>
+            <div>
+              <dt>Changes</dt>
+              <dd>{plan.counts.added + plan.counts.updated}</dd>
+            </div>
           </dl>
 
           {pending.warnings.length ? (
             <ul className="import-warnings" aria-label="Import warnings">
-              {pending.warnings.map((warning) => <li key={warning}>{warning}</li>)}
+              {pending.warnings.map((warning) => (
+                <li key={warning}>{warning}</li>
+              ))}
             </ul>
           ) : null}
 
@@ -263,7 +276,9 @@ export function ImportPage({
                 checked={mode === "merge"}
                 onChange={() => setMode("merge")}
               />
-              <span><strong>Merge</strong> Add new records and update matching source records.</span>
+              <span>
+                <strong>Merge</strong> Add new records and update matching source records.
+              </span>
             </label>
             <label>
               <input
@@ -282,14 +297,14 @@ export function ImportPage({
           </fieldset>
 
           <div className="import-diff-modern" aria-label="Import changes">
-            {(["added", "updated", "unchanged", "conflicted"] as const).map((key) => (
+            {(["added", "updated", "unchanged", "conflicted"] as const).map((key) =>
               key in plan.counts ? (
                 <div key={key}>
                   <strong>{plan.counts[key as keyof typeof plan.counts]}</strong>
                   <span>{key}</span>
                 </div>
-              ) : null
-            ))}
+              ) : null,
+            )}
           </div>
 
           <ul className="import-record-preview">
@@ -305,7 +320,10 @@ export function ImportPage({
           {pending.rejectedRows.length ? (
             <div className="partial-import-review">
               <details>
-                <summary>Review {pending.rejectedRows.length} rejected row{pending.rejectedRows.length === 1 ? "" : "s"}</summary>
+                <summary>
+                  Review {pending.rejectedRows.length} rejected row
+                  {pending.rejectedRows.length === 1 ? "" : "s"}
+                </summary>
                 <ul>
                   {pending.rejectedRows.slice(0, 20).map((row) => (
                     <li key={row.rowNumber}>

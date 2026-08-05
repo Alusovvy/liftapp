@@ -19,5 +19,5 @@
     "exactOptionalPropertyTypes": true,
     "types": ["node", "vite/client", "vitest/globals", "@testing-library/jest-dom"]
   },
-  "include": ["src/**/*.ts", "src/**/*.tsx", "test/**/*.ts", "test/**/*.tsx"]
+  "include": ["src/**/*.ts", "src/**/*.tsx", "test/**/*.ts", "test/**/*.tsx", "server/**/*.ts"]
 }

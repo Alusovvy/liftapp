@@ -12,7 +12,9 @@ export function DataProblem({ message, rawRecoveryAvailable = false }: DataProbl
       {rawRecoveryAvailable ? (
         <p>A raw recovery copy was stored locally before this screen appeared.</p>
       ) : null}
-      <a className="button button-primary" href="./index.html">Open recovery tools</a>
+      <a className="button button-primary" href="./index.html">
+        Open recovery tools
+      </a>
     </main>
   );
 }

@@ -1,8 +1,8 @@
 import { useMemo, useState } from "react";
-import { EXERCISE_BY_ID } from "../../domain/exercises/catalog";
 import { MUSCLES, type LiftwiseData } from "../../domain/models/schema";
 import { buildExerciseProgress } from "../../domain/progress/exercise-progress";
-import { buildTodayViewModel } from "../today/selectors";
+import { buildTodayViewModel, mondayKey, nextMondayKey } from "../today/selectors";
+import { MuscleMap } from "./MuscleMap";
 
 type ProgressPageProps = {
   data: LiftwiseData;
@@ -23,6 +23,56 @@ const evidenceLabels = {
   emerging: "Emerging",
   "enough-evidence": "Enough evidence",
 } as const;
+
+function weekLabel(weekStartKey: string, weekEndExclusiveKey: string, isCurrent: boolean): string {
+  if (isCurrent) return "Current week";
+  const start = new Date(`${weekStartKey}T12:00:00`);
+  const end = new Date(`${weekEndExclusiveKey}T12:00:00`);
+  end.setDate(end.getDate() - 1);
+  const sameMonth = start.getMonth() === end.getMonth();
+  const startText = new Intl.DateTimeFormat(undefined, { month: "short", day: "numeric" }).format(
+    start,
+  );
+  const endText = new Intl.DateTimeFormat(
+    undefined,
+    sameMonth ? { day: "numeric" } : { month: "short", day: "numeric" },
+  ).format(end);
+  return `${startText} – ${endText}`;
+}
+
+type WeekNavProps = {
+  label: string;
+  onPrevious: () => void;
+  onNext: () => void;
+  previousDisabled: boolean;
+  nextDisabled: boolean;
+};
+
+function WeekNav({ label, onPrevious, onNext, previousDisabled, nextDisabled }: WeekNavProps) {
+  return (
+    <div className="week-nav" role="group" aria-label="Select week">
+      <button
+        className="week-nav-button"
+        type="button"
+        onClick={onPrevious}
+        disabled={previousDisabled}
+        aria-label="Previous week"
+      >
+        ←
+      </button>
+      <span className="week-nav-label">{label}</span>
+      <button
+        className="week-nav-button"
+        type="button"
+        onClick={onNext}
+        disabled={nextDisabled}
+        aria-label="Next week"
+      >
+        →
+      </button>
+    </div>
+  );
+}
 
 function recoveryAdjustment(checkin: LiftwiseData["recoveryCheckins"][number]): {
   label: string;
@@ -54,21 +104,40 @@ function recoveryAdjustment(checkin: LiftwiseData["recoveryCheckins"][number]): 
 
 export function ProgressPage({ data, onOpenTrain }: ProgressPageProps) {
   const [tab, setTab] = useState<ProgressTab>("focus");
-  const view = buildTodayViewModel(data);
+  const [weekOffset, setWeekOffset] = useState(0);
+  const [selectedMuscle, setSelectedMuscle] = useState<(typeof MUSCLES)[number] | null>(null);
+  const referenceNow = useMemo(() => {
+    const date = new Date();
+    date.setHours(12, 0, 0, 0);
+    date.setDate(date.getDate() + weekOffset * 7);
+    return date;
+  }, [weekOffset]);
+  const weekStart = mondayKey(referenceNow);
+  const weekEnd = nextMondayKey(referenceNow);
+  const earliestWorkoutMonday = useMemo(() => {
+    if (!data.workouts.length) return null;
+    const earliestDate = data.workouts.reduce(
+      (min, workout) => (workout.date < min ? workout.date : min),
+      data.workouts[0]!.date,
+    );
+    return mondayKey(new Date(`${earliestDate}T12:00:00`));
+  }, [data.workouts]);
+  const view = buildTodayViewModel(data, referenceNow);
   const exerciseProgress = useMemo(() => buildExerciseProgress(data), [data]);
   const focus = [
     ...(view.attention.primary.kind === "maintenance" ? [] : [view.attention.primary]),
     ...view.attention.weeklyFocus,
-  ].filter((item, index, items) => (
-    items.findIndex((candidate) => candidate.id === item.id) === index
-  )).slice(0, 3);
+  ]
+    .filter(
+      (item, index, items) => items.findIndex((candidate) => candidate.id === item.id) === index,
+    )
+    .slice(0, 3);
 
   const rows = MUSCLES.map((muscle) => {
     const [minimum, maximum] = data.targets[muscle];
     const value = view.weeklyDose[muscle];
-    const status = value < minimum
-      ? "Below range"
-      : value > maximum ? "Review above range" : "In range";
+    const status =
+      value < minimum ? "Below range" : value > maximum ? "Review above range" : "In range";
     return { muscle, minimum, maximum, value, status };
   }).sort((first, second) => {
     const firstGap = Math.max(0, first.minimum - first.value);
@@ -79,6 +148,15 @@ export function ProgressPage({ data, onOpenTrain }: ProgressPageProps) {
   const recovery = [...data.recoveryCheckins]
     .sort((left, right) => right.date.localeCompare(left.date))
     .slice(0, 12);
+  const weekNav = (
+    <WeekNav
+      label={weekLabel(weekStart, weekEnd, weekOffset === 0)}
+      onPrevious={() => setWeekOffset((current) => current - 1)}
+      onNext={() => setWeekOffset((current) => Math.min(0, current + 1))}
+      previousDisabled={earliestWorkoutMonday !== null && weekStart <= earliestWorkoutMonday}
+      nextDisabled={weekOffset >= 0}
+    />
+  );
 
   return (
     <div className="page">
@@ -121,7 +199,13 @@ export function ProgressPage({ data, onOpenTrain }: ProgressPageProps) {
                 <p className="eyebrow">Maximum three</p>
                 <h2>Highest-value reviews for this week</h2>
               </div>
-              <span>{view.weekWorkouts.length} logged session{view.weekWorkouts.length === 1 ? "" : "s"} this week</span>
+              <div className="progress-section-intro-side">
+                <span>
+                  {view.weekWorkouts.length} logged session
+                  {view.weekWorkouts.length === 1 ? "" : "s"} this week
+                </span>
+                {weekNav}
+              </div>
             </header>
             {focus.length ? (
               <ol className="progress-focus-list">
@@ -133,12 +217,11 @@ export function ProgressPage({ data, onOpenTrain }: ProgressPageProps) {
                       <h3>{item.title}</h3>
                       <p>{item.reason}</p>
                       <details>
-                        <summary>
-                          Evidence: {evidenceLabels[item.evidence]}
-                        </summary>
+                        <summary>Evidence: {evidenceLabels[item.evidence]}</summary>
                         <p>
                           Rule <code>{item.ruleId}</code>. Weekly dose counts qualified direct sets
-                          as 1.0 and secondary sets as 0.5; recent direct work may lower a gap’s rank.
+                          as 1.0 and secondary sets as 0.5; recent direct work may lower a gap’s
+                          rank.
                         </p>
                       </details>
                     </div>
@@ -171,17 +254,24 @@ export function ProgressPage({ data, onOpenTrain }: ProgressPageProps) {
                 <p className="eyebrow">Comparable sessions only</p>
                 <h2>Exercise decisions</h2>
               </div>
-              <span>{exerciseProgress.length} tracked exercise{exerciseProgress.length === 1 ? "" : "s"}</span>
+              <span>
+                {exerciseProgress.length} tracked exercise{exerciseProgress.length === 1 ? "" : "s"}
+              </span>
             </header>
             {exerciseProgress.length ? (
               <div className="exercise-progress-list">
                 {exerciseProgress.map((item) => (
-                  <article className={`exercise-progress-row change-${item.change}`} key={item.exerciseId}>
+                  <article
+                    className={`exercise-progress-row change-${item.change}`}
+                    key={item.exerciseId}
+                  >
                     <div className="exercise-progress-decision">
                       <span className="progress-observation">
                         {item.change === "improved"
                           ? "Observed improvement"
-                          : item.change === "review" ? "Review prompt" : "Next decision"}
+                          : item.change === "review"
+                            ? "Review prompt"
+                            : "Next decision"}
                       </span>
                       <h3>{item.recommendation}</h3>
                       <strong>{item.exerciseName}</strong>
@@ -189,17 +279,29 @@ export function ProgressPage({ data, onOpenTrain }: ProgressPageProps) {
                     <div className="exercise-progress-latest">
                       <span>Last comparable</span>
                       <strong>{item.lastPerformance}</strong>
-                      <time dateTime={item.lastDate ?? undefined}>{item.lastDate ?? "Not logged"}</time>
+                      <time dateTime={item.lastDate ?? undefined}>
+                        {item.lastDate ?? "Not logged"}
+                      </time>
                     </div>
-                    <div className="compact-trend" aria-label={`Recent comparable history for ${item.exerciseName}`}>
+                    <div
+                      className="compact-trend"
+                      aria-label={`Recent comparable history for ${item.exerciseName}`}
+                    >
                       {item.comparableHistory.length ? (
-                        item.comparableHistory.slice(0, 3).reverse().map((point) => (
-                          <span key={point.workoutId}>
-                            <small>{point.date}</small>
-                            <strong>{point.label}</strong>
-                          </span>
-                        ))
-                      ) : <span><strong>Baseline needed</strong></span>}
+                        item.comparableHistory
+                          .slice(0, 3)
+                          .reverse()
+                          .map((point) => (
+                            <span key={point.workoutId}>
+                              <small>{point.date}</small>
+                              <strong>{point.label}</strong>
+                            </span>
+                          ))
+                      ) : (
+                        <span>
+                          <strong>Baseline needed</strong>
+                        </span>
+                      )}
                     </div>
                     <span className={`evidence-badge evidence-${item.evidence}`}>
                       {evidenceLabels[item.evidence]}
@@ -209,15 +311,20 @@ export function ProgressPage({ data, onOpenTrain }: ProgressPageProps) {
                       <p>{item.reason}</p>
                       {item.excludedAppearances ? (
                         <p>
-                          {item.excludedAppearances} appearance{item.excludedAppearances === 1 ? " was" : "s were"} excluded
-                          because the measurement or loading convention changed.
+                          {item.excludedAppearances} appearance
+                          {item.excludedAppearances === 1 ? " was" : "s were"} excluded because the
+                          measurement or loading convention changed.
                         </p>
                       ) : null}
                       {item.comparableHistory.length ? (
                         <div className="progress-data-table">
                           <table>
                             <thead>
-                              <tr><th>Date</th><th>Top qualified set</th><th>RIR</th></tr>
+                              <tr>
+                                <th>Date</th>
+                                <th>Top qualified set</th>
+                                <th>RIR</th>
+                              </tr>
                             </thead>
                             <tbody>
                               {item.comparableHistory.map((point) => (
@@ -251,22 +358,41 @@ export function ProgressPage({ data, onOpenTrain }: ProgressPageProps) {
           <div className="page-section progress-muscles" aria-labelledby="muscle-coverage-title">
             <div className="section-heading">
               <div>
-                <p className="eyebrow">Current week</p>
+                <p className="eyebrow">Weekly coverage</p>
                 <h2 id="muscle-coverage-title">Muscle coverage</h2>
               </div>
-              <span className="evidence-badge evidence-enough-evidence">
-                {view.weekWorkouts.length ? `${view.weekWorkouts.length} logged sessions` : "Need data"}
-              </span>
+              <div className="progress-section-intro-side">
+                <span className="evidence-badge evidence-enough-evidence">
+                  {view.weekWorkouts.length
+                    ? `${view.weekWorkouts.length} logged sessions`
+                    : "Need data"}
+                </span>
+                {weekNav}
+              </div>
             </div>
             <p className="method-note">
               Coverage is a configurable planning model, not a direct measurement of muscle growth.
             </p>
+            <MuscleMap
+              rows={rows}
+              selectedMuscle={selectedMuscle}
+              onSelectMuscle={(muscle) =>
+                setSelectedMuscle((current) => (current === muscle ? null : muscle))
+              }
+            />
             <div className="muscle-bars" role="list">
               {rows.map((row) => (
-                <div className="muscle-bar-row" role="listitem" key={row.muscle}>
+                <div
+                  className={`muscle-bar-row ${selectedMuscle === row.muscle ? "is-selected" : ""}`}
+                  role="listitem"
+                  key={row.muscle}
+                  id={`muscle-row-${row.muscle}`}
+                >
                   <div className="muscle-bar-label">
                     <strong>{row.muscle}</strong>
-                    <span>{row.value} / {row.minimum}–{row.maximum} weighted sets</span>
+                    <span>
+                      {row.value} / {row.minimum}–{row.maximum} weighted sets
+                    </span>
                   </div>
                   <div className="muscle-track" aria-hidden="true">
                     <span
@@ -281,7 +407,9 @@ export function ProgressPage({ data, onOpenTrain }: ProgressPageProps) {
                       style={{ width: `${Math.min(100, (row.value / maxScale) * 100)}%` }}
                     />
                   </div>
-                  <span className={`status-text status-${row.status.toLowerCase().replaceAll(" ", "-")}`}>
+                  <span
+                    className={`status-text status-${row.status.toLowerCase().replaceAll(" ", "-")}`}
+                  >
                     {row.status}
                   </span>
                 </div>
@@ -297,7 +425,9 @@ export function ProgressPage({ data, onOpenTrain }: ProgressPageProps) {
                 <p className="eyebrow">Your reports and app response</p>
                 <h2>Recovery check-ins</h2>
               </div>
-              <span>{recovery.length} recent check-in{recovery.length === 1 ? "" : "s"}</span>
+              <span>
+                {recovery.length} recent check-in{recovery.length === 1 ? "" : "s"}
+              </span>
             </header>
             {recovery.length ? (
               <div className="recovery-timeline">
@@ -307,10 +437,22 @@ export function ProgressPage({ data, onOpenTrain }: ProgressPageProps) {
                     <article key={checkin.id}>
                       <time dateTime={checkin.date}>{checkin.date}</time>
                       <dl>
-                        <div><dt>Sleep</dt><dd>{checkin.sleepHours} h</dd></div>
-                        <div><dt>Energy</dt><dd>{checkin.energy}/5</dd></div>
-                        <div><dt>Soreness</dt><dd>{checkin.soreness}/5</dd></div>
-                        <div><dt>Stress</dt><dd>{checkin.stress}/5</dd></div>
+                        <div>
+                          <dt>Sleep</dt>
+                          <dd>{checkin.sleepHours} h</dd>
+                        </div>
+                        <div>
+                          <dt>Energy</dt>
+                          <dd>{checkin.energy}/5</dd>
+                        </div>
+                        <div>
+                          <dt>Soreness</dt>
+                          <dd>{checkin.soreness}/5</dd>
+                        </div>
+                        <div>
+                          <dt>Stress</dt>
+                          <dd>{checkin.stress}/5</dd>
+                        </div>
                       </dl>
                       <div>
                         <span className="progress-observation">App response</span>
@@ -324,12 +466,14 @@ export function ProgressPage({ data, onOpenTrain }: ProgressPageProps) {
             ) : (
               <div className="positive-empty">
                 <strong>No recovery check-ins yet.</strong>
-                <p>Training history still works. A check-in is optional context, not a requirement.</p>
+                <p>
+                  Training history still works. A check-in is optional context, not a requirement.
+                </p>
               </div>
             )}
             <p className="method-note">
-              These rows show what you reported and which deterministic rule the app applied.
-              They do not prove that a recovery input caused a performance result.
+              These rows show what you reported and which deterministic rule the app applied. They
+              do not prove that a recovery input caused a performance result.
             </p>
           </div>
         ) : null}

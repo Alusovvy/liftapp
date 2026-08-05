@@ -24,18 +24,20 @@ describe("active workout domain", () => {
   test("starts from a routine, carries previous load forward, and defaults missing RIR to three", () => {
     const data = LiftwiseDataSchema.parse({
       ...fixture,
-      routines: [{
-        ...fixture.routines[0],
-        entries: [
-          fixture.routines[0]!.entries[0],
-          {
-            exerciseId: "curl",
-            targetSets: 2,
-            targetRir: null,
-            notes: "",
-          },
-        ],
-      }],
+      routines: [
+        {
+          ...fixture.routines[0],
+          entries: [
+            fixture.routines[0]!.entries[0],
+            {
+              exerciseId: "curl",
+              targetSets: 2,
+              targetRir: null,
+              notes: "",
+            },
+          ],
+        },
+      ],
     });
 
     const draft = createActiveWorkoutDraft(data, {
@@ -65,12 +67,18 @@ describe("active workout domain", () => {
       createId,
     });
     const entry = withExercise.entries[0]!;
-    const edited = updateDraftSet(withExercise, entry.id, entry.sets[0]!.id, {
-      weightKg: 26,
-      reps: 8,
-      rir: 1.5,
-      completed: true,
-    }, "2026-08-03T10:02:00.000Z");
+    const edited = updateDraftSet(
+      withExercise,
+      entry.id,
+      entry.sets[0]!.id,
+      {
+        weightKg: 26,
+        reps: 8,
+        rir: 1.5,
+        completed: true,
+      },
+      "2026-08-03T10:02:00.000Z",
+    );
     const withSet = addSetToDraft(edited, entry.id, {
       now: "2026-08-03T10:03:00.000Z",
       createId,
@@ -116,26 +124,32 @@ describe("active workout domain", () => {
       createId,
     });
     const entry = draft.entries[0]!;
-    draft = updateDraftSet(draft, entry.id, entry.sets[0]!.id, {
-      weightKg: 25,
-      reps: 9,
-      rir: null,
-      completed: true,
-    }, "2026-08-03T10:02:00.000Z");
+    draft = updateDraftSet(
+      draft,
+      entry.id,
+      entry.sets[0]!.id,
+      {
+        weightKg: 25,
+        reps: 9,
+        rir: null,
+        completed: true,
+      },
+      "2026-08-03T10:02:00.000Z",
+    );
     draft = addSetToDraft(draft, entry.id, {
       now: "2026-08-03T10:03:00.000Z",
       createId,
     });
-    draft = updateDraftDetails(draft, {
-      name: "  Focused upper  ",
-      notes: "  Felt good  ",
-    }, "2026-08-03T10:04:00.000Z");
-
-    const completed = completeActiveWorkout(
-      data,
+    draft = updateDraftDetails(
       draft,
-      "2026-08-03T10:50:00.000Z",
+      {
+        name: "  Focused upper  ",
+        notes: "  Felt good  ",
+      },
+      "2026-08-03T10:04:00.000Z",
     );
+
+    const completed = completeActiveWorkout(data, draft, "2026-08-03T10:50:00.000Z");
 
     assert.equal(completed.workout.name, "Focused upper");
     assert.equal(completed.workout.notes, "Felt good");
@@ -145,11 +159,7 @@ describe("active workout domain", () => {
     assert.equal(completed.workout.entries[0]?.sets[0]?.effortSource, "manual");
     assert.equal(completed.data.workouts.at(-1)?.id, `manual:${draft.id}`);
 
-    const repeated = completeActiveWorkout(
-      completed.data,
-      draft,
-      "2026-08-03T10:51:00.000Z",
-    );
+    const repeated = completeActiveWorkout(completed.data, draft, "2026-08-03T10:51:00.000Z");
     assert.equal(
       repeated.data.workouts.filter((workout) => workout.id === completed.workout.id).length,
       1,
@@ -177,7 +187,10 @@ describe("active workout domain", () => {
     });
     assert.match(activeWorkoutReadiness(draft).errors.join(" "), /needs at least one rep/i);
     assert.throws(() => completeActiveWorkout(data, draft), /Give the workout a name/);
-    assert.throws(() => createActiveWorkoutDraft(data, { routineId: "missing" }), /no longer exists/i);
+    assert.throws(
+      () => createActiveWorkoutDraft(data, { routineId: "missing" }),
+      /no longer exists/i,
+    );
     assert.throws(() => addExerciseToDraft(draft, data, "unknown"), /no longer available/i);
   });
 
@@ -195,15 +208,19 @@ describe("active workout domain", () => {
           notes: "",
           startTime: null,
           endTime: null,
-          entries: [{
-            exerciseId: "historic-custom-exercise",
-            sets: [{
-              type: "normal",
-              weightKg: null,
-              reps: null,
-              rir: 3,
-            }],
-          }],
+          entries: [
+            {
+              exerciseId: "historic-custom-exercise",
+              sets: [
+                {
+                  type: "normal",
+                  weightKg: null,
+                  reps: null,
+                  rir: 3,
+                },
+              ],
+            },
+          ],
         },
       ],
     });
@@ -227,10 +244,7 @@ describe("active workout domain", () => {
       () => removeSetFromDraft(draft, draft.entries[0]!.id, "stale-set"),
       /set is no longer/i,
     );
-    assert.throws(
-      () => removeExerciseFromDraft(draft, "stale-entry"),
-      /exercise is no longer/i,
-    );
+    assert.throws(() => removeExerciseFromDraft(draft, "stale-entry"), /exercise is no longer/i);
 
     const first = draft.entries[0]!;
     draft = {

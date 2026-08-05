@@ -432,12 +432,12 @@ These are transparent product heuristics and must be configurable in code. They 
 
 ### Evidence labels
 
-| Label | Requirement | Allowed output |
-| --- | --- | --- |
-| **Routine only** | Planned exercises exist, but recent completion is insufficient | Structural observation; no personal-effect claim |
+| Label               | Requirement                                                        | Allowed output                                         |
+| ------------------- | ------------------------------------------------------------------ | ------------------------------------------------------ |
+| **Routine only**    | Planned exercises exist, but recent completion is insufficient     | Structural observation; no personal-effect claim       |
 | **Usage confirmed** | Recent history confirms the planned pair and enough qualified sets | Consolidation preview with exact logged/planned inputs |
-| **Trial ready** | Stable baseline plus a reviewed alternative and no exclusion | Controlled one-to-one trial |
-| **Needs mapping** | Custom/imported exercise lacks required role metadata | Ask for mapping; do not optimize |
+| **Trial ready**     | Stable baseline plus a reviewed alternative and no exclusion       | Controlled one-to-one trial                            |
+| **Needs mapping**   | Custom/imported exercise lacks required role metadata              | Ask for mapping; do not optimize                       |
 
 Do not display a numerical confidence score.
 
@@ -846,36 +846,36 @@ These examples illustrate the proposed rules. They are not pre-approved exercise
 
 ### Strong same-role candidates after metadata review
 
-| Pair | Possible action | Important caveat |
-| --- | --- | --- |
-| Dumbbell Curl + Concentration Curl | Consolidate direct sets into one curl | Loses supported single-arm variation/skill |
-| Dumbbell Curl + Barbell Curl | Choose one when simplification is the goal | Changes bilateral implement and exercise-specific strength |
-| Goblet Squat + Dumbbell Squat | Choose one same-session squat variation | Loading position and comfort may differ |
-| Overhead Press + Dumbbell Shoulder Press | Choose one vertical press | Barbell/dumbbell and bilateral freedom affect skill/stability |
-| One-Arm DB Row + Chest-Supported DB Row | Possible one-role simplification | Changes lower-back/stability and unilateral practice |
+| Pair                                     | Possible action                            | Important caveat                                              |
+| ---------------------------------------- | ------------------------------------------ | ------------------------------------------------------------- |
+| Dumbbell Curl + Concentration Curl       | Consolidate direct sets into one curl      | Loses supported single-arm variation/skill                    |
+| Dumbbell Curl + Barbell Curl             | Choose one when simplification is the goal | Changes bilateral implement and exercise-specific strength    |
+| Goblet Squat + Dumbbell Squat            | Choose one same-session squat variation    | Loading position and comfort may differ                       |
+| Overhead Press + Dumbbell Shoulder Press | Choose one vertical press                  | Barbell/dumbbell and bilateral freedom affect skill/stability |
+| One-Arm DB Row + Chest-Supported DB Row  | Possible one-role simplification           | Changes lower-back/stability and unilateral practice          |
 
 ### Possible but trade-off-heavy
 
-| Pair | Possible action | Must disclose |
-| --- | --- | --- |
-| Row + curl | More row work, remove curl | Direct biceps work decreases |
-| Bench press + triceps isolation | Keep bench only for time | Direct elbow-extension work and triceps-head emphasis may change |
-| Dumbbell bench + push-up | Use one horizontal push | Loading mode and strength skill change |
-| Hip thrust + glute bridge | Choose one hip-extension role | Loadability, range, and setup differ |
-| Cable lateral raise + dumbbell lateral raise | Choose available variation | Resistance profile and equipment change |
+| Pair                                         | Possible action               | Must disclose                                                    |
+| -------------------------------------------- | ----------------------------- | ---------------------------------------------------------------- |
+| Row + curl                                   | More row work, remove curl    | Direct biceps work decreases                                     |
+| Bench press + triceps isolation              | Keep bench only for time      | Direct elbow-extension work and triceps-head emphasis may change |
+| Dumbbell bench + push-up                     | Use one horizontal push       | Loading mode and strength skill change                           |
+| Hip thrust + glute bridge                    | Choose one hip-extension role | Loadability, range, and setup differ                             |
+| Cable lateral raise + dumbbell lateral raise | Choose available variation    | Resistance profile and equipment change                          |
 
 ### Do not consolidate by default
 
-| Pair | Reason |
-| --- | --- |
-| Row + pull-up | Horizontal and vertical pull roles differ |
-| RDL + seated leg curl | Hip extension/hinge and knee flexion differ |
-| Squat + RDL | Knee-dominant squat and hip hinge differ |
-| Overhead press + lateral raise | Compound vertical press and shoulder isolation differ |
-| Bench press + chest fly | Compound press and chest isolation differ |
-| Flat press + incline press | Angle and regional emphasis may differ |
-| Pallof press + crunch | Anti-rotation and trunk flexion differ |
-| Plank + Russian twist | Anti-extension and rotation differ |
+| Pair                            | Reason                                                        |
+| ------------------------------- | ------------------------------------------------------------- |
+| Row + pull-up                   | Horizontal and vertical pull roles differ                     |
+| RDL + seated leg curl           | Hip extension/hinge and knee flexion differ                   |
+| Squat + RDL                     | Knee-dominant squat and hip hinge differ                      |
+| Overhead press + lateral raise  | Compound vertical press and shoulder isolation differ         |
+| Bench press + chest fly         | Compound press and chest isolation differ                     |
+| Flat press + incline press      | Angle and regional emphasis may differ                        |
+| Pallof press + crunch           | Anti-rotation and trunk flexion differ                        |
+| Plank + Russian twist           | Anti-extension and rotation differ                            |
 | Bilateral + unilateral movement | Keep both when unilateral skill/asymmetry is an explicit goal |
 
 Showing “do not combine” decisions is a core trust feature, not an edge case.
@@ -1255,20 +1255,20 @@ Gate:
 
 ## 22. Risks and controls
 
-| Risk | Control |
-| --- | --- |
-| “Optimization” implies one universal best program | Require a user-selected objective and show Keep current |
-| Two exercises are treated as physiologically identical | Use similar planned role; prohibit same-effect copy |
-| Compound secondary work replaces direct work silently | Separate direct/secondary values and label the loss |
-| Strength skill is lost | Protected exercises and explicit specificity warning |
-| Random variation disrupts progression | One controlled trial at a time with preserved baseline |
-| App makes a medical recommendation | Pain stop and non-medical comfort language |
-| Coarse muscle tags create bad suggestions | Reviewed role/region taxonomy and hard eligibility gates |
-| Custom/imported exercises are guessed | Needs-mapping state; exclude from auto-consolidation |
-| Set compression creates excessive single-exercise work | Four-set automatic guardrail and frequency preservation |
-| Routine changes become destructive | Preview, immutable revision, and undo |
-| Feature creates changes to drive engagement | Keep-current result and no acceptance-rate optimization |
-| Relationship catalog becomes unmaintainable | Versioned directed graph, validation tests, review metadata |
+| Risk                                                   | Control                                                     |
+| ------------------------------------------------------ | ----------------------------------------------------------- |
+| “Optimization” implies one universal best program      | Require a user-selected objective and show Keep current     |
+| Two exercises are treated as physiologically identical | Use similar planned role; prohibit same-effect copy         |
+| Compound secondary work replaces direct work silently  | Separate direct/secondary values and label the loss         |
+| Strength skill is lost                                 | Protected exercises and explicit specificity warning        |
+| Random variation disrupts progression                  | One controlled trial at a time with preserved baseline      |
+| App makes a medical recommendation                     | Pain stop and non-medical comfort language                  |
+| Coarse muscle tags create bad suggestions              | Reviewed role/region taxonomy and hard eligibility gates    |
+| Custom/imported exercises are guessed                  | Needs-mapping state; exclude from auto-consolidation        |
+| Set compression creates excessive single-exercise work | Four-set automatic guardrail and frequency preservation     |
+| Routine changes become destructive                     | Preview, immutable revision, and undo                       |
+| Feature creates changes to drive engagement            | Keep-current result and no acceptance-rate optimization     |
+| Relationship catalog becomes unmaintainable            | Versioned directed graph, validation tests, review metadata |
 
 ---
 

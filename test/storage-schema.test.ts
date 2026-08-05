@@ -58,14 +58,16 @@ describe("current persisted schema", () => {
   test("accepts the legacy body-fat-only measurement shape", () => {
     const data = LiftwiseDataSchema.parse({
       ...fixture,
-      bodyMetrics: [{
-        id: "body-fat-only",
-        date: "2026-08-02",
-        weightKg: null,
-        bodyFatPercent: 16.1,
-        note: "",
-        recordedAt: "2026-08-02T07:00:00.000Z",
-      }],
+      bodyMetrics: [
+        {
+          id: "body-fat-only",
+          date: "2026-08-02",
+          weightKg: null,
+          bodyFatPercent: 16.1,
+          note: "",
+          recordedAt: "2026-08-02T07:00:00.000Z",
+        },
+      ],
     });
 
     assert.equal(data.bodyMetrics[0]?.weightKg, null);

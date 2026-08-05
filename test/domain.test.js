@@ -31,7 +31,9 @@ test("missing manual effort defaults to 3 RIR without overriding supplied effort
   const planned = domain.defaultMissingRir({}, 2, { source: "manual" });
   const explicit = domain.defaultMissingRir({ rir: 1.5 }, undefined, { source: "manual" });
   const derived = domain.defaultMissingRir({ rpe: 8 }, undefined, { source: "manual" });
-  const cleared = domain.defaultMissingRir({ manualRirCleared: true }, undefined, { source: "manual" });
+  const cleared = domain.defaultMissingRir({ manualRirCleared: true }, undefined, {
+    source: "manual",
+  });
 
   assert.equal(domain.DEFAULT_RIR, 3);
   assert.equal(missing.rir, 3);
@@ -48,31 +50,39 @@ test("corrected source workout is updated without losing manual RIR", () => {
     id: "hevy-1",
     source: "hevy-csv",
     sourceIdentity: "hevy:abc",
-    entries: [{
-      exerciseId: "bench-press",
-      sets: [{
-        sourceSetId: "hevy:abc:bench:1",
-        weightKg: 50,
-        reps: 8,
-        rawRpe: 8,
-        manualRir: 1,
-        rirManual: true,
-      }],
-    }],
+    entries: [
+      {
+        exerciseId: "bench-press",
+        sets: [
+          {
+            sourceSetId: "hevy:abc:bench:1",
+            weightKg: 50,
+            reps: 8,
+            rawRpe: 8,
+            manualRir: 1,
+            rirManual: true,
+          },
+        ],
+      },
+    ],
   };
   existing.contentFingerprint = domain.contentFingerprint(existing);
   const incoming = {
     source: "hevy-csv",
     sourceIdentity: "hevy:abc",
-    entries: [{
-      exerciseId: "bench-press",
-      sets: [{
-        sourceSetId: "hevy:abc:bench:1",
-        weightKg: 55,
-        reps: 8,
-        rawRpe: 8,
-      }],
-    }],
+    entries: [
+      {
+        exerciseId: "bench-press",
+        sets: [
+          {
+            sourceSetId: "hevy:abc:bench:1",
+            weightKg: 55,
+            reps: 8,
+            rawRpe: 8,
+          },
+        ],
+      },
+    ],
   };
   const result = domain.compareSourceWorkout(existing, incoming);
   assert.equal(result.status, "updated");
@@ -87,22 +97,26 @@ test("corrected source workout conflicts when a manually edited set disappears",
     id: "hevy-1",
     source: "hevy-csv",
     sourceIdentity: "hevy:abc",
-    entries: [{
-      exerciseId: "bench-press",
-      sets: [
-        { sourceSetId: "set-1", weightKg: 50, reps: 8 },
-        { sourceSetId: "set-2", weightKg: 50, reps: 8, manualRir: 1, rirManual: true },
-      ],
-    }],
+    entries: [
+      {
+        exerciseId: "bench-press",
+        sets: [
+          { sourceSetId: "set-1", weightKg: 50, reps: 8 },
+          { sourceSetId: "set-2", weightKg: 50, reps: 8, manualRir: 1, rirManual: true },
+        ],
+      },
+    ],
   };
   existing.contentFingerprint = domain.contentFingerprint(existing);
   const incoming = {
     source: "hevy-csv",
     sourceIdentity: "hevy:abc",
-    entries: [{
-      exerciseId: "bench-press",
-      sets: [{ sourceSetId: "set-1", weightKg: 52.5, reps: 8 }],
-    }],
+    entries: [
+      {
+        exerciseId: "bench-press",
+        sets: [{ sourceSetId: "set-1", weightKg: 52.5, reps: 8 }],
+      },
+    ],
   };
   const result = domain.compareSourceWorkout(existing, incoming);
   assert.equal(result.status, "conflicted");
@@ -136,7 +150,10 @@ test("day aggregation deduplicates exercise rows but preserves sessions", () => 
 
 test("measurement modes qualify appropriate non-warm-up sets", () => {
   assert.equal(domain.isQualifiedSet({ measurementMode: "duration", durationSeconds: 30 }), true);
-  assert.equal(domain.isQualifiedSet({ measurementMode: "distance_duration", distanceMeters: 1000 }), true);
+  assert.equal(
+    domain.isQualifiedSet({ measurementMode: "distance_duration", distanceMeters: 1000 }),
+    true,
+  );
   assert.equal(domain.isQualifiedSet({ measurementMode: "load_reps", reps: 0 }), false);
   assert.equal(domain.isQualifiedSet({ type: "warmup", reps: 10 }), false);
 });
@@ -202,9 +219,9 @@ test("Fitatu parser skips metadata and reports future planned rows", () => {
 
 test("Fitatu meal-plan columns preserve three-place decimal values", () => {
   const csv = [
-    "Date,Meal,\"Products and dishes\",\"Kitchen measure\",\"quantity (g)\",\"calories (kcal)\",\"Protein (g)\",\"Plant (g)\",\"Animal (g)\",\"Fats (g)\",\"Carbohydrates (g)\",\"Fibre (g)\"",
-    "2026-08-01,Snack,Banana,\"120x g\",120,118.452,1.44,1.44,0,0.36,27,3.12",
-    "2026-08-01,Snack,Dessert,\"1x portion\",41.65,217.413,2.499,,,12.0785,24.53185,0",
+    'Date,Meal,"Products and dishes","Kitchen measure","quantity (g)","calories (kcal)","Protein (g)","Plant (g)","Animal (g)","Fats (g)","Carbohydrates (g)","Fibre (g)"',
+    '2026-08-01,Snack,Banana,"120x g",120,118.452,1.44,1.44,0,0.36,27,3.12',
+    '2026-08-01,Snack,Dessert,"1x portion",41.65,217.413,2.499,,,12.0785,24.53185,0',
   ].join("\n");
   const result = domain.parseFitatuExport(csv, { today: "2026-08-02" });
   assert.equal(result.acceptedRowCount, 2);

@@ -1,7 +1,11 @@
 import assert from "node:assert/strict";
 import { describe, test } from "vitest";
 import fixture from "./fixtures/current-data-v9.json";
-import { LiftwiseDataSchema, type WorkoutEntry, type WorkoutSet } from "../src/domain/models/schema";
+import {
+  LiftwiseDataSchema,
+  type WorkoutEntry,
+  type WorkoutSet,
+} from "../src/domain/models/schema";
 import { buildExerciseProgress } from "../src/domain/progress/exercise-progress";
 
 function workout(
@@ -18,14 +22,16 @@ function workout(
     name: `${exerciseId} ${date}`,
     startTime: `${date}T10:00:00.000Z`,
     endTime: `${date}T11:00:00.000Z`,
-    entries: [{
-      exerciseId,
-      measurementMode: "load_reps" as const,
-      loadMode: "total" as const,
-      repMode: "total" as const,
-      sets,
-      ...entry,
-    }],
+    entries: [
+      {
+        exerciseId,
+        measurementMode: "load_reps" as const,
+        loadMode: "total" as const,
+        repMode: "total" as const,
+        sets,
+        ...entry,
+      },
+    ],
   };
 }
 
@@ -64,12 +70,8 @@ describe("exercise progress decisions", () => {
       ...fixture,
       routines: [],
       workouts: [
-        workout("older", "2026-07-20", "db-bench", [
-          set({ weightKg: 24, reps: 9, rir: 2 }),
-        ]),
-        workout("latest", "2026-07-27", "db-bench", [
-          set({ weightKg: 24, reps: 10, rir: 2 }),
-        ]),
+        workout("older", "2026-07-20", "db-bench", [set({ weightKg: 24, reps: 9, rir: 2 })]),
+        workout("latest", "2026-07-27", "db-bench", [set({ weightKg: 24, reps: 10, rir: 2 })]),
       ],
     });
     const summary = buildExerciseProgress(data)[0]!;
@@ -102,12 +104,10 @@ describe("exercise progress decisions", () => {
       ...fixture,
       routines: [],
       workouts: [
-        workout("per-hand", "2026-07-10", "db-bench", [
-          set({ weightKg: 20, reps: 10, rir: 3 }),
-        ], { loadMode: "per_hand" }),
-        workout("older", "2026-07-17", "db-bench", [
-          set({ weightKg: 40, reps: 8, rir: 2 }),
-        ]),
+        workout("per-hand", "2026-07-10", "db-bench", [set({ weightKg: 20, reps: 10, rir: 3 })], {
+          loadMode: "per_hand",
+        }),
+        workout("older", "2026-07-17", "db-bench", [set({ weightKg: 40, reps: 8, rir: 2 })]),
         workout("latest", "2026-07-24", "db-bench", [
           set({ weightKg: 40, reps: 8, rir: null, rawRpe: null }),
         ]),
@@ -188,9 +188,7 @@ describe("exercise progress decisions", () => {
           set({ weightKg: 12, reps: 8, rir: 2 }),
           set({ type: "warmup", weightKg: 6, reps: 20, rir: null }),
         ]),
-        workout("latest", "2026-07-17", "curl", [
-          set({ weightKg: 12, reps: 8, rir: 2 }),
-        ]),
+        workout("latest", "2026-07-17", "curl", [set({ weightKg: 12, reps: 8, rir: 2 })]),
       ],
     });
     const summary = buildExerciseProgress(data)[0]!;
@@ -200,12 +198,18 @@ describe("exercise progress decisions", () => {
   });
 
   test("selects the best qualified set for every measurement mode", () => {
-    const base = workout("mixed", "2026-07-17", "curl", [
-      bareSet({ weightKg: 12, reps: 8, rawRpe: 8 }),
-      bareSet({ weightKg: 12, reps: 10, rawRpe: 8 }),
-      bareSet({ weightKg: 14, reps: 8, rawRpe: 8 }),
-      bareSet({ type: "warmup", weightKg: 20, reps: 20 }),
-    ], { measurementMode: null, loadMode: null, repMode: null });
+    const base = workout(
+      "mixed",
+      "2026-07-17",
+      "curl",
+      [
+        bareSet({ weightKg: 12, reps: 8, rawRpe: 8 }),
+        bareSet({ weightKg: 12, reps: 10, rawRpe: 8 }),
+        bareSet({ weightKg: 14, reps: 8, rawRpe: 8 }),
+        bareSet({ type: "warmup", weightKg: 20, reps: 20 }),
+      ],
+      { measurementMode: null, loadMode: null, repMode: null },
+    );
     const entries = [
       base.entries[0],
       {
@@ -213,10 +217,7 @@ describe("exercise progress decisions", () => {
         measurementMode: "duration" as const,
         loadMode: "none" as const,
         repMode: "total" as const,
-        sets: [
-          bareSet({ durationSeconds: 30 }),
-          bareSet({ durationSeconds: 65 }),
-        ],
+        sets: [bareSet({ durationSeconds: 30 }), bareSet({ durationSeconds: 65 })],
       },
       {
         exerciseId: "dead-bug",
@@ -233,28 +234,19 @@ describe("exercise progress decisions", () => {
         measurementMode: "reps" as const,
         loadMode: "none" as const,
         repMode: "total" as const,
-        sets: [
-          bareSet({ reps: 8 }),
-          bareSet({ reps: 12 }),
-        ],
+        sets: [bareSet({ reps: 8 }), bareSet({ reps: 12 })],
       },
       {
         exerciseId: "pull-up",
         measurementMode: "load_reps" as const,
         loadMode: "assistance" as const,
         repMode: "total" as const,
-        sets: [
-          bareSet({ weightKg: 20, reps: 8 }),
-          bareSet({ weightKg: 15, reps: 8 }),
-        ],
+        sets: [bareSet({ weightKg: 20, reps: 8 }), bareSet({ weightKg: 15, reps: 8 })],
       },
       {
         exerciseId: "invalid-only",
         measurementMode: "load_reps" as const,
-        sets: [
-          bareSet({ reps: null }),
-          bareSet({ type: "warmup", reps: 20 }),
-        ],
+        sets: [bareSet({ reps: null }), bareSet({ type: "warmup", reps: 20 })],
       },
     ];
     const data = LiftwiseDataSchema.parse({
@@ -264,13 +256,34 @@ describe("exercise progress decisions", () => {
     });
     const summaries = buildExerciseProgress(data);
 
-    assert.equal(summaries.find((item) => item.exerciseId === "curl")?.lastPerformance, "14 kg × 8");
-    assert.equal(summaries.find((item) => item.exerciseId === "plank-hold")?.lastPerformance, "1m 5s");
-    assert.equal(summaries.find((item) => item.exerciseId === "dead-bug")?.lastPerformance, "500 m · 3m 20s");
-    assert.equal(summaries.find((item) => item.exerciseId === "push-up")?.lastPerformance, "12 reps");
-    assert.equal(summaries.find((item) => item.exerciseId === "pull-up")?.lastPerformance, "15 kg × 8");
-    assert.equal(summaries.find((item) => item.exerciseId === "invalid-only")?.evidence, "need-data");
-    assert.equal(summaries.find((item) => item.exerciseId === "curl")?.comparableHistory[0]?.rir, 2);
+    assert.equal(
+      summaries.find((item) => item.exerciseId === "curl")?.lastPerformance,
+      "14 kg × 8",
+    );
+    assert.equal(
+      summaries.find((item) => item.exerciseId === "plank-hold")?.lastPerformance,
+      "1m 5s",
+    );
+    assert.equal(
+      summaries.find((item) => item.exerciseId === "dead-bug")?.lastPerformance,
+      "500 m · 3m 20s",
+    );
+    assert.equal(
+      summaries.find((item) => item.exerciseId === "push-up")?.lastPerformance,
+      "12 reps",
+    );
+    assert.equal(
+      summaries.find((item) => item.exerciseId === "pull-up")?.lastPerformance,
+      "15 kg × 8",
+    );
+    assert.equal(
+      summaries.find((item) => item.exerciseId === "invalid-only")?.evidence,
+      "need-data",
+    );
+    assert.equal(
+      summaries.find((item) => item.exerciseId === "curl")?.comparableHistory[0]?.rir,
+      2,
+    );
   });
 
   test("gives mode-specific neutral advice when time, distance, or reps are maintained", () => {
@@ -320,18 +333,12 @@ describe("exercise progress decisions", () => {
       ...fixture,
       routines: [],
       workouts: [
-        workout("reserve-old", "2026-07-10", "curl", [
-          bareSet({ weightKg: 12, reps: 8, rir: 1 }),
-        ]),
-        workout("reserve-new", "2026-07-17", "curl", [
-          bareSet({ weightKg: 12, reps: 8, rir: 3 }),
-        ]),
+        workout("reserve-old", "2026-07-10", "curl", [bareSet({ weightKg: 12, reps: 8, rir: 1 })]),
+        workout("reserve-new", "2026-07-17", "curl", [bareSet({ weightKg: 12, reps: 8, rir: 3 })]),
         workout("load-old", "2026-07-10", "db-bench", [
           bareSet({ weightKg: 20, reps: 10, rir: 2 }),
         ]),
-        workout("load-new", "2026-07-17", "db-bench", [
-          bareSet({ weightKg: 22, reps: 8, rir: 2 }),
-        ]),
+        workout("load-new", "2026-07-17", "db-bench", [bareSet({ weightKg: 22, reps: 8, rir: 2 })]),
       ],
     });
     const summaries = buildExerciseProgress(data);

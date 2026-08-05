@@ -16,10 +16,12 @@ function rankedGaps(gaps: WeeklyGap[]): WeeklyGap[] {
   return [...gaps]
     .filter((gap) => gapSize(gap) > 0 && gap.availableExerciseCount > 0)
     .sort((first, second) => {
-      const firstRecent = (first.recentDirectWorkHours ?? Number.POSITIVE_INFINITY)
-        < RECENT_WORK_DEPRIORITIZATION_HOURS;
-      const secondRecent = (second.recentDirectWorkHours ?? Number.POSITIVE_INFINITY)
-        < RECENT_WORK_DEPRIORITIZATION_HOURS;
+      const firstRecent =
+        (first.recentDirectWorkHours ?? Number.POSITIVE_INFINITY) <
+        RECENT_WORK_DEPRIORITIZATION_HOURS;
+      const secondRecent =
+        (second.recentDirectWorkHours ?? Number.POSITIVE_INFINITY) <
+        RECENT_WORK_DEPRIORITIZATION_HOURS;
       if (firstRecent !== secondRecent) return firstRecent ? 1 : -1;
       const difference = gapSize(second) - gapSize(first);
       if (difference !== 0) return difference;
@@ -47,7 +49,8 @@ function maintenanceAction(): CoachingAction {
     id: "maintenance",
     kind: "maintenance",
     title: "Continue your current plan",
-    reason: "No safety, recovery, schedule, data, or coverage issue currently needs to take priority.",
+    reason:
+      "No safety, recovery, schedule, data, or coverage issue currently needs to take priority.",
     evidence: "enough-evidence",
     primaryActionLabel: "Choose a workout",
     alternativeActionLabel: "Review the week",
@@ -108,7 +111,9 @@ export function buildAttentionPlan(input: AttentionEngineInput): AttentionEngine
       id: "recovery:caution",
       kind: "recovery",
       title: "Use a reduced session today",
-      reason: input.recoveryReason?.trim() || "Today's recovery check-in supports reducing work and keeping more repetitions in reserve.",
+      reason:
+        input.recoveryReason?.trim() ||
+        "Today's recovery check-in supports reducing work and keeping more repetitions in reserve.",
       evidence: "enough-evidence",
       primaryActionLabel: "Review reduced session",
       alternativeActionLabel: "Choose recovery",

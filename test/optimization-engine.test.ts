@@ -108,7 +108,10 @@ describe("routine optimization eligibility", () => {
 
     const opportunity = result.opportunities.find((item) => item.kind === "time_saving_tradeoff");
     assert.equal(opportunity?.label, "Saves time; changes direct work");
-    assert.equal(opportunity?.coverage.find((item) => item.label === "Biceps direct work")?.after, 0);
+    assert.equal(
+      opportunity?.coverage.find((item) => item.label === "Biceps direct work")?.after,
+      0,
+    );
     assert.ok(opportunity?.caveats.some((caveat) => /not biologically equivalent/i.test(caveat)));
   });
 
@@ -116,9 +119,7 @@ describe("routine optimization eligibility", () => {
     const result = analyzeRoutineOptimization({
       ...base,
       objective: "equipment",
-      routine: routine([
-        { exerciseId: "lat-pulldown", targetSets: 3, notes: "" },
-      ]),
+      routine: routine([{ exerciseId: "lat-pulldown", targetSets: 3, notes: "" }]),
     });
 
     const opportunity = result.opportunities[0];
@@ -153,7 +154,9 @@ describe("routine optimization eligibility", () => {
       { exerciseId: "concentration-curl", targetSets: 2, notes: "" },
     ]);
     const shown = analyzeRoutineOptimization({ ...base, routine: current });
-    const relationshipId = shown.opportunities[0]?.ruleIds.find((id) => id.startsWith("relationship."));
+    const relationshipId = shown.opportunities[0]?.ruleIds.find((id) =>
+      id.startsWith("relationship."),
+    );
     assert.ok(relationshipId);
 
     const hidden = analyzeRoutineOptimization({
@@ -187,22 +190,28 @@ describe("routine optimization eligibility", () => {
       { exerciseId: "curl", targetSets: 2, notes: "" },
       { exerciseId: "concentration-curl", targetSets: 2, notes: "" },
     ]);
-    assert.equal(analyzeRoutineOptimization({
-      ...base,
-      objective: "add_variety",
-      routine: curls,
-    }).opportunities.length, 0);
+    assert.equal(
+      analyzeRoutineOptimization({
+        ...base,
+        objective: "add_variety",
+        routine: curls,
+      }).opportunities.length,
+      0,
+    );
 
     const pull = routine([
       { exerciseId: "one-arm-db-row", targetSets: 3, notes: "" },
       { exerciseId: "curl", targetSets: 2, notes: "" },
     ]);
-    assert.equal(analyzeRoutineOptimization({
-      ...base,
-      objective: "save_time",
-      routine: pull,
-      protectedExerciseIds: ["curl"],
-    }).opportunities.length, 0);
+    assert.equal(
+      analyzeRoutineOptimization({
+        ...base,
+        objective: "save_time",
+        routine: pull,
+        protectedExerciseIds: ["curl"],
+      }).opportunities.length,
+      0,
+    );
   });
 });
 
@@ -235,7 +244,10 @@ describe("immutable routine revisions", () => {
     });
 
     assert.deepEqual(
-      applied.data.routines[0]?.entries.map(({ exerciseId, targetSets }) => ({ exerciseId, targetSets })),
+      applied.data.routines[0]?.entries.map(({ exerciseId, targetSets }) => ({
+        exerciseId,
+        targetSets,
+      })),
       [
         { exerciseId: "curl", targetSets: 4 },
         { exerciseId: "plank-hold", targetSets: 3 },
@@ -272,16 +284,22 @@ describe("immutable routine revisions", () => {
 
     const changed = {
       ...data,
-      routines: [{
-        ...original,
-        notes: "Changed elsewhere",
-      }],
+      routines: [
+        {
+          ...original,
+          notes: "Changed elsewhere",
+        },
+      ],
     };
-    assert.throws(() => applyRoutineOpportunity({
-      data: changed,
-      opportunity,
-      expectedRoutineToken: routineRevisionToken(original),
-    }), StaleRoutineRevisionError);
+    assert.throws(
+      () =>
+        applyRoutineOpportunity({
+          data: changed,
+          opportunity,
+          expectedRoutineToken: routineRevisionToken(original),
+        }),
+      StaleRoutineRevisionError,
+    );
 
     const applied = applyRoutineOpportunity({
       data,
@@ -290,10 +308,12 @@ describe("immutable routine revisions", () => {
     });
     const changedAfterApply = {
       ...applied.data,
-      routines: [{
-        ...applied.data.routines[0]!,
-        weekdays: [2],
-      }],
+      routines: [
+        {
+          ...applied.data.routines[0]!,
+          weekdays: [2],
+        },
+      ],
     };
     assert.throws(
       () => undoRoutineRevision(changedAfterApply, applied.revision.id),
@@ -344,26 +364,34 @@ describe("immutable routine revisions", () => {
       /at least one exercise/i,
     );
     assert.throws(
-      () => routineAfterOpportunity(original, opportunity, [{
-        ...opportunity.proposedEntries[0]!,
-        targetSets: 2.5,
-      }]),
+      () =>
+        routineAfterOpportunity(original, opportunity, [
+          {
+            ...opportunity.proposedEntries[0]!,
+            targetSets: 2.5,
+          },
+        ]),
       /whole numbers/i,
     );
     assert.throws(
-      () => routineAfterOpportunity(original, {
-        ...opportunity,
-        sourceEntries: [],
-      }),
+      () =>
+        routineAfterOpportunity(original, {
+          ...opportunity,
+          sourceEntries: [],
+        }),
       /no longer present/i,
     );
 
     const data = fixtureWithRoutine(original);
-    assert.throws(() => applyRoutineOpportunity({
-      data: { ...data, routines: [] },
-      opportunity,
-      expectedRoutineToken: routineRevisionToken(original),
-    }), /no longer exists/i);
+    assert.throws(
+      () =>
+        applyRoutineOpportunity({
+          data: { ...data, routines: [] },
+          opportunity,
+          expectedRoutineToken: routineRevisionToken(original),
+        }),
+      /no longer exists/i,
+    );
     assert.throws(() => undoRoutineRevision(data, "missing"), /not found/i);
   });
 
@@ -382,11 +410,10 @@ describe("immutable routine revisions", () => {
 
     const after = routineAfterOpportunity(original, opportunity);
 
-    assert.deepEqual(after.entries.map(({ exerciseId }) => exerciseId), [
-      "plank-hold",
-      "pull-up",
-      "curl",
-    ]);
+    assert.deepEqual(
+      after.entries.map(({ exerciseId }) => exerciseId),
+      ["plank-hold", "pull-up", "curl"],
+    );
     assert.equal(after.entries[1]?.targetRir, 3);
     assert.equal(after.entries[1]?.notes, "");
   });
@@ -400,18 +427,33 @@ describe("immutable routine revisions", () => {
       ]),
     }).opportunities[0];
     assert.ok(sameRole);
-    assert.equal(coverageForProposedEntries(sameRole, [{
-      ...sameRole.proposedEntries[0]!,
-      targetSets: 3,
-    }])[0]?.tone, "lost");
-    assert.equal(coverageForProposedEntries(sameRole, [{
-      ...sameRole.proposedEntries[0]!,
-      targetSets: 4,
-    }])[0]?.tone, "preserved");
-    assert.equal(coverageForProposedEntries(sameRole, [{
-      ...sameRole.proposedEntries[0]!,
-      targetSets: 5,
-    }])[0]?.tone, "gained");
+    assert.equal(
+      coverageForProposedEntries(sameRole, [
+        {
+          ...sameRole.proposedEntries[0]!,
+          targetSets: 3,
+        },
+      ])[0]?.tone,
+      "lost",
+    );
+    assert.equal(
+      coverageForProposedEntries(sameRole, [
+        {
+          ...sameRole.proposedEntries[0]!,
+          targetSets: 4,
+        },
+      ])[0]?.tone,
+      "preserved",
+    );
+    assert.equal(
+      coverageForProposedEntries(sameRole, [
+        {
+          ...sameRole.proposedEntries[0]!,
+          targetSets: 5,
+        },
+      ])[0]?.tone,
+      "gained",
+    );
 
     const tradeoff = analyzeRoutineOptimization({
       ...base,
@@ -422,21 +464,33 @@ describe("immutable routine revisions", () => {
       ]),
     }).opportunities.find(({ kind }) => kind === "time_saving_tradeoff");
     assert.ok(tradeoff);
-    const reduced = coverageForProposedEntries(tradeoff, [{
-      ...tradeoff.proposedEntries[0]!,
-      targetSets: 2,
-    }]);
+    const reduced = coverageForProposedEntries(tradeoff, [
+      {
+        ...tradeoff.proposedEntries[0]!,
+        targetSets: 2,
+      },
+    ]);
     assert.equal(reduced[0]?.tone, "lost");
     assert.equal(reduced[1]?.after, 0);
     assert.equal(reduced[2]?.after, 1);
-    assert.equal(coverageForProposedEntries(tradeoff, [{
-      ...tradeoff.proposedEntries[0]!,
-      targetSets: 3,
-    }])[0]?.tone, "preserved");
-    assert.equal(coverageForProposedEntries(tradeoff, [{
-      ...tradeoff.proposedEntries[0]!,
-      targetSets: 4,
-    }])[0]?.tone, "gained");
+    assert.equal(
+      coverageForProposedEntries(tradeoff, [
+        {
+          ...tradeoff.proposedEntries[0]!,
+          targetSets: 3,
+        },
+      ])[0]?.tone,
+      "preserved",
+    );
+    assert.equal(
+      coverageForProposedEntries(tradeoff, [
+        {
+          ...tradeoff.proposedEntries[0]!,
+          targetSets: 4,
+        },
+      ])[0]?.tone,
+      "gained",
+    );
     assert.equal(coverageForProposedEntries(tradeoff, [])[0]?.after, 0);
 
     const untouched = {

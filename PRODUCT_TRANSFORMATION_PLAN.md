@@ -50,15 +50,15 @@ The recommended implementation is an **incremental React + TypeScript migration 
 
 ### Primary jobs to be done
 
-| Moment | User job | Product response |
-| --- | --- | --- |
-| Before training | “What should I train today?” | One recommended session or recovery action, one reason, and alternatives |
-| During training | “What should I do for this set?” | Previous performance, current target, fast logging, and a conservative adjustment |
-| After training | “Did that move me forward?” | A brief outcome summary and at most one important next-time change |
-| During the week | “What area needs attention?” | No more than three ranked weekly priorities |
-| Reviewing progress | “Am I improving, and is there enough evidence?” | Trend plus evidence sufficiency, not a binary success/failure label |
-| On a difficult day | “How can I adapt safely?” | A reduced or postponed option without guilt or catch-up pressure |
-| After a lapse | “How do I restart?” | Start from today; do not punish, backfill, or create a recovery debt |
+| Moment             | User job                                        | Product response                                                                  |
+| ------------------ | ----------------------------------------------- | --------------------------------------------------------------------------------- |
+| Before training    | “What should I train today?”                    | One recommended session or recovery action, one reason, and alternatives          |
+| During training    | “What should I do for this set?”                | Previous performance, current target, fast logging, and a conservative adjustment |
+| After training     | “Did that move me forward?”                     | A brief outcome summary and at most one important next-time change                |
+| During the week    | “What area needs attention?”                    | No more than three ranked weekly priorities                                       |
+| Reviewing progress | “Am I improving, and is there enough evidence?” | Trend plus evidence sufficiency, not a binary success/failure label               |
+| On a difficult day | “How can I adapt safely?”                       | A reduced or postponed option without guilt or catch-up pressure                  |
+| After a lapse      | “How do I restart?”                             | Start from today; do not punish, backfill, or create a recovery debt              |
 
 ### Success definition
 
@@ -72,13 +72,13 @@ This section separates evidence from product judgment. The research supports des
 
 ### 3.1 Behavioral psychology
 
-| Evidence | Product implication |
-| --- | --- |
-| A meta-analysis of 138 studies found that progress monitoring interventions improved monitoring and goal attainment, with stronger effects when outcomes were recorded or reported. | Make logging fast, show progress against a chosen plan, and close the loop after a workout. Do not hide recorded behavior behind decorative summaries. |
-| Self-determination research in exercise associates autonomous motivation and perceived competence with continued participation. | Use autonomy-supportive language and always provide a practical alternative. Recommendations are suggestions, not commands. |
-| Reviews of digital behavior-change interventions repeatedly identify self-monitoring, feedback, goal setting, planning, and personalization, while also showing that effectiveness varies and causal evidence for individual techniques is limited. | Use a small, explicit set of techniques and test comprehension and usefulness. Do not add engagement mechanics simply because they are common. |
-| Implementation-intention research supports specific action plans, particularly when plans are reinforced. | Allow “When / where / what” planning for the next session, but keep reminders opt-in and user controlled. |
-| Personal-informatics research describes a path from preparation and collection through integration, reflection, and action, with failures in one stage affecting later stages. | Show missing-data states, explain what cannot yet be concluded, and make every insight lead to an available action. |
+| Evidence                                                                                                                                                                                                                                            | Product implication                                                                                                                                    |
+| --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| A meta-analysis of 138 studies found that progress monitoring interventions improved monitoring and goal attainment, with stronger effects when outcomes were recorded or reported.                                                                 | Make logging fast, show progress against a chosen plan, and close the loop after a workout. Do not hide recorded behavior behind decorative summaries. |
+| Self-determination research in exercise associates autonomous motivation and perceived competence with continued participation.                                                                                                                     | Use autonomy-supportive language and always provide a practical alternative. Recommendations are suggestions, not commands.                            |
+| Reviews of digital behavior-change interventions repeatedly identify self-monitoring, feedback, goal setting, planning, and personalization, while also showing that effectiveness varies and causal evidence for individual techniques is limited. | Use a small, explicit set of techniques and test comprehension and usefulness. Do not add engagement mechanics simply because they are common.         |
+| Implementation-intention research supports specific action plans, particularly when plans are reinforced.                                                                                                                                           | Allow “When / where / what” planning for the next session, but keep reminders opt-in and user controlled.                                              |
+| Personal-informatics research describes a path from preparation and collection through integration, reflection, and action, with failures in one stage affecting later stages.                                                                      | Show missing-data states, explain what cannot yet be concluded, and make every insight lead to an available action.                                    |
 
 ### Behavioral techniques to use deliberately
 
@@ -195,13 +195,13 @@ Action → concise reason → alternatives → evidence → calculation detail
 
 ### 5.1 Recommended navigation
 
-| Primary destination | Purpose | Secondary areas |
-| --- | --- | --- |
-| **Today** | Decide and start the next useful action | Recovery check, today's plan, weekly focus, recent change |
-| **Train** | Plan, perform, and review workouts | Live workout, routines, history, import |
-| **Progress** | Understand performance and training coverage | Focus, exercises, muscles, recovery |
-| **Body & nutrition** | Review optional context from measurements and Fitatu | Body trend, nutrition |
-| **Library** | Find, compare, and manage exercises | Catalog, favorites, custom exercises |
+| Primary destination  | Purpose                                              | Secondary areas                                           |
+| -------------------- | ---------------------------------------------------- | --------------------------------------------------------- |
+| **Today**            | Decide and start the next useful action              | Recovery check, today's plan, weekly focus, recent change |
+| **Train**            | Plan, perform, and review workouts                   | Live workout, routines, history, import                   |
+| **Progress**         | Understand performance and training coverage         | Focus, exercises, muscles, recovery                       |
+| **Body & nutrition** | Review optional context from measurements and Fitatu | Body trend, nutrition                                     |
+| **Library**          | Find, compare, and manage exercises                  | Catalog, favorites, custom exercises                      |
 
 Move settings, profile, targets, equipment, data backup/restore, integrations, and app information into a consistent **Settings & data** area accessed from the profile/menu control.
 
@@ -253,11 +253,11 @@ The model produces:
 
 Use plain-language categories with defined criteria:
 
-| State | Meaning | UI behavior |
-| --- | --- | --- |
-| **Need data** | The required baseline or recent observations are absent | Ask for the smallest useful input; do not infer a trend |
-| **Emerging** | Some relevant data exists, but the current rule's full comparison window is incomplete | Show the observation and what would make it more reliable |
-| **Enough evidence** | The rule's documented comparison requirements are met | Show the recommendation and make exact evidence available |
+| State               | Meaning                                                                                | UI behavior                                               |
+| ------------------- | -------------------------------------------------------------------------------------- | --------------------------------------------------------- |
+| **Need data**       | The required baseline or recent observations are absent                                | Ask for the smallest useful input; do not infer a trend   |
+| **Emerging**        | Some relevant data exists, but the current rule's full comparison window is incomplete | Show the observation and what would make it more reliable |
+| **Enough evidence** | The rule's documented comparison requirements are met                                  | Show the recommendation and make exact evidence available |
 
 This label refers to the data available for the specific recommendation. It is not a general score for the user or workout.
 
@@ -644,15 +644,15 @@ High-risk actions require a preview or confirmation. Backup and export should be
 
 Calm, concise, specific, and autonomy-supportive.
 
-| Avoid | Prefer |
-| --- | --- |
-| “You failed to hit your target” | “4 weighted sets remain in your weekly range” |
-| “You must train back today” | “Back is the largest current gap; add it today or choose another day” |
-| “Bad recovery” | “Recovery looks limited based on your check-in” |
-| “Perfect workout!” | “Workout saved. Bench press improved by 1 rep.” |
-| “You are overtraining” | “Chest volume is above your configured weekly range” |
-| “Low confidence: 63%” | “Emerging: one more comparable session will complete the current window” |
-| “Get back on track” | “Start from today” |
+| Avoid                           | Prefer                                                                   |
+| ------------------------------- | ------------------------------------------------------------------------ |
+| “You failed to hit your target” | “4 weighted sets remain in your weekly range”                            |
+| “You must train back today”     | “Back is the largest current gap; add it today or choose another day”    |
+| “Bad recovery”                  | “Recovery looks limited based on your check-in”                          |
+| “Perfect workout!”              | “Workout saved. Bench press improved by 1 rep.”                          |
+| “You are overtraining”          | “Chest volume is above your configured weekly range”                     |
+| “Low confidence: 63%”           | “Emerging: one more comparable session will complete the current window” |
+| “Get back on track”             | “Start from today”                                                       |
 
 ### Recommendation writing template
 
@@ -1178,19 +1178,19 @@ Acceptance:
 
 ## 16. Risks and controls
 
-| Risk | Control |
-| --- | --- |
-| Rewrite breaks saved data | Adapter boundary, fixtures, versioned schema, round-trip and legacy-backup tests |
-| Simplification hides rigor | Progressive disclosure with dates, source sessions, rules, and raw values |
-| Recommendation feels controlling | Alternatives, dismissibility, user-configured targets, autonomy-supportive copy |
-| Too many “focus” items recreate the dashboard | Hard maximum of three; lower items under secondary observations |
-| Health claims exceed evidence | Descriptive language, explicit uncertainty, no diagnosis or universal prescription |
-| Color implies moral/safety meaning incorrectly | Fixed semantic tokens; red reserved for safety/error |
-| Charts mislead with sparse data | Evidence sufficiency, raw points, completeness, no trend before criteria |
-| React migration expands indefinitely | Screen-by-screen strangler phases and explicit acceptance gates |
-| Test coverage becomes a vanity goal | Risk-based branch coverage plus user-journey and accessibility tests |
-| Product starts optimizing compulsion | Outcome metrics exclude time-in-app, streaks, and notification clicks |
-| Imported/default RIR becomes indistinguishable | Preserve effort source/provenance through model, UI, backup, and tests |
+| Risk                                           | Control                                                                            |
+| ---------------------------------------------- | ---------------------------------------------------------------------------------- |
+| Rewrite breaks saved data                      | Adapter boundary, fixtures, versioned schema, round-trip and legacy-backup tests   |
+| Simplification hides rigor                     | Progressive disclosure with dates, source sessions, rules, and raw values          |
+| Recommendation feels controlling               | Alternatives, dismissibility, user-configured targets, autonomy-supportive copy    |
+| Too many “focus” items recreate the dashboard  | Hard maximum of three; lower items under secondary observations                    |
+| Health claims exceed evidence                  | Descriptive language, explicit uncertainty, no diagnosis or universal prescription |
+| Color implies moral/safety meaning incorrectly | Fixed semantic tokens; red reserved for safety/error                               |
+| Charts mislead with sparse data                | Evidence sufficiency, raw points, completeness, no trend before criteria           |
+| React migration expands indefinitely           | Screen-by-screen strangler phases and explicit acceptance gates                    |
+| Test coverage becomes a vanity goal            | Risk-based branch coverage plus user-journey and accessibility tests               |
+| Product starts optimizing compulsion           | Outcome metrics exclude time-in-app, streaks, and notification clicks              |
+| Imported/default RIR becomes indistinguishable | Preserve effort source/provenance through model, UI, backup, and tests             |
 
 ---
 

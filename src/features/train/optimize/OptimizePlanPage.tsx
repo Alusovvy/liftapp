@@ -69,42 +69,46 @@ export function OptimizePlanPage({ data, onDataChange }: OptimizePlanPageProps) 
     return counts;
   }, [data.workouts]);
 
-  const activeSnoozes = useMemo(() => (
-    Object.entries(data.optimizationPreferences.snoozedOpportunityIds)
-      .filter(([, until]) => new Date(until).getTime() > Date.now())
-      .map(([id]) => id)
-  ), [data.optimizationPreferences.snoozedOpportunityIds]);
+  const activeSnoozes = useMemo(
+    () =>
+      Object.entries(data.optimizationPreferences.snoozedOpportunityIds)
+        .filter(([, until]) => new Date(until).getTime() > Date.now())
+        .map(([id]) => id),
+    [data.optimizationPreferences.snoozedOpportunityIds],
+  );
 
-  const analysis = useMemo(() => (
-    routine ? analyzeRoutineOptimization({
-      routine,
+  const analysis = useMemo(
+    () =>
+      routine
+        ? analyzeRoutineOptimization({
+            routine,
+            objective,
+            equipment: data.profile.equipment,
+            protectedExerciseIds: data.optimizationPreferences.protectedExerciseIds,
+            suppressedOpportunityIds: [...activeSnoozes, ...dismissedIds],
+            suppressedRelationshipIds: data.optimizationPreferences.suppressedRelationshipIds,
+            completedAppearances: appearances,
+          })
+        : null,
+    [
+      activeSnoozes,
+      appearances,
+      data.optimizationPreferences.protectedExerciseIds,
+      data.optimizationPreferences.suppressedRelationshipIds,
+      data.profile.equipment,
+      dismissedIds,
       objective,
-      equipment: data.profile.equipment,
-      protectedExerciseIds: data.optimizationPreferences.protectedExerciseIds,
-      suppressedOpportunityIds: [...activeSnoozes, ...dismissedIds],
-      suppressedRelationshipIds: data.optimizationPreferences.suppressedRelationshipIds,
-      completedAppearances: appearances,
-    }) : null
-  ), [
-    activeSnoozes,
-    appearances,
-    data.optimizationPreferences.protectedExerciseIds,
-    data.optimizationPreferences.suppressedRelationshipIds,
-    data.profile.equipment,
-    dismissedIds,
-    objective,
-    routine,
-  ]);
+      routine,
+    ],
+  );
   const preview = previewState?.opportunity ?? null;
   const previewProposals: RoutineEntryChange[] = preview
     ? preview.proposedEntries.map((entry) => ({
-      ...entry,
-      targetSets: proposalSets[entry.exerciseId] ?? entry.targetSets,
-    }))
+        ...entry,
+        targetSets: proposalSets[entry.exerciseId] ?? entry.targetSets,
+      }))
     : [];
-  const previewCoverage = preview
-    ? coverageForProposedEntries(preview, previewProposals)
-    : [];
+  const previewCoverage = preview ? coverageForProposedEntries(preview, previewProposals) : [];
 
   const persistPreferences = (
     update: Parameters<typeof withOptimizationPreferences>[1],
@@ -135,9 +139,11 @@ export function OptimizePlanPage({ data, onDataChange }: OptimizePlanPageProps) 
       opportunity,
       expectedRoutineToken: routineRevisionToken(routine),
     });
-    setProposalSets(Object.fromEntries(
-      opportunity.proposedEntries.map((entry) => [entry.exerciseId, entry.targetSets]),
-    ));
+    setProposalSets(
+      Object.fromEntries(
+        opportunity.proposedEntries.map((entry) => [entry.exerciseId, entry.targetSets]),
+      ),
+    );
     setNotice(null);
   };
 
@@ -160,9 +166,10 @@ export function OptimizePlanPage({ data, onDataChange }: OptimizePlanPageProps) 
     } catch (error) {
       setNotice({
         tone: "review",
-        message: error instanceof Error
-          ? error.message
-          : "The routine could not be changed. Your existing plan was preserved.",
+        message:
+          error instanceof Error
+            ? error.message
+            : "The routine could not be changed. Your existing plan was preserved.",
       });
     }
   };
@@ -180,9 +187,7 @@ export function OptimizePlanPage({ data, onDataChange }: OptimizePlanPageProps) 
     } catch (error) {
       setNotice({
         tone: "review",
-        message: error instanceof Error
-          ? error.message
-          : "Undo could not be completed safely.",
+        message: error instanceof Error ? error.message : "Undo could not be completed safely.",
       });
     }
   };
@@ -190,18 +195,21 @@ export function OptimizePlanPage({ data, onDataChange }: OptimizePlanPageProps) 
   const snoozePreview = () => {
     if (!preview) return;
     const until = snoozeUntilSixWeeksFrom();
-    const saved = persistPreferences((preferences) => ({
-      ...preferences,
-      snoozedOpportunityIds: {
-        ...preferences.snoozedOpportunityIds,
-        [preview.id]: until,
+    const saved = persistPreferences(
+      (preferences) => ({
+        ...preferences,
+        snoozedOpportunityIds: {
+          ...preferences.snoozedOpportunityIds,
+          [preview.id]: until,
+        },
+      }),
+      {
+        tone: "success",
+        message: `Snoozed until ${new Intl.DateTimeFormat(undefined, {
+          dateStyle: "medium",
+        }).format(new Date(until))}.`,
       },
-    }), {
-      tone: "success",
-      message: `Snoozed until ${new Intl.DateTimeFormat(undefined, {
-        dateStyle: "medium",
-      }).format(new Date(until))}.`,
-    });
+    );
     if (saved) setPreviewState(null);
   };
 
@@ -209,34 +217,38 @@ export function OptimizePlanPage({ data, onDataChange }: OptimizePlanPageProps) 
     if (!preview) return;
     const relationshipIds = preview.ruleIds.filter((id) => id.startsWith("relationship."));
     const identifiers = relationshipIds.length ? relationshipIds : [preview.id];
-    const saved = persistPreferences((preferences) => ({
-      ...preferences,
-      suppressedRelationshipIds: [
-        ...new Set([...preferences.suppressedRelationshipIds, ...identifiers]),
-      ],
-    }), {
-      tone: "success",
-      message: "This reviewed replacement will no longer be suggested.",
-    });
+    const saved = persistPreferences(
+      (preferences) => ({
+        ...preferences,
+        suppressedRelationshipIds: [
+          ...new Set([...preferences.suppressedRelationshipIds, ...identifiers]),
+        ],
+      }),
+      {
+        tone: "success",
+        message: "This reviewed replacement will no longer be suggested.",
+      },
+    );
     if (saved) setPreviewState(null);
   };
 
   const protectPreviewExercise = () => {
     if (!preview) return;
     const proposedIds = new Set(preview.proposedEntries.map(({ exerciseId }) => exerciseId));
-    const protectedId = preview.sourceEntries.find(
-      ({ exerciseId }) => !proposedIds.has(exerciseId),
-    )?.exerciseId ?? preview.sourceEntries[0]?.exerciseId;
+    const protectedId =
+      preview.sourceEntries.find(({ exerciseId }) => !proposedIds.has(exerciseId))?.exerciseId ??
+      preview.sourceEntries[0]?.exerciseId;
     if (!protectedId) return;
-    const saved = persistPreferences((preferences) => ({
-      ...preferences,
-      protectedExerciseIds: [
-        ...new Set([...preferences.protectedExerciseIds, protectedId]),
-      ],
-    }), {
-      tone: "success",
-      message: "Exercise protected. Opportunities that remove it are now excluded.",
-    });
+    const saved = persistPreferences(
+      (preferences) => ({
+        ...preferences,
+        protectedExerciseIds: [...new Set([...preferences.protectedExerciseIds, protectedId])],
+      }),
+      {
+        tone: "success",
+        message: "Exercise protected. Opportunities that remove it are now excluded.",
+      },
+    );
     if (saved) setPreviewState(null);
   };
 
@@ -245,7 +257,9 @@ export function OptimizePlanPage({ data, onDataChange }: OptimizePlanPageProps) 
       <div className="positive-empty">
         <strong>Create a routine before optimizing it.</strong>
         <p>The optimizer audits an intended plan; it does not invent one from isolated history.</p>
-        <a className="button button-primary" href="./index.html">Create a routine</a>
+        <a className="button button-primary" href="./index.html">
+          Create a routine
+        </a>
       </div>
     );
   }
@@ -257,18 +271,23 @@ export function OptimizePlanPage({ data, onDataChange }: OptimizePlanPageProps) 
           <p className="eyebrow">Plan audit</p>
           <h2>Find avoidable complexity</h2>
           <p>
-            Similar planned coverage is not the same as an identical biological effect.
-            Every option shows what is preserved and what changes.
+            Similar planned coverage is not the same as an identical biological effect. Every option
+            shows what is preserved and what changes.
           </p>
         </div>
         <label className="select-field">
           Routine
-          <select value={routine.id} onChange={(event) => {
-            setRoutineId(event.target.value);
-            setPreviewState(null);
-          }}>
+          <select
+            value={routine.id}
+            onChange={(event) => {
+              setRoutineId(event.target.value);
+              setPreviewState(null);
+            }}
+          >
             {data.routines.map((item) => (
-              <option key={item.id} value={item.id}>{item.name}</option>
+              <option key={item.id} value={item.id}>
+                {item.name}
+              </option>
             ))}
           </select>
         </label>
@@ -323,25 +342,37 @@ export function OptimizePlanPage({ data, onDataChange }: OptimizePlanPageProps) 
                 <div>
                   <span>Current</span>
                   {opportunity.sourceEntries.map((entry) => (
-                    <strong key={entry.exerciseId}>{entry.exerciseName} · {entry.targetSets} sets</strong>
+                    <strong key={entry.exerciseId}>
+                      {entry.exerciseName} · {entry.targetSets} sets
+                    </strong>
                   ))}
                 </div>
                 <span aria-hidden="true">→</span>
                 <div>
                   <span>Option</span>
                   {opportunity.proposedEntries.map((entry) => (
-                    <strong key={entry.exerciseId}>{entry.exerciseName} · {entry.targetSets} sets</strong>
+                    <strong key={entry.exerciseId}>
+                      {entry.exerciseName} · {entry.targetSets} sets
+                    </strong>
                   ))}
                 </div>
               </div>
               <div className="preserved-changed">
                 <div>
                   <strong>Preserved</strong>
-                  <ul>{opportunity.preserved.map((item) => <li key={item}>{item}</li>)}</ul>
+                  <ul>
+                    {opportunity.preserved.map((item) => (
+                      <li key={item}>{item}</li>
+                    ))}
+                  </ul>
                 </div>
                 <div>
                   <strong>Changed</strong>
-                  <ul>{opportunity.changed.map((item) => <li key={item}>{item}</li>)}</ul>
+                  <ul>
+                    {opportunity.changed.map((item) => (
+                      <li key={item}>{item}</li>
+                    ))}
+                  </ul>
                 </div>
               </div>
               <div className="opportunity-actions">
@@ -371,7 +402,9 @@ export function OptimizePlanPage({ data, onDataChange }: OptimizePlanPageProps) 
                 <summary>Why this appeared</summary>
                 <p>Evidence: {opportunity.evidence.replace("-", " ")}</p>
                 <p>Rules: {opportunity.ruleIds.join(" · ")}</p>
-                {opportunity.caveats.map((caveat) => <p key={caveat}>{caveat}</p>)}
+                {opportunity.caveats.map((caveat) => (
+                  <p key={caveat}>{caveat}</p>
+                ))}
               </details>
             </article>
           ))}
@@ -406,7 +439,9 @@ export function OptimizePlanPage({ data, onDataChange }: OptimizePlanPageProps) 
               <p className="eyebrow">Revision preview</p>
               <h3 id="routine-preview-title">{preview.title}</h3>
             </div>
-            <button className="text-button" type="button" onClick={() => setPreviewState(null)}>Close</button>
+            <button className="text-button" type="button" onClick={() => setPreviewState(null)}>
+              Close
+            </button>
           </div>
           <fieldset className="proposal-editor">
             <legend>Proposed routine entries</legend>
@@ -440,31 +475,41 @@ export function OptimizePlanPage({ data, onDataChange }: OptimizePlanPageProps) 
             </div>
             {previewCoverage.map((item) => (
               <div role="row" key={`${item.label}:${item.unit}`}>
-                <span role="cell">{item.label}<small>{item.unit}</small></span>
+                <span role="cell">
+                  {item.label}
+                  <small>{item.unit}</small>
+                </span>
                 <strong role="cell">{item.before}</strong>
-                <strong role="cell" className={`coverage-${item.tone}`}>{item.after}</strong>
+                <strong role="cell" className={`coverage-${item.tone}`}>
+                  {item.after}
+                </strong>
               </div>
             ))}
           </div>
           <p className="preview-gate">
-            Applying creates an immutable routine revision. It does not change workouts, targets,
-            or historical performance data.
+            Applying creates an immutable routine revision. It does not change workouts, targets, or
+            historical performance data.
           </p>
           <div className="preview-actions">
             <button
               className="button button-primary"
               type="button"
               onClick={applyPreview}
-              disabled={previewProposals.some(({ targetSets }) => (
-                !Number.isInteger(targetSets) || targetSets < 1 || targetSets > 20
-              ))}
+              disabled={previewProposals.some(
+                ({ targetSets }) =>
+                  !Number.isInteger(targetSets) || targetSets < 1 || targetSets > 20,
+              )}
             >
               Apply as new revision
             </button>
             <button className="button button-secondary" type="button" onClick={snoozePreview}>
               Snooze 6 weeks
             </button>
-            <button className="button button-secondary" type="button" onClick={protectPreviewExercise}>
+            <button
+              className="button button-secondary"
+              type="button"
+              onClick={protectPreviewExercise}
+            >
               Protect exercise
             </button>
             <button className="text-button" type="button" onClick={suppressPreview}>

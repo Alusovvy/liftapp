@@ -1,13 +1,5 @@
-import {
-  hash,
-  parseFitatuExport,
-  stableStringify,
-} from "../../domain.js";
-import {
-  LiftwiseDataSchema,
-  type LiftwiseData,
-  type NutritionDay,
-} from "../models/schema";
+import { hash, parseFitatuExport, stableStringify } from "../../domain.js";
+import { LiftwiseDataSchema, type LiftwiseData, type NutritionDay } from "../models/schema";
 
 const MAX_CSV_BYTES = 10_000_000;
 const MAX_CSV_ROWS = 100_000;
@@ -73,18 +65,19 @@ function localDateKey(now: Date): string {
   return `${year}-${month}-${day}`;
 }
 
-function nutritionFingerprint(day: Pick<
-  NutritionDay,
-  "date" | "caloriesKcal" | "proteinG" | "carbsG" | "fatG" | "fiberG"
->): string {
-  return `nutrition:${hash(stableStringify({
-    date: day.date,
-    caloriesKcal: day.caloriesKcal,
-    proteinG: day.proteinG,
-    carbsG: day.carbsG,
-    fatG: day.fatG,
-    fiberG: day.fiberG,
-  }))}`;
+function nutritionFingerprint(
+  day: Pick<NutritionDay, "date" | "caloriesKcal" | "proteinG" | "carbsG" | "fatG" | "fiberG">,
+): string {
+  return `nutrition:${hash(
+    stableStringify({
+      date: day.date,
+      caloriesKcal: day.caloriesKcal,
+      proteinG: day.proteinG,
+      carbsG: day.carbsG,
+      fatG: day.fatG,
+      fiberG: day.fiberG,
+    }),
+  )}`;
 }
 
 function dateRange(days: NutritionDay[]): string {
@@ -134,16 +127,22 @@ export function parseFitatuCsv(
   const warnings: string[] = [];
   if (parsed.headerRowNumber > 1) {
     const skipped = parsed.headerRowNumber - 1;
-    warnings.push(`${skipped} metadata row${skipped === 1 ? "" : "s"} before the Fitatu table were skipped.`);
+    warnings.push(
+      `${skipped} metadata row${skipped === 1 ? "" : "s"} before the Fitatu table were skipped.`,
+    );
   }
   if (parsed.delimiter === ";") warnings.push("A semicolon-separated Fitatu export was detected.");
   if (parsed.delimiter === "\t") warnings.push("A tab-separated Fitatu export was detected.");
   const summarizedDays = days.filter((day) => day.aggregation !== "items").length;
   if (summarizedDays) {
-    warnings.push(`${summarizedDays} day${summarizedDays === 1 ? "" : "s"} used total rows so food items were not counted twice.`);
+    warnings.push(
+      `${summarizedDays} day${summarizedDays === 1 ? "" : "s"} used total rows so food items were not counted twice.`,
+    );
   }
   if (parsed.rejectedRows.length) {
-    warnings.push(`${parsed.rejectedRows.length} invalid or future row${parsed.rejectedRows.length === 1 ? " was" : "s were"} rejected.`);
+    warnings.push(
+      `${parsed.rejectedRows.length} invalid or future row${parsed.rejectedRows.length === 1 ? " was" : "s were"} rejected.`,
+    );
   }
   return {
     kind: "nutrition",
@@ -163,11 +162,12 @@ export function buildFitatuImportPlan(
   mode: FitatuImportMode,
 ): FitatuImportPlan {
   const changes = pending.days.map((day): FitatuImportChange => {
-    const existing = mode === "replace"
-      ? null
-      : data.nutritionDays.find((item) => (
-        item.sourceIdentity === day.sourceIdentity || item.date === day.date
-      )) ?? null;
+    const existing =
+      mode === "replace"
+        ? null
+        : (data.nutritionDays.find(
+            (item) => item.sourceIdentity === day.sourceIdentity || item.date === day.date,
+          ) ?? null);
     if (!existing) return { status: "added", incoming: day, existing };
     if (existing.contentFingerprint === day.contentFingerprint) {
       return {
@@ -218,7 +218,9 @@ export function commitFitatuImport({
   batchId = `fitatu-import-${Date.now()}`,
 }: CommitFitatuImportInput): FitatuImportCommit {
   if (pending.rejectedRows.length && !acceptValidRowsOnly) {
-    throw new Error("Confirm that only valid rows should be imported after reviewing rejected rows.");
+    throw new Error(
+      "Confirm that only valid rows should be imported after reviewing rejected rows.",
+    );
   }
   const plan = buildFitatuImportPlan(data, pending, mode);
   let nutritionDays = mode === "replace" ? [] : [...data.nutritionDays];
@@ -231,9 +233,9 @@ export function commitFitatuImport({
       importBatchId: batchId,
       importedAt: now,
     };
-    const existingIndex = nutritionDays.findIndex((day) => (
-      day.id === change.existing?.id || day.date === incoming.date
-    ));
+    const existingIndex = nutritionDays.findIndex(
+      (day) => day.id === change.existing?.id || day.date === incoming.date,
+    );
     if (existingIndex >= 0) nutritionDays[existingIndex] = incoming;
     else nutritionDays.push(incoming);
     affectedDates.push(incoming.date);

@@ -6,9 +6,7 @@ import { beforeAll, describe, expect, test, vi } from "vitest";
 
 function applicationBody() {
   const html = fs.readFileSync(path.join(process.cwd(), "index.html"), "utf8");
-  return html
-    .match(/<body>([\s\S]*)<\/body>/i)[1]
-    .replace(/<script[\s\S]*?<\/script>/gi, "");
+  return html.match(/<body>([\s\S]*)<\/body>/i)[1].replace(/<script[\s\S]*?<\/script>/gi, "");
 }
 
 function installDialogApi() {

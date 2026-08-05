@@ -25,9 +25,24 @@ export default defineConfig({
       },
     },
   ],
-  webServer: {
-    command: "npm run dev -- --host 127.0.0.1 --port 4173",
-    url: "http://127.0.0.1:4173/modern.html",
-    reuseExistingServer: !process.env.CI,
-  },
+  webServer: [
+    {
+      command: "npm run server",
+      url: "http://127.0.0.1:4001/api/session",
+      reuseExistingServer: !process.env.CI,
+      env: {
+        PORT: "4001",
+        LIFTWISE_DB_PATH: "server/data/e2e-test.sqlite3",
+        ALLOW_TEST_ENDPOINTS: "1",
+      },
+    },
+    {
+      command: "npm run dev -- --host 127.0.0.1 --port 4173",
+      url: "http://127.0.0.1:4173/modern.html",
+      reuseExistingServer: !process.env.CI,
+      env: {
+        LIFTWISE_API_ORIGIN: "http://127.0.0.1:4001",
+      },
+    },
+  ],
 });

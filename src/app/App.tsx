@@ -1,49 +1,117 @@
 import { useEffect, useMemo, useState } from "react";
 import { AppShell, type PrimaryView } from "../components/layout/AppShell";
 import { DataProblem } from "../components/feedback/DataProblem";
+import { LoginPage } from "../features/auth/LoginPage";
 import { BodyNutritionPage } from "../features/body-nutrition/BodyNutritionPage";
+import { ComparePage } from "../features/compare/ComparePage";
 import { LibraryPage } from "../features/library/LibraryPage";
 import { ProgressPage } from "../features/progress/ProgressPage";
 import { SettingsPage } from "../features/settings/SettingsPage";
 import { TodayPage } from "../features/today/TodayPage";
-import { TrainPage } from "../features/train/TrainPage";
+import { TrainPage, type TrainTab } from "../features/train/TrainPage";
 import {
   completeActiveWorkout,
   createActiveWorkoutDraft,
   type ActiveWorkoutDraft,
 } from "../domain/workout/active-workout";
-import {
-  LiftwiseStorageRepository,
-  type StorageLoadResult,
-} from "../infrastructure/local-storage/storage-repository";
+import { createDefaultLiftwiseData, type LiftwiseData } from "../domain/models/schema";
+import { fetchSession, logout } from "../infrastructure/remote/auth-client";
+import { RemoteStorageRepository } from "../infrastructure/remote/storage-repository";
 import { WorkoutDraftRepository } from "../infrastructure/local-storage/workout-draft-repository";
 
-const views: PrimaryView[] = ["today", "train", "progress", "body", "library", "settings"];
+const views: PrimaryView[] = [
+  "today",
+  "train",
+  "progress",
+  "body",
+  "library",
+  "compare",
+  "settings",
+];
 
 function initialView(): PrimaryView {
   const candidate = window.location.hash.replace(/^#/, "") as PrimaryView;
   return views.includes(candidate) ? candidate : "today";
 }
 
+type AuthState =
+  { phase: "checking" } | { phase: "signed-out" } | { phase: "signed-in"; username: string };
+
+type LoadState =
+  | { phase: "loading" }
+  | { phase: "empty" }
+  | { phase: "loaded" }
+  | { phase: "corrupt"; message: string }
+  | { phase: "error"; message: string };
+
 export function App() {
   const [view, setView] = useState<PrimaryView>(initialView);
-  const repository = useMemo(
-    () => new LiftwiseStorageRepository(window.localStorage),
-    [],
-  );
-  const draftRepository = useMemo(
-    () => new WorkoutDraftRepository(window.localStorage),
-    [],
-  );
-  const [storageResult] = useState<StorageLoadResult>(() => repository.load());
-  const [draftLoadResult] = useState(() => draftRepository.load());
-  const [data, setData] = useState(
-    storageResult.status === "loaded" ? storageResult.data : null,
-  );
-  const [workoutDraft, setWorkoutDraft] = useState<ActiveWorkoutDraft | null>(
-    draftLoadResult.status === "loaded" ? draftLoadResult.draft : null,
-  );
+  const [trainInitialTab, setTrainInitialTab] = useState<TrainTab | undefined>(undefined);
+  const repository = useMemo(() => new RemoteStorageRepository(), []);
+  const draftRepository = useMemo(() => new WorkoutDraftRepository(window.localStorage), []);
+
+  const [auth, setAuth] = useState<AuthState>({ phase: "checking" });
+  const [loadState, setLoadState] = useState<LoadState>({ phase: "loading" });
+  const [data, setData] = useState<LiftwiseData | null>(null);
+  const [importUndoAvailable, setImportUndoAvailable] = useState(false);
+  const [workoutDraft, setWorkoutDraft] = useState<ActiveWorkoutDraft | null>(null);
+  const [workoutDraftProblem, setWorkoutDraftProblem] = useState<string | null>(null);
   const [saveError, setSaveError] = useState<string | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    fetchSession().then((session) => {
+      if (cancelled) return;
+      setAuth(
+        session.authenticated
+          ? { phase: "signed-in", username: session.username }
+          : { phase: "signed-out" },
+      );
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  useEffect(() => {
+    if (auth.phase !== "signed-in") return;
+    let cancelled = false;
+    setLoadState({ phase: "loading" });
+
+    repository.load().then((result) => {
+      if (cancelled) return;
+      if (result.status === "unauthenticated") {
+        setAuth({ phase: "signed-out" });
+        return;
+      }
+      if (result.status === "empty") {
+        setLoadState({ phase: "empty" });
+        return;
+      }
+      if (result.status === "corrupt") {
+        setLoadState({ phase: "corrupt", message: result.message });
+        return;
+      }
+      if (result.status === "error") {
+        setLoadState({ phase: "error", message: result.message });
+        return;
+      }
+      setData(result.data);
+      setLoadState({ phase: "loaded" });
+    });
+
+    repository.hasImportUndo().then((available) => {
+      if (!cancelled) setImportUndoAvailable(available);
+    });
+
+    const draftResult = draftRepository.load();
+    setWorkoutDraft(draftResult.status === "loaded" ? draftResult.draft : null);
+    setWorkoutDraftProblem(draftResult.status === "corrupt" ? draftResult.message : null);
+
+    return () => {
+      cancelled = true;
+    };
+  }, [auth.phase, repository, draftRepository]);
 
   useEffect(() => {
     const onHashChange = () => setView(initialView());
@@ -52,58 +120,115 @@ export function App() {
   }, []);
 
   useEffect(() => {
-    const label = view === "body" ? "Body & nutrition" : `${view.charAt(0).toUpperCase()}${view.slice(1)}`;
+    if (auth.phase !== "signed-in" || loadState.phase !== "loaded") return;
+    const label =
+      view === "body" ? "Body & nutrition" : `${view.charAt(0).toUpperCase()}${view.slice(1)}`;
     document.title = `Liftwise · ${label}`;
     requestAnimationFrame(() => document.querySelector<HTMLElement>("#main-content")?.focus());
-  }, [view]);
+  }, [view, auth.phase, loadState.phase]);
 
   const navigate = (next: PrimaryView) => {
+    setTrainInitialTab(undefined);
     if (window.location.hash !== `#${next}`) window.location.hash = next;
     else setView(next);
   };
 
-  if (storageResult.status === "corrupt") {
-    return <DataProblem message={storageResult.message} rawRecoveryAvailable />;
-  }
+  const openTrainTab = (tab: TrainTab) => {
+    navigate("train");
+    setTrainInitialTab(tab);
+  };
 
-  if (storageResult.status === "empty") {
+  if (auth.phase === "checking") {
     return (
       <main className="standalone-state" id="main-content">
-        <p className="eyebrow">WELCOME TO LIFTWISE</p>
+        <p className="eyebrow">LIFTWISE</p>
+        <h1>Loading…</h1>
+      </main>
+    );
+  }
+
+  if (auth.phase === "signed-out") {
+    return <LoginPage onSignedIn={(username) => setAuth({ phase: "signed-in", username })} />;
+  }
+
+  if (loadState.phase === "loading") {
+    return (
+      <main className="standalone-state" id="main-content">
+        <p className="eyebrow">LIFTWISE</p>
+        <h1>Loading your data…</h1>
+      </main>
+    );
+  }
+
+  if (loadState.phase === "error") {
+    return (
+      <main className="standalone-state" id="main-content">
+        <p className="eyebrow">CONNECTION PROBLEM</p>
+        <h1>Could not load your data</h1>
+        <p>{loadState.message}</p>
+        <button
+          className="button button-primary"
+          type="button"
+          onClick={() => setAuth({ phase: "signed-in", username: auth.username })}
+        >
+          Try again
+        </button>
+      </main>
+    );
+  }
+
+  if (loadState.phase === "corrupt") {
+    return <DataProblem message={loadState.message} />;
+  }
+
+  const persistData = async (next: LiftwiseData) => {
+    try {
+      await repository.save(next);
+      setData(next);
+      setLoadState({ phase: "loaded" });
+      setSaveError(null);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Unknown storage error";
+      setSaveError(`The change was not saved: ${message}`);
+    }
+  };
+
+  if (loadState.phase === "empty") {
+    return (
+      <main className="standalone-state" id="main-content">
+        <p className="eyebrow">WELCOME TO LIFTWISE, {auth.username.toUpperCase()}</p>
         <h1>Build your first training baseline</h1>
         <p>
-          The new interface does not create fictional history. Open the current setup flow,
-          create a profile or import your data, then return here.
+          Your account has no saved data yet. Start with a default profile — you can adjust units,
+          equipment, and targets afterward.
         </p>
-        <a className="button button-primary" href="./index.html">Open setup</a>
+        {saveError ? (
+          <div className="save-error" role="alert">
+            {saveError}
+          </div>
+        ) : null}
+        <button
+          className="button button-primary"
+          type="button"
+          onClick={() => persistData(createDefaultLiftwiseData(auth.username))}
+        >
+          Create starter profile
+        </button>
       </main>
     );
   }
 
   if (!data) {
-    return <DataProblem message="Validated data became unavailable. Reload the application or open recovery tools." />;
+    return (
+      <DataProblem message="Validated data became unavailable. Reload the application or try again." />
+    );
   }
 
-  const persistData = (next: typeof data) => {
+  const persistImport = async (next: LiftwiseData, previous: LiftwiseData, batchId: string) => {
     try {
-      repository.save(next);
+      await repository.saveWithImportUndo(next, previous, batchId);
       setData(next);
-      setSaveError(null);
-    } catch (error) {
-      const message = error instanceof Error ? error.message : "Unknown storage error";
-      setSaveError(`The change was not saved: ${message}`);
-      throw error;
-    }
-  };
-
-  const persistImport = (
-    next: typeof data,
-    previous: typeof data,
-    batchId: string,
-  ) => {
-    try {
-      repository.saveWithImportUndo(next, previous, batchId);
-      setData(next);
+      setImportUndoAvailable(true);
       setSaveError(null);
     } catch (error) {
       const message = error instanceof Error ? error.message : "Unknown storage error";
@@ -112,10 +237,11 @@ export function App() {
     }
   };
 
-  const undoLastImport = () => {
+  const undoLastImport = async () => {
     try {
-      const restored = repository.undoLastImport();
+      const restored = await repository.undoLastImport();
       setData(restored);
+      setImportUndoAvailable(false);
       setSaveError(null);
     } catch (error) {
       const message = error instanceof Error ? error.message : "Unknown undo error";
@@ -127,10 +253,7 @@ export function App() {
   const startWorkout = (routineId?: string) => {
     if (!data) return;
     try {
-      const draft = createActiveWorkoutDraft(
-        data,
-        routineId === undefined ? {} : { routineId },
-      );
+      const draft = createActiveWorkoutDraft(data, routineId === undefined ? {} : { routineId });
       draftRepository.save(draft);
       setWorkoutDraft(draft);
       setSaveError(null);
@@ -138,6 +261,11 @@ export function App() {
       const message = error instanceof Error ? error.message : "Unknown draft error";
       setSaveError(`The workout could not be started: ${message}`);
     }
+  };
+
+  const startWorkoutAndGoToTrain = (routineId?: string) => {
+    startWorkout(routineId);
+    navigate("train");
   };
 
   const persistWorkoutDraft = (draft: ActiveWorkoutDraft) => {
@@ -152,11 +280,11 @@ export function App() {
     }
   };
 
-  const finishWorkout = () => {
+  const finishWorkout = async () => {
     if (!data || !workoutDraft) return;
     try {
       const completed = completeActiveWorkout(data, workoutDraft);
-      repository.save(completed.data);
+      await repository.save(completed.data);
       setData(completed.data);
       draftRepository.clear();
       setWorkoutDraft(null);
@@ -180,10 +308,9 @@ export function App() {
     }
   };
 
-  const exportBackup = () => {
-    if (!data) return;
+  const exportBackup = async () => {
     try {
-      const serialized = repository.export(data);
+      const serialized = await repository.export();
       const blob = new Blob([serialized], { type: "application/json" });
       const url = URL.createObjectURL(blob);
       const anchor = document.createElement("a");
@@ -198,9 +325,9 @@ export function App() {
     }
   };
 
-  const restoreBackup = (restored: typeof data) => {
+  const restoreBackup = async (restored: LiftwiseData) => {
     try {
-      repository.save(restored);
+      await repository.save(restored);
       draftRepository.clear();
       setWorkoutDraft(null);
       setData(restored);
@@ -212,37 +339,59 @@ export function App() {
     }
   };
 
+  const signOut = async () => {
+    await logout();
+    setData(null);
+    setAuth({ phase: "signed-out" });
+  };
+
   return (
-    <AppShell
-      activeView={view}
-      athleteName={data.profile.name}
-      onNavigate={navigate}
-    >
-      {saveError ? <div className="save-error" role="alert">{saveError}</div> : null}
-      {view === "today" ? <TodayPage data={data} onOpenProgress={() => navigate("progress")} /> : null}
+    <AppShell activeView={view} athleteName={data.profile.name} onNavigate={navigate}>
+      {saveError ? (
+        <div className="save-error" role="alert">
+          {saveError}
+        </div>
+      ) : null}
+      {view === "today" ? (
+        <TodayPage
+          data={data}
+          onOpenProgress={() => navigate("progress")}
+          onOpenImport={() => openTrainTab("import")}
+          onStartRecommendedWorkout={startWorkoutAndGoToTrain}
+          onOpenTrainWorkout={() => navigate("train")}
+          onOpenTrainRoutines={() => openTrainTab("routines")}
+        />
+      ) : null}
       {view === "train" ? (
         <TrainPage
           data={data}
-          importUndoAvailable={repository.hasImportUndo()}
+          importUndoAvailable={importUndoAvailable}
           onDataChange={persistData}
           onImportCommit={persistImport}
           onUndoImport={undoLastImport}
           workoutDraft={workoutDraft}
-          workoutDraftProblem={draftLoadResult.status === "corrupt" ? draftLoadResult.message : null}
+          workoutDraftProblem={workoutDraftProblem}
           onStartWorkout={startWorkout}
           onWorkoutDraftChange={persistWorkoutDraft}
           onFinishWorkout={finishWorkout}
           onDiscardWorkout={discardWorkout}
+          initialTab={trainInitialTab}
         />
       ) : null}
-      {view === "progress" ? <ProgressPage data={data} onOpenTrain={() => navigate("train")} /> : null}
-      {view === "body" ? <BodyNutritionPage data={data} onOpenImport={() => navigate("train")} /> : null}
+      {view === "progress" ? (
+        <ProgressPage data={data} onOpenTrain={() => navigate("train")} />
+      ) : null}
+      {view === "body" ? (
+        <BodyNutritionPage data={data} onOpenImport={() => openTrainTab("import")} />
+      ) : null}
       {view === "library" ? <LibraryPage data={data} onDataChange={persistData} /> : null}
+      {view === "compare" ? <ComparePage /> : null}
       {view === "settings" ? (
         <SettingsPage
           data={data}
           onExport={exportBackup}
           onRestore={restoreBackup}
+          onSignOut={signOut}
         />
       ) : null}
     </AppShell>

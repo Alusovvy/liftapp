@@ -67,11 +67,14 @@ export class LiftwiseStorageRepository {
     const validatedPrevious = LiftwiseDataSchema.parse(previousData);
     const previousUndo = this.storage.getItem(IMPORT_UNDO_KEY);
     try {
-      this.storage.setItem(IMPORT_UNDO_KEY, JSON.stringify({
-        batchId,
-        createdAt,
-        snapshot: JSON.stringify(validatedPrevious),
-      }));
+      this.storage.setItem(
+        IMPORT_UNDO_KEY,
+        JSON.stringify({
+          batchId,
+          createdAt,
+          snapshot: JSON.stringify(validatedPrevious),
+        }),
+      );
       this.storage.setItem(STORAGE_KEY, JSON.stringify(validated));
     } catch (error) {
       try {

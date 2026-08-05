@@ -50,7 +50,8 @@ export const DO_NOT_COMBINE: Array<{
 }> = [
   {
     exerciseIds: ["one-arm-db-row", "pull-up"],
-    reason: "They share broad back and biceps tags but preserve distinct horizontal and vertical pulling roles.",
+    reason:
+      "They share broad back and biceps tags but preserve distinct horizontal and vertical pulling roles.",
   },
   {
     exerciseIds: ["rdl", "leg-curl"],
@@ -62,11 +63,13 @@ export const DO_NOT_COMBINE: Array<{
   },
   {
     exerciseIds: ["ohp", "db-lateral-raise"],
-    reason: "A compound vertical press and a direct shoulder-isolation movement do not preserve the same role.",
+    reason:
+      "A compound vertical press and a direct shoulder-isolation movement do not preserve the same role.",
   },
   {
     exerciseIds: ["db-bench", "db-chest-fly"],
-    reason: "A compound horizontal press and chest isolation do not preserve the same movement role.",
+    reason:
+      "A compound horizontal press and chest isolation do not preserve the same movement role.",
   },
   {
     exerciseIds: ["plank", "crunch"],
@@ -95,6 +98,7 @@ export const TIME_SAVING_RELATIONSHIPS: TimeSavingRelationship[] = [
     compoundExerciseId: "db-bench",
     isolationExerciseId: "db-triceps-extension",
     directMuscleLabel: "Triceps",
-    caveat: "Keep direct extensions when triceps development or elbow-extension strength is a priority.",
+    caveat:
+      "Keep direct extensions when triceps development or elbow-extension strength is a priority.",
   },
 ];

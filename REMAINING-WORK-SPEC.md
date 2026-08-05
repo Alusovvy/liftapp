@@ -329,4 +329,3 @@ The transformation is complete only when:
 - documentation describes the shipped product, not a mixed transitional state;
 - a final tagged Git checkpoint can be built and launched with the commands in the
   README.
-
