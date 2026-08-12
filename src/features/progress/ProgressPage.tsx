@@ -1,8 +1,17 @@
 import { useMemo, useState } from "react";
+import { MuscleExerciseBreakdown } from "../../components/muscle-map/MuscleExerciseBreakdown";
+import { MuscleMap } from "../../components/muscle-map/MuscleMap";
+import {
+  buildMuscleExerciseBreakdown,
+  buildMuscleMapRows,
+} from "../../components/muscle-map/muscle-map-rows";
+import { WeekNav } from "../../components/navigation/WeekNav";
+import { WeekdayBoard } from "../../components/weekday-board/WeekdayBoard";
+import { buildWeekdayBoard } from "../../components/weekday-board/weekday-board";
+import { formatWeekLabel } from "../../domain/dates";
 import { MUSCLES, type LiftwiseData } from "../../domain/models/schema";
 import { buildExerciseProgress } from "../../domain/progress/exercise-progress";
 import { buildTodayViewModel, mondayKey, nextMondayKey } from "../today/selectors";
-import { MuscleMap } from "./MuscleMap";
 
 type ProgressPageProps = {
   data: LiftwiseData;
@@ -23,56 +32,6 @@ const evidenceLabels = {
   emerging: "Emerging",
   "enough-evidence": "Enough evidence",
 } as const;
-
-function weekLabel(weekStartKey: string, weekEndExclusiveKey: string, isCurrent: boolean): string {
-  if (isCurrent) return "Current week";
-  const start = new Date(`${weekStartKey}T12:00:00`);
-  const end = new Date(`${weekEndExclusiveKey}T12:00:00`);
-  end.setDate(end.getDate() - 1);
-  const sameMonth = start.getMonth() === end.getMonth();
-  const startText = new Intl.DateTimeFormat(undefined, { month: "short", day: "numeric" }).format(
-    start,
-  );
-  const endText = new Intl.DateTimeFormat(
-    undefined,
-    sameMonth ? { day: "numeric" } : { month: "short", day: "numeric" },
-  ).format(end);
-  return `${startText} – ${endText}`;
-}
-
-type WeekNavProps = {
-  label: string;
-  onPrevious: () => void;
-  onNext: () => void;
-  previousDisabled: boolean;
-  nextDisabled: boolean;
-};
-
-function WeekNav({ label, onPrevious, onNext, previousDisabled, nextDisabled }: WeekNavProps) {
-  return (
-    <div className="week-nav" role="group" aria-label="Select week">
-      <button
-        className="week-nav-button"
-        type="button"
-        onClick={onPrevious}
-        disabled={previousDisabled}
-        aria-label="Previous week"
-      >
-        ←
-      </button>
-      <span className="week-nav-label">{label}</span>
-      <button
-        className="week-nav-button"
-        type="button"
-        onClick={onNext}
-        disabled={nextDisabled}
-        aria-label="Next week"
-      >
-        →
-      </button>
-    </div>
-  );
-}
 
 function recoveryAdjustment(checkin: LiftwiseData["recoveryCheckins"][number]): {
   label: string;
@@ -133,24 +92,15 @@ export function ProgressPage({ data, onOpenTrain }: ProgressPageProps) {
     )
     .slice(0, 3);
 
-  const rows = MUSCLES.map((muscle) => {
-    const [minimum, maximum] = data.targets[muscle];
-    const value = view.weeklyDose[muscle];
-    const status =
-      value < minimum ? "Below range" : value > maximum ? "Review above range" : "In range";
-    return { muscle, minimum, maximum, value, status };
-  }).sort((first, second) => {
-    const firstGap = Math.max(0, first.minimum - first.value);
-    const secondGap = Math.max(0, second.minimum - second.value);
-    return secondGap - firstGap || first.muscle.localeCompare(second.muscle);
-  });
+  const rows = buildMuscleMapRows(data, view.weeklyDose);
   const maxScale = Math.max(...rows.map((row) => Math.max(row.maximum, row.value)), 1);
+  const weekdayDays = buildWeekdayBoard(data, weekStart, view.weekWorkouts);
   const recovery = [...data.recoveryCheckins]
     .sort((left, right) => right.date.localeCompare(left.date))
     .slice(0, 12);
   const weekNav = (
     <WeekNav
-      label={weekLabel(weekStart, weekEnd, weekOffset === 0)}
+      label={formatWeekLabel(weekStart, weekEnd, weekOffset === 0)}
       onPrevious={() => setWeekOffset((current) => current - 1)}
       onNext={() => setWeekOffset((current) => Math.min(0, current + 1))}
       previousDisabled={earliestWorkoutMonday !== null && weekStart <= earliestWorkoutMonday}
@@ -380,6 +330,18 @@ export function ProgressPage({ data, onOpenTrain }: ProgressPageProps) {
                 setSelectedMuscle((current) => (current === muscle ? null : muscle))
               }
             />
+            {selectedMuscle ? (
+              <MuscleExerciseBreakdown
+                key={selectedMuscle}
+                data={data}
+                muscle={selectedMuscle}
+                contributions={buildMuscleExerciseBreakdown(
+                  data,
+                  view.weekWorkouts,
+                  selectedMuscle,
+                )}
+              />
+            ) : null}
             <div className="muscle-bars" role="list">
               {rows.map((row) => (
                 <div
@@ -415,6 +377,22 @@ export function ProgressPage({ data, onOpenTrain }: ProgressPageProps) {
                 </div>
               ))}
             </div>
+            <div className="section-heading weekday-board-heading">
+              <div>
+                <p className="eyebrow">Session log</p>
+                <h2>This week, day by day</h2>
+              </div>
+            </div>
+            <WeekdayBoard
+              days={weekdayDays}
+              weekLabel={formatWeekLabel(weekStart, weekEnd, weekOffset === 0)}
+              onPrevious={() => setWeekOffset((current) => current - 1)}
+              onNext={() => setWeekOffset((current) => Math.min(0, current + 1))}
+              previousDisabled={
+                earliestWorkoutMonday !== null && weekStart <= earliestWorkoutMonday
+              }
+              nextDisabled={weekOffset >= 0}
+            />
           </div>
         ) : null}
 

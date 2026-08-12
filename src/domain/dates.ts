@@ -21,3 +21,23 @@ export function nextMondayKey(date: Date): string {
   start.setDate(start.getDate() + 7);
   return localDateKey(start);
 }
+
+export function formatWeekLabel(
+  weekStartKey: string,
+  weekEndExclusiveKey: string,
+  isCurrent: boolean,
+): string {
+  if (isCurrent) return "Current week";
+  const start = new Date(`${weekStartKey}T12:00:00`);
+  const end = new Date(`${weekEndExclusiveKey}T12:00:00`);
+  end.setDate(end.getDate() - 1);
+  const sameMonth = start.getMonth() === end.getMonth();
+  const startText = new Intl.DateTimeFormat(undefined, { month: "short", day: "numeric" }).format(
+    start,
+  );
+  const endText = new Intl.DateTimeFormat(
+    undefined,
+    sameMonth ? { day: "numeric" } : { month: "short", day: "numeric" },
+  ).format(end);
+  return `${startText} – ${endText}`;
+}

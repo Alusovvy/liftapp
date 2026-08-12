@@ -408,11 +408,15 @@ test("muscle map shows weekly coverage status and updates when navigating weeks"
   await page.getByRole("tab", { name: "Muscles" }).click();
 
   await expect(page.getByRole("heading", { name: "Muscle coverage" })).toBeVisible();
-  await expect(page.getByText("Current week")).toBeVisible();
+  // The Muscles tab has two independent week-nav widgets (muscle coverage and
+  // the day-by-day session log), both synced to the same week state.
+  await expect(page.getByText("Current week").first()).toBeVisible();
 
   const chestRegion = page.getByRole("button", { name: /^Chest: In range/ });
   await expect(chestRegion).toBeVisible();
-  await chestRegion.click();
+  // The region is an anatomical two-lobe shape; its bounding-box centre falls
+  // in the gap between the lobes, so click one of the painted paths directly.
+  await chestRegion.locator("path").first().click();
   await expect(page.locator("#muscle-row-Chest")).toHaveClass(/is-selected/);
 
   const accessibility = await new AxeBuilder({ page })
@@ -422,19 +426,19 @@ test("muscle map shows weekly coverage status and updates when navigating weeks"
     accessibility.violations.filter(({ impact }) => impact === "serious" || impact === "critical"),
   ).toEqual([]);
 
-  await page.getByRole("button", { name: "Back", exact: true }).click();
+  // Front and back are shown side by side with no view toggle, so a
+  // back-only muscle like "Back" is visible without any extra interaction.
   await expect(page.getByRole("button", { name: /^Back:/ })).toBeVisible();
-  await expect(chestRegion).toHaveCount(0);
-  await page.getByRole("button", { name: "Front", exact: true }).click();
+  await expect(chestRegion).toBeVisible();
 
-  await expect(page.getByRole("button", { name: "Next week" })).toBeDisabled();
-  await page.getByRole("button", { name: "Previous week" }).click();
+  await expect(page.getByRole("button", { name: "Next week" }).first()).toBeDisabled();
+  await page.getByRole("button", { name: "Previous week" }).first().click();
   await expect(page.getByText("Current week")).toHaveCount(0);
   await expect(page.getByRole("button", { name: /^Chest: Below range/ })).toBeVisible();
 
-  await page.getByRole("button", { name: "Next week" }).click();
-  await expect(page.getByText("Current week")).toBeVisible();
-  await expect(page.getByRole("button", { name: "Next week" })).toBeDisabled();
+  await page.getByRole("button", { name: "Next week" }).first().click();
+  await expect(page.getByText("Current week").first()).toBeVisible();
+  await expect(page.getByRole("button", { name: "Next week" }).first()).toBeDisabled();
 });
 
 test("keeps body context neutral, library choices persistent, and backup restore explicit", async ({

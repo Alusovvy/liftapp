@@ -1,11 +1,21 @@
+import { useMemo, useState } from "react";
 import {
   RecommendationCard,
   type RecommendationDestination,
 } from "../../components/actions/RecommendationCard";
+import { MuscleExerciseBreakdown } from "../../components/muscle-map/MuscleExerciseBreakdown";
+import { MuscleMap } from "../../components/muscle-map/MuscleMap";
+import {
+  buildMuscleExerciseBreakdown,
+  buildMuscleMapRows,
+} from "../../components/muscle-map/muscle-map-rows";
+import { WeekdayBoard } from "../../components/weekday-board/WeekdayBoard";
+import { buildWeekdayBoard } from "../../components/weekday-board/weekday-board";
 import { evidenceLabel } from "../../domain/coaching/evidence-sufficiency";
+import { formatWeekLabel } from "../../domain/dates";
 import type { CoachingAction } from "../../domain/coaching/types";
-import type { LiftwiseData } from "../../domain/models/schema";
-import { buildTodayViewModel } from "./selectors";
+import type { LiftwiseData, Muscle } from "../../domain/models/schema";
+import { buildTodayViewModel, mondayKey, nextMondayKey } from "./selectors";
 
 type TodayPageProps = {
   data: LiftwiseData;
@@ -88,6 +98,31 @@ export function TodayPage({
   onOpenTrainRoutines,
 }: TodayPageProps) {
   const view = buildTodayViewModel(data);
+  const muscleRows = buildMuscleMapRows(data, view.weeklyDose);
+  const [selectedMuscle, setSelectedMuscle] = useState<Muscle | null>(null);
+  const selectedRow = muscleRows.find((row) => row.muscle === selectedMuscle) ?? null;
+
+  const [boardWeekOffset, setBoardWeekOffset] = useState(0);
+  const boardReferenceNow = useMemo(() => {
+    const date = new Date();
+    date.setHours(12, 0, 0, 0);
+    date.setDate(date.getDate() + boardWeekOffset * 7);
+    return date;
+  }, [boardWeekOffset]);
+  const boardWeekStart = mondayKey(boardReferenceNow);
+  const boardWeekEnd = nextMondayKey(boardReferenceNow);
+  const boardWeekWorkouts = data.workouts.filter(
+    (workout) => workout.date >= boardWeekStart && workout.date < boardWeekEnd,
+  );
+  const earliestWorkoutMonday = useMemo(() => {
+    if (!data.workouts.length) return null;
+    const earliestDate = data.workouts.reduce(
+      (min, workout) => (workout.date < min ? workout.date : min),
+      data.workouts[0]!.date,
+    );
+    return mondayKey(new Date(`${earliestDate}T12:00:00`));
+  }, [data.workouts]);
+  const weekdayDays = buildWeekdayBoard(data, boardWeekStart, boardWeekWorkouts);
 
   return (
     <div className="page page-today">
@@ -191,6 +226,38 @@ export function TodayPage({
         )}
       </section>
 
+      <section className="page-section muscle-map-section" aria-labelledby="muscle-map-heading">
+        <div className="section-heading">
+          <div>
+            <p className="eyebrow">This week</p>
+            <h2 id="muscle-map-heading">Muscle coverage</h2>
+          </div>
+          <button className="text-button" type="button" onClick={onOpenProgress}>
+            Details
+          </button>
+        </div>
+        <MuscleMap
+          rows={muscleRows}
+          selectedMuscle={selectedMuscle}
+          onSelectMuscle={(muscle) =>
+            setSelectedMuscle((current) => (current === muscle ? null : muscle))
+          }
+        />
+        <p className="muscle-map-selection" aria-live="polite">
+          {selectedRow
+            ? `${selectedRow.muscle}: ${selectedRow.status} — ${selectedRow.value} of ${selectedRow.minimum}–${selectedRow.maximum} weekly sets.`
+            : "Tap a muscle to see this week's set count against its target range."}
+        </p>
+        {selectedMuscle ? (
+          <MuscleExerciseBreakdown
+            key={selectedMuscle}
+            data={data}
+            muscle={selectedMuscle}
+            contributions={buildMuscleExerciseBreakdown(data, view.weekWorkouts, selectedMuscle)}
+          />
+        ) : null}
+      </section>
+
       <section className="page-section last-session-section" aria-labelledby="last-session-heading">
         <div className="section-heading">
           <div>
@@ -230,6 +297,25 @@ export function TodayPage({
             Log one workout to establish exercise history and weekly coverage.
           </p>
         )}
+      </section>
+
+      <section className="page-section" aria-labelledby="weekday-board-heading">
+        <div className="section-heading">
+          <div>
+            <p className="eyebrow">Session log</p>
+            <h2 id="weekday-board-heading">This week, day by day</h2>
+          </div>
+        </div>
+        <WeekdayBoard
+          days={weekdayDays}
+          weekLabel={formatWeekLabel(boardWeekStart, boardWeekEnd, boardWeekOffset === 0)}
+          onPrevious={() => setBoardWeekOffset((current) => current - 1)}
+          onNext={() => setBoardWeekOffset((current) => Math.min(0, current + 1))}
+          previousDisabled={
+            earliestWorkoutMonday !== null && boardWeekStart <= earliestWorkoutMonday
+          }
+          nextDisabled={boardWeekOffset >= 0}
+        />
       </section>
     </div>
   );

@@ -21,7 +21,7 @@ const MUSCLE_KEYS: Muscle[] = [
   "Core",
 ];
 
-function isQualifiedWorkingSet(set: Workout["entries"][number]["sets"][number]): boolean {
+export function isQualifiedWorkingSet(set: Workout["entries"][number]["sets"][number]): boolean {
   if (String(set.type || "normal").toLowerCase() === "warmup") return false;
   const mode = set.measurementMode ?? "load_reps";
   if (mode === "duration") return (set.durationSeconds ?? 0) > 0;

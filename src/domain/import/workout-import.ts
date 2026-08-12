@@ -145,12 +145,60 @@ const reviewedAliases = new Map<string, string>([
   ["dumbbell bicep curl", "curl"],
   ["barbell bench press", "bench-press"],
   ["pull up", "pull-up"],
+  ["bicep curl dumbbell", "curl"],
+  ["bicep curl barbell", "barbell-curl"],
+  ["overhead press barbell", "ohp"],
+  ["triceps extension dumbbell", "db-triceps-extension"],
+  ["triceps pushdown", "pressdown"],
+  ["triceps rope pushdown", "pressdown"],
+  ["seated cable row bar grip", "cable-row"],
+  ["shrug dumbbell", "shrug"],
+  ["lat pulldown cable", "lat-pulldown"],
+  ["seated leg curl machine", "leg-curl"],
+  ["leg press machine", "leg-press"],
+  ["standing calf raise smith", "standing-calf-raise"],
+  ["leg extension machine", "leg-extension"],
+  ["lying neck curls weighted", "lying-neck-curl"],
+  ["squat barbell", "back-squat"],
+  ["standing calf raise barbell", "standing-calf-raise"],
+  ["bulgarian split squat dumbbell", "split-squat"],
+  ["leg raise parallel bars", "parallel-bar-leg-raise"],
+  ["frog pumps dumbbell", "frog-pump"],
+  ["rear delt reverse fly dumbbell", "db-rear-delt-fly"],
+  ["lateral leg raises", "lateral-leg-raise"],
+  ["lunge", "lunge"],
 ]);
+
+// Some import sources (e.g. Hevy) name exercises "Movement (Equipment)" while
+// this catalog uses "Equipment Movement" ("Bench Press (Dumbbell)" vs.
+// "Dumbbell Bench Press"). Matching on the same set of words, regardless of
+// order, catches those without guessing across exercises that share only
+// some words (which would risk mismapping muscle credit to the wrong move).
+function wordSetKey(normalized: string): string {
+  return normalized.split(" ").filter(Boolean).sort().join(" ");
+}
+
+const catalogByWordSet = (() => {
+  const counts = new Map<string, number>();
+  const byKey = new Map<string, string>();
+  EXERCISE_CATALOG.forEach((exercise) => {
+    const key = wordSetKey(normalizeText(exercise.name));
+    counts.set(key, (counts.get(key) ?? 0) + 1);
+    byKey.set(key, exercise.id);
+  });
+  for (const [key, count] of counts) {
+    if (count > 1) byKey.delete(key);
+  }
+  return byKey;
+})();
 
 function exerciseIdFor(name: string): string {
   const normalized = normalizeText(name);
   return (
-    catalogByName.get(normalized) ?? reviewedAliases.get(normalized) ?? `custom-${hash(normalized)}`
+    catalogByName.get(normalized) ??
+    reviewedAliases.get(normalized) ??
+    catalogByWordSet.get(wordSetKey(normalized)) ??
+    `custom-${hash(normalized)}`
   );
 }
 

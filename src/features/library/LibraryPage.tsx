@@ -4,7 +4,7 @@ import {
   isExerciseAvailable,
   type ExerciseCatalogItem,
 } from "../../domain/exercises/catalog";
-import { MUSCLES, type LiftwiseData } from "../../domain/models/schema";
+import { MUSCLES, type LiftwiseData, type Muscle } from "../../domain/models/schema";
 
 type LibraryPageProps = {
   data: LiftwiseData;
@@ -15,12 +15,96 @@ type LibraryExercise = ExerciseCatalogItem & {
   custom: boolean;
 };
 
+const UNMAPPED_IMPORT_NOTE = "Imported movement. Map it before using it for muscle coverage.";
+
+type MuscleMappingEditorProps = {
+  exerciseId: string;
+  primary: Muscle[];
+  secondary: Muscle[];
+  onSave: (exerciseId: string, primary: Muscle[], secondary: Muscle[]) => void;
+};
+
+function MuscleMappingEditor({ exerciseId, primary, secondary, onSave }: MuscleMappingEditorProps) {
+  const [draftPrimary, setDraftPrimary] = useState<Muscle[]>(primary);
+  const [draftSecondary, setDraftSecondary] = useState<Muscle[]>(secondary);
+  const dirty =
+    draftPrimary.length !== primary.length ||
+    draftSecondary.length !== secondary.length ||
+    draftPrimary.some((muscle) => !primary.includes(muscle)) ||
+    draftSecondary.some((muscle) => !secondary.includes(muscle));
+
+  const togglePrimary = (muscle: Muscle) => {
+    setDraftPrimary((current) =>
+      current.includes(muscle) ? current.filter((item) => item !== muscle) : [...current, muscle],
+    );
+    setDraftSecondary((current) => current.filter((item) => item !== muscle));
+  };
+  const toggleSecondary = (muscle: Muscle) => {
+    if (draftPrimary.includes(muscle)) return;
+    setDraftSecondary((current) =>
+      current.includes(muscle) ? current.filter((item) => item !== muscle) : [...current, muscle],
+    );
+  };
+
+  return (
+    <div className="muscle-mapper">
+      <p className="muscle-mapper-hint">
+        This decides which muscles get credit for sets logged against this exercise. Primary counts
+        a full set; secondary counts half.
+      </p>
+      <div className="muscle-mapper-group">
+        <span>Primary</span>
+        <div className="muscle-mapper-options">
+          {MUSCLES.map((muscle) => (
+            <label key={muscle}>
+              <input
+                type="checkbox"
+                checked={draftPrimary.includes(muscle)}
+                onChange={() => togglePrimary(muscle)}
+              />
+              {muscle}
+            </label>
+          ))}
+        </div>
+      </div>
+      <div className="muscle-mapper-group">
+        <span>Secondary</span>
+        <div className="muscle-mapper-options">
+          {MUSCLES.map((muscle) => (
+            <label key={muscle} className={draftPrimary.includes(muscle) ? "is-disabled" : ""}>
+              <input
+                type="checkbox"
+                checked={draftSecondary.includes(muscle)}
+                disabled={draftPrimary.includes(muscle)}
+                onChange={() => toggleSecondary(muscle)}
+              />
+              {muscle}
+            </label>
+          ))}
+        </div>
+      </div>
+      <button
+        type="button"
+        className="button button-primary"
+        disabled={!dirty}
+        onClick={() => onSave(exerciseId, draftPrimary, draftSecondary)}
+      >
+        Save mapping
+      </button>
+    </div>
+  );
+}
+
 export function LibraryPage({ data, onDataChange }: LibraryPageProps) {
   const [query, setQuery] = useState("");
   const [pattern, setPattern] = useState("All");
   const [muscle, setMuscle] = useState("All");
   const [equipment, setEquipment] = useState("All");
   const [favoriteOnly, setFavoriteOnly] = useState(false);
+  const [needsMappingOnly, setNeedsMappingOnly] = useState(false);
+  const unmappedCount = data.customExercises.filter(
+    (exercise) => exercise.primary.length === 0 && exercise.secondary.length === 0,
+  ).length;
   const patterns = [
     "All",
     ...new Set([
@@ -104,6 +188,10 @@ export function LibraryPage({ data, onDataChange }: LibraryPageProps) {
             exercise.equipment.includes(equipment) ||
             exercise.equipmentAny.includes(equipment)) &&
           (!favoriteOnly || data.favoriteExercises.includes(exercise.id)) &&
+          (!needsMappingOnly ||
+            (exercise.custom &&
+              exercise.primary.length === 0 &&
+              exercise.secondary.length === 0)) &&
           (!data.libraryPreferences.availableOnly || available)
         );
       })
@@ -127,6 +215,7 @@ export function LibraryPage({ data, onDataChange }: LibraryPageProps) {
     data.profile.equipment,
     equipment,
     favoriteOnly,
+    needsMappingOnly,
     muscle,
     pattern,
     query,
@@ -148,11 +237,28 @@ export function LibraryPage({ data, onDataChange }: LibraryPageProps) {
         : [...data.favoriteExercises, exerciseId],
     });
   };
+  const saveMuscleMapping = (exerciseId: string, primary: Muscle[], secondary: Muscle[]) => {
+    onDataChange({
+      ...data,
+      customExercises: data.customExercises.map((exercise) =>
+        exercise.id === exerciseId
+          ? {
+              ...exercise,
+              primary,
+              secondary,
+              difficulty: exercise.difficulty === "Unmapped" ? "Custom" : exercise.difficulty,
+              note: exercise.note === UNMAPPED_IMPORT_NOTE ? "" : exercise.note,
+            }
+          : exercise,
+      ),
+    });
+  };
   const activeFilters = [
     pattern !== "All" ? { label: pattern, clear: () => setPattern("All") } : null,
     muscle !== "All" ? { label: `${muscle} · direct`, clear: () => setMuscle("All") } : null,
     equipment !== "All" ? { label: equipment, clear: () => setEquipment("All") } : null,
     favoriteOnly ? { label: "Favorites", clear: () => setFavoriteOnly(false) } : null,
+    needsMappingOnly ? { label: "Needs mapping", clear: () => setNeedsMappingOnly(false) } : null,
     data.libraryPreferences.availableOnly
       ? { label: "Available now", clear: () => updatePreferences({ availableOnly: false }) }
       : null,
@@ -179,6 +285,25 @@ export function LibraryPage({ data, onDataChange }: LibraryPageProps) {
           />
         </label>
       </header>
+
+      {unmappedCount > 0 ? (
+        <div className="library-mapping-banner" role="status">
+          <div>
+            <strong>
+              {unmappedCount} imported exercise{unmappedCount === 1 ? "" : "s"} need
+              {unmappedCount === 1 ? "s" : ""} muscle mapping
+            </strong>
+            <p>Unmapped exercises get no credit toward weekly muscle coverage until mapped.</p>
+          </div>
+          <button
+            type="button"
+            className="button button-secondary"
+            onClick={() => setNeedsMappingOnly(true)}
+          >
+            Show them
+          </button>
+        </div>
+      ) : null}
 
       <section className="library-controls" aria-label="Exercise filters and display">
         <label>
@@ -242,6 +367,14 @@ export function LibraryPage({ data, onDataChange }: LibraryPageProps) {
           }
         >
           Available now
+        </button>
+        <button
+          type="button"
+          className={needsMappingOnly ? "filter-toggle active" : "filter-toggle"}
+          aria-pressed={needsMappingOnly}
+          onClick={() => setNeedsMappingOnly((current) => !current)}
+        >
+          Needs mapping{unmappedCount > 0 ? ` (${unmappedCount})` : ""}
         </button>
       </section>
 
@@ -346,6 +479,24 @@ export function LibraryPage({ data, onDataChange }: LibraryPageProps) {
                     </div>
                   </dl>
                 </details>
+                {exercise.custom ? (
+                  <details
+                    className="muscle-mapper-details"
+                    open={exercise.primary.length === 0 && exercise.secondary.length === 0}
+                  >
+                    <summary>
+                      {exercise.primary.length || exercise.secondary.length
+                        ? "Edit muscle mapping"
+                        : "Map muscles (needed for coverage)"}
+                    </summary>
+                    <MuscleMappingEditor
+                      exerciseId={exercise.id}
+                      primary={exercise.primary}
+                      secondary={exercise.secondary}
+                      onSave={saveMuscleMapping}
+                    />
+                  </details>
+                ) : null}
               </article>
             );
           })}
@@ -363,6 +514,7 @@ export function LibraryPage({ data, onDataChange }: LibraryPageProps) {
               setMuscle("All");
               setEquipment("All");
               setFavoriteOnly(false);
+              setNeedsMappingOnly(false);
               updatePreferences({ availableOnly: false });
             }}
           >
