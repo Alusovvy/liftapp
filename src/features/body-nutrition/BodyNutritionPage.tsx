@@ -4,6 +4,7 @@ import {
   type BodyTrendMetric,
   type BodyTrendWindow,
 } from "../../domain/body/body-trend";
+import { estimateEnergyBalance } from "../../domain/body/energy-balance";
 import type { LiftwiseData, NutritionDay } from "../../domain/models/schema";
 import { localDateKey } from "../today/selectors";
 
@@ -41,6 +42,7 @@ export function BodyNutritionPage({ data, onOpenImport }: BodyNutritionPageProps
   const [metric, setMetric] = useState<BodyTrendMetric>("weightKg");
   const [window, setWindow] = useState<BodyTrendWindow>(90);
   const trend = useMemo(() => buildBodyTrend(data, metric, window), [data, metric, window]);
+  const energyBalance = useMemo(() => estimateEnergyBalance(data), [data]);
   const latestBody = [...data.bodyMetrics].sort((a, b) => b.date.localeCompare(a.date))[0];
   const dateSet = new Set(recentDateKeys(7));
   const recentNutrition = data.nutritionDays.filter((day) => dateSet.has(day.date));
@@ -122,6 +124,49 @@ export function BodyNutritionPage({ data, onOpenImport }: BodyNutritionPageProps
             Open Fitatu import
           </button>
         </article>
+        <article className="context-card energy-balance-card">
+          <p className="card-kicker">Estimated maintenance calories</p>
+          {energyBalance.status === "estimated" ? (
+            <>
+              <strong className="context-value">
+                {energyBalance.estimatedMaintenanceKcal} kcal
+              </strong>
+              <span>
+                From {energyBalance.nutritionDaysInWindow} nutrition days and a{" "}
+                {energyBalance.weeklyWeightChangeKg! > 0 ? "+" : ""}
+                {energyBalance.weeklyWeightChangeKg} kg/week weight trend (
+                {energyBalance.windowStart} to {energyBalance.windowEnd})
+              </span>
+              <p>
+                A practical starting point derived from your own logged weight and intake — not a
+                personalized prescription.
+              </p>
+            </>
+          ) : energyBalance.status === "need-nutrition-data" ? (
+            <>
+              <strong>Needs more nutrition data</strong>
+              <p>
+                {energyBalance.nutritionDaysInWindow} of {energyBalance.requiredNutritionDays}{" "}
+                needed nutrition days are imported inside your current weight-trend window (
+                {energyBalance.windowStart} to {energyBalance.windowEnd}).
+              </p>
+              <button className="button button-secondary" type="button" onClick={onOpenImport}>
+                Open Fitatu import
+              </button>
+            </>
+          ) : (
+            <>
+              <strong>Needs a longer weight trend</strong>
+              <p>
+                At least three weight measurements spanning fourteen days are required before a
+                maintenance estimate can be derived.
+              </p>
+              <a className="button button-secondary" href="./index.html">
+                Log a weight measurement
+              </a>
+            </>
+          )}
+        </article>
       </section>
 
       <section className="page-section body-trend-section" aria-labelledby="body-trend-title">
@@ -180,6 +225,9 @@ export function BodyNutritionPage({ data, onOpenImport }: BodyNutritionPageProps
                 <strong>
                   {point.value} {trend.unit}
                 </strong>
+                <small>
+                  7-day avg: {point.smoothedValue} {trend.unit}
+                </small>
                 <span>{point.reviewReason ?? "Recorded value"}</span>
               </div>
             ))}

@@ -8,6 +8,7 @@ export type BodyTrendPoint = {
   id: string;
   date: string;
   value: number;
+  smoothedValue: number;
   reviewReason: string | null;
 };
 
@@ -34,6 +35,20 @@ function median(values: number[]): number {
   const sorted = [...values].sort((left, right) => left - right);
   const middle = Math.floor(sorted.length / 2);
   return sorted.length % 2 ? sorted[middle]! : (sorted[middle - 1]! + sorted[middle]!) / 2;
+}
+
+const TRAILING_AVERAGE_WINDOW_DAYS = 7;
+
+// Damps single-day water/glycogen noise; only recorded points are averaged, missing days are never interpolated.
+function trailingAverages(points: { date: string; value: number }[]): number[] {
+  return points.map((point, index) => {
+    const windowStart = utcDay(point.date) - (TRAILING_AVERAGE_WINDOW_DAYS - 1) * 86_400_000;
+    const windowValues = points
+      .slice(0, index + 1)
+      .filter((candidate) => utcDay(candidate.date) >= windowStart)
+      .map((candidate) => candidate.value);
+    return rounded(windowValues.reduce((sum, value) => sum + value, 0) / windowValues.length);
+  });
 }
 
 function reviewReason(
@@ -73,8 +88,10 @@ export function buildBodyTrend(
       ? utcDay(latest.date) - (window - 1) * 86_400_000
       : Number.NEGATIVE_INFINITY;
   const selected = all.filter((point) => utcDay(point.date) >= cutoff);
+  const smoothed = trailingAverages(selected);
   const points: BodyTrendPoint[] = selected.map((point, index) => ({
     ...point,
+    smoothedValue: smoothed[index]!,
     reviewReason: reviewReason(metric, selected[index - 1], point),
   }));
   const spanDays =
@@ -83,7 +100,7 @@ export function buildBodyTrend(
       : 0;
   const method = `Median change between consecutive recorded measurements; ${
     window === "all" ? "all available history" : `${window}-day window`
-  }. No missing days are interpolated.`;
+  }. Each point also shows a trailing ${TRAILING_AVERAGE_WINDOW_DAYS}-day average of recorded values to reduce day-to-day noise such as water or glycogen shifts. No missing days are interpolated.`;
 
   if (points.length < 3 || spanDays < 14) {
     return {

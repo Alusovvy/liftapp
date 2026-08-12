@@ -122,6 +122,50 @@ describe("neutral body trends", () => {
     );
   });
 
+  test("computes a trailing 7-day average that dampens single-day noise", () => {
+    const data = dataWithMetrics([
+      {
+        id: "d1",
+        date: "2026-07-01",
+        weightKg: 80,
+        bodyFatPercent: null,
+        note: "",
+        recordedAt: "",
+      },
+      {
+        id: "d2",
+        date: "2026-07-02",
+        weightKg: 81.2,
+        bodyFatPercent: null,
+        note: "",
+        recordedAt: "",
+      },
+      {
+        id: "d3",
+        date: "2026-07-03",
+        weightKg: 80.1,
+        bodyFatPercent: null,
+        note: "",
+        recordedAt: "",
+      },
+      {
+        id: "d4",
+        date: "2026-07-15",
+        weightKg: 79,
+        bodyFatPercent: null,
+        note: "",
+        recordedAt: "",
+      },
+    ]);
+    const trend = buildBodyTrend(data, "weightKg", 30);
+
+    assert.equal(trend.points[1]!.value, 81.2);
+    assert.equal(trend.points[1]!.smoothedValue, 80.6);
+    assert.equal(trend.points[2]!.smoothedValue, 80.43);
+    assert.equal(trend.points[3]!.smoothedValue, 79);
+    assert.match(trend.method, /trailing 7-day average/i);
+  });
+
   test("ignores measurements where the selected metric was not recorded", () => {
     const data = dataWithMetrics([
       {
