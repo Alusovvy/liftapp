@@ -15,7 +15,7 @@ export default defineConfig({
         name: "Liftwise",
         short_name: "Liftwise",
         description: "A local-first workout log with explainable training insights.",
-        start_url: "./",
+        start_url: "./modern.html",
         scope: "./",
         display: "standalone",
         background_color: "#f4f1e9",
@@ -32,7 +32,7 @@ export default defineConfig({
       workbox: {
         cleanupOutdatedCaches: true,
         globPatterns: ["**/*.{html,js,css,svg}"],
-        navigateFallback: "index.html",
+        navigateFallback: "modern.html",
       },
     }),
   ],
