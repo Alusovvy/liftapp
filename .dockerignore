@@ -5,6 +5,10 @@ coverage
 playwright-report
 test-results
 server/data
+# The runtime SQLite bind-mount target (see docker-compose.yml). It's owned
+# by the container's fixed UID with restrictive permissions, so it must
+# never be part of the build context at all — not just gitignored.
+/data
 *.log
 .env
 .env.*

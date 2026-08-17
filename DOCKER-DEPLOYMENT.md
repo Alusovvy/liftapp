@@ -168,11 +168,11 @@ proxies to `127.0.0.1:3001`, which is exactly where the container publishes
 its port:
 
 ```bash
-cp /opt/liftwise/deploy/nginx-liftwise.conf /etc/nginx/sites-available/liftwise
-sed -i 's/YOUR_DOMAIN/liftwise.example.com/' /etc/nginx/sites-available/liftwise
-ln -s /etc/nginx/sites-available/liftwise /etc/nginx/sites-enabled/liftwise
-nginx -t
-systemctl reload nginx
+sudo cp /opt/liftwise/deploy/nginx-liftwise.conf /etc/nginx/sites-available/liftwise
+sudo sed -i 's/YOUR_DOMAIN/liftwise.example.com/' /etc/nginx/sites-available/liftwise
+sudo ln -s /etc/nginx/sites-available/liftwise /etc/nginx/sites-enabled/liftwise
+sudo nginx -t
+sudo systemctl reload nginx
 ```
 
 Confirm plain HTTP works first:
@@ -183,12 +183,44 @@ Now get a certificate; certbot edits the Nginx config in place to add the
 HTTPS server block and an HTTP→HTTPS redirect:
 
 ```bash
-certbot --nginx -d liftwise.example.com
+sudo certbot --nginx -d liftwise.example.com
 ```
 
 Certbot's systemd timer renews the certificate automatically. Confirm
 `https://liftwise.example.com/modern.html` loads over HTTPS with a valid
 certificate before continuing.
+
+### Don't have DNS pointed yet? Test over the bare VPS IP first
+
+You can stand the whole thing up before your domain is ready, with two
+differences from above: no domain, and no TLS.
+
+```bash
+sudo cp /opt/liftwise/deploy/nginx-liftwise.conf /etc/nginx/sites-available/liftwise
+sudo sed -i 's/YOUR_DOMAIN/_/' /etc/nginx/sites-available/liftwise   # "_" = match any Host header
+sudo ln -s /etc/nginx/sites-available/liftwise /etc/nginx/sites-enabled/liftwise
+sudo nginx -t
+sudo systemctl reload nginx
+```
+
+Then, because the app marks its session cookie `Secure` whenever
+`NODE_ENV=production` (and `Secure` cookies are never sent back over plain
+HTTP — sign-in would otherwise appear to work and then immediately bounce
+you back to the sign-in screen), edit `docker-compose.yml` and change
+`NODE_ENV: production` to `NODE_ENV: development`, then:
+
+```bash
+docker compose up -d
+```
+
+Visit `http://<your-vps-ip>/modern.html`.
+
+**This is a real, not just cosmetic, security tradeoff**: login requests
+and everyone's workout data now travel unencrypted to a publicly reachable
+IP. Fine for testing alone; don't have anyone else create a real account
+until you switch to HTTPS. When your domain is ready, undo both changes
+(`NODE_ENV` back to `production`, re-run the real steps above with your
+actual domain and `certbot`) before treating it as the real deployment.
 
 ## 11. Create accounts
 
@@ -218,14 +250,20 @@ volume), the host's `sqlite3` CLI can back it up directly, exactly like the
 non-Docker guide:
 
 ```bash
-mkdir -p /var/backups/liftwise
-cat > /etc/cron.daily/liftwise-backup <<'EOF'
+sudo mkdir -p /var/backups/liftwise
+sudo tee /etc/cron.daily/liftwise-backup > /dev/null <<'EOF'
 #!/bin/sh
 sqlite3 /opt/liftwise/data/liftwise.sqlite3 ".backup /var/backups/liftwise/liftwise-$(date +\%F).sqlite3"
 find /var/backups/liftwise -name '*.sqlite3' -mtime +30 -delete
 EOF
-chmod +x /etc/cron.daily/liftwise-backup
+sudo chmod +x /etc/cron.daily/liftwise-backup
 ```
+
+(`sudo tee` instead of `sudo cat > file` — a `>` redirect after `sudo` still
+runs as your own shell, so it can't write to a root-owned path; `tee` is
+the process that actually needs the elevated privilege here. The `sqlite3`
+line _inside_ the script needs no `sudo` of its own: cron.daily scripts
+already run as root.)
 
 Keeps 30 days of daily backups locally. Periodically copy
 `/var/backups/liftwise` off the VPS too (`rsync`/`rclone` to another host)
@@ -237,7 +275,7 @@ Same table, same direct query, no `docker exec` needed since the host can
 read the file:
 
 ```bash
-sqlite3 /opt/liftwise/data/liftwise.sqlite3 \
+sudo sqlite3 /opt/liftwise/data/liftwise.sqlite3 \
   "SELECT occurred_at, method, path, status, duration_ms, user_id, ip
    FROM request_logs ORDER BY id DESC LIMIT 20;"
 ```
@@ -245,7 +283,7 @@ sqlite3 /opt/liftwise/data/liftwise.sqlite3 \
 Prune old rows if the table grows large:
 
 ```bash
-sqlite3 /opt/liftwise/data/liftwise.sqlite3 \
+sudo sqlite3 /opt/liftwise/data/liftwise.sqlite3 \
   "DELETE FROM request_logs WHERE occurred_at < datetime('now', '-90 days');"
 ```
 
@@ -272,7 +310,8 @@ currently in `/opt/liftwise/dist` and proxies to the same container port.
   common cause; the server refuses to start without one in production.
 - **Container restarts in a loop with a permissions error writing to
   `/data`** — the bind-mounted `/opt/liftwise/data` directory doesn't match
-  the container's fixed UID. Re-run `chown -R 1001:1001 /opt/liftwise/data`.
+  the container's fixed UID. Re-run
+  `sudo chown -R 1001:1001 /opt/liftwise/data`.
 - **Sign-in redirects back to the sign-in screen** — usually means the site
   is being loaded over plain HTTP after `NODE_ENV=production` was set
   (Secure cookies aren't sent over HTTP). Confirm you're on `https://`.
