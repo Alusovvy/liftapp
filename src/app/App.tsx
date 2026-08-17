@@ -182,14 +182,23 @@ export function App() {
   }
 
   const persistData = async (next: LiftwiseData) => {
+    // Applied optimistically (before the save resolves) so that a second
+    // onDataChange call fired in quick succession — e.g. two toggles
+    // clicked back to back — builds on top of this change instead of a
+    // stale pre-save snapshot, which would otherwise silently drop
+    // whichever change's save resolved first.
+    const previous = data;
+    setData(next);
+    setSaveError(null);
     try {
       await repository.save(next);
-      setData(next);
       setLoadState({ phase: "loaded" });
-      setSaveError(null);
     } catch (error) {
       const message = error instanceof Error ? error.message : "Unknown storage error";
       setSaveError(`The change was not saved: ${message}`);
+      // Only roll back if nothing newer has been applied on top of this
+      // failed change in the meantime.
+      setData((current) => (current === next ? previous : current));
     }
   };
 
