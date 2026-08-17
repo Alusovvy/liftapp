@@ -124,7 +124,7 @@ app.get("/api/data", (req, res) => {
 
 // Every account can see every other account's current-week comparison
 // stats - this is a small trusted friend group with no per-friend sharing
-// controls (see PRODUCT_TRANSFORMATION_PLAN.md / plan Stage 4 assumption).
+// controls.
 app.get("/api/compare", (_req, res) => {
   const now = new Date();
   const weekStart = mondayKey(now);

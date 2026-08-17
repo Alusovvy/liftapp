@@ -37,9 +37,9 @@ function formattedToday(): string {
 const LEGACY_HREF = "./index.html";
 
 // Safety- and recovery-editing flows are intentionally not yet ported to the
-// modern app (REMAINING-WORK-SPEC.md P0.1/P0.2), so those two kinds keep
-// pointing at the legacy interface. Every other kind already has a working
-// modern destination and must not fall back to it.
+// modern app, so those two kinds keep pointing at the legacy interface.
+// Every other kind already has a working modern destination and must not
+// fall back to it.
 function primaryDestination(
   action: CoachingAction,
   handlers: Pick<

@@ -2,8 +2,6 @@
 
 Liftwise is a workout tracker that turns logged working sets into simple, explainable training prompts. The interface is an installable Vite + React app; data is saved to a small Node.js/Express/SQLite server, one account per person, so a few friends can each keep their own history and compare current-week stats.
 
-See [`FUNCTIONALITY.md`](FUNCTIONALITY.md) for the detailed feature, calculation, import/export, validation, and data-model reference — it predates the account/server layer described below and still documents the underlying coaching rules and single-dataset schema accurately. The approved work that remains from the original local-only transformation is tracked in [`REMAINING-WORK-SPEC.md`](REMAINING-WORK-SPEC.md); it also predates accounts.
-
 ## Launch the app
 
 Liftwise now has two parts that both need to run: the API server (Node/Express/SQLite) and the Vite frontend.
@@ -108,7 +106,7 @@ Starter data is deliberately included so the dashboard demonstrates the calculat
 - Once signed in, all reads and writes go through the API — the app requires a network connection to the server (it is not offline-first for data, though the installable app shell can still be cached for faster loads).
 - A brand-new account has no data. **Settings & data** or the first-run screen offers a small default starting profile (default equipment, targets, and preferences) you can adjust from there; it does not fabricate workout history.
 - Every account can currently see every other account's **Compare** stats — this is meant for a small trusted group, not a public or semi-public deployment. There is no per-friend sharing control yet.
-- **Settings & data** still exports/imports the complete JSON backup format described in `FUNCTIONALITY.md`; export/restore now read from and write to your account on the server instead of only to the browser.
+- **Settings & data** still exports/imports the complete JSON backup format; export/restore now read from and write to your account on the server instead of only to the browser.
 - Every request is logged to a `request_logs` table (method, path, status, timing, the signed-in user if any, and IP — never request/response bodies, so passwords and workout data never appear there). There's no in-app viewer; see `DEPLOYMENT.md` for querying it directly with the `sqlite3` CLI.
 
 ## Compare with friends

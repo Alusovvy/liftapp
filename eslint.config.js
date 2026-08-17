@@ -63,7 +63,7 @@ export default tseslint.config(
   {
     // Pre-migration legacy scripts: keep linting on, but don't demand the
     // same strictness as the new TypeScript domain/feature code until they
-    // are extracted (see REMAINING-WORK-SPEC.md P0.5).
+    // are extracted.
     files: [
       "src/app.js",
       "src/domain.js",
