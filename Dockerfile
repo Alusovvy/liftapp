@@ -12,10 +12,17 @@ RUN apt-get update \
 
 WORKDIR /app
 COPY package.json package-lock.json ./
-RUN npm ci
+# scripts/ must be present before `npm ci`: its postinstall hook
+# (provision-lint-typescript.mjs) runs as part of the install itself.
+COPY scripts ./scripts
+# --legacy-peer-deps: the root typescript devDependency is ahead of what
+# typescript-eslint's peer range currently allows. typescript-eslint is a
+# lint-only devDependency (never present in the runtime image, and pruned
+# below), so skipping strict peer resolution here is safe.
+RUN npm ci --legacy-peer-deps
 COPY . .
 RUN npm run build \
-  && npm prune --omit=dev
+  && npm prune --omit=dev --legacy-peer-deps
 
 # ---- runtime ----------------------------------------------------------------
 FROM node:24-bookworm-slim AS runtime

@@ -32,14 +32,33 @@ liftwise.example.com.   A      203.0.113.10
 
 ## 2. Initial server setup
 
+This assumes a regular sudo-capable user (e.g. the default `ubuntu` user
+OVH images ship with), not `root` directly — every command below that
+touches the system uses `sudo`.
+
 ```bash
-ssh root@your-vps-ip
-apt update && apt upgrade -y
+ssh ubuntu@your-vps-ip
+sudo apt update && sudo apt upgrade -y
 ```
 
 Note what this guide does **not** need on the host, compared to the
 non-Docker path: no Node.js, no `build-essential`, no native-module
 toolchain — all of that lives inside the image.
+
+**If the VPS has 2 GB of RAM or less, add swap before building anything.**
+`docker compose build` runs `npm ci`, compiles native modules if no
+prebuilt binary matches, and runs the Vite build all in the same step —
+without swap that can hit an out-of-memory kill instead of just running
+slowly:
+
+```bash
+sudo fallocate -l 2G /swapfile
+sudo chmod 600 /swapfile
+sudo mkswap /swapfile
+sudo swapon /swapfile
+echo '/swapfile none swap sw 0 0' | sudo tee -a /etc/fstab
+free -h   # confirm the Swap line now shows 2.0Gi
+```
 
 ## 3. Install Docker Engine
 
@@ -47,15 +66,22 @@ Docker's official convenience script (adds Docker's own apt repo and
 installs Engine + the `compose` plugin):
 
 ```bash
-curl -fsSL https://get.docker.com | sh
+curl -fsSL https://get.docker.com | sudo sh
+sudo usermod -aG docker $USER
+newgrp docker    # refreshes group membership in this shell; or log out/in
 docker --version
 docker compose version
 ```
 
+The `usermod`/`newgrp` step lets you run `docker`/`docker compose` without
+`sudo` for the rest of this guide. If you'd rather not grant your user
+docker-group access (it's effectively root-equivalent), prefix every
+`docker`/`docker compose` command below with `sudo` instead.
+
 ## 4. Install Nginx and Certbot
 
 ```bash
-apt install -y nginx certbot python3-certbot-nginx sqlite3
+sudo apt install -y nginx certbot python3-certbot-nginx sqlite3
 ```
 
 `sqlite3` is the CLI client, installed on the **host** (not in the
@@ -65,9 +91,9 @@ file directly through the bind mount.
 ## 5. Firewall
 
 ```bash
-ufw allow OpenSSH
-ufw allow "Nginx Full"
-ufw enable
+sudo ufw allow OpenSSH
+sudo ufw allow "Nginx Full"
+sudo ufw enable
 ```
 
 The container's port is published to `127.0.0.1` only (see the
@@ -77,10 +103,14 @@ from outside the VPS, only through Nginx.
 ## 6. Get the code onto the server
 
 ```bash
-mkdir -p /opt/liftwise
+sudo mkdir -p /opt/liftwise
+sudo chown $USER:$USER /opt/liftwise
 git clone <your-repo-url> /opt/liftwise
 cd /opt/liftwise
 ```
+
+`/opt/liftwise` is owned by your own user from here on — only the data
+directory in the next step needs a different owner.
 
 ## 7. Configure the environment and data directory
 
@@ -89,19 +119,17 @@ mkdir -p /opt/liftwise/data
 # Fixed UID 1001 to match the "liftwise" user baked into the image
 # (see Dockerfile) — without this the container can't write to the
 # bind-mounted volume.
-chown -R 1001:1001 /opt/liftwise/data
+sudo chown -R 1001:1001 /opt/liftwise/data
 
-cp .env.example .env
-openssl rand -base64 48   # copy the output into .env below
+echo "SESSION_SECRET=$(openssl rand -base64 48)" > .env
+chmod 600 .env
+cat .env   # confirm it has a real, non-placeholder value
 ```
 
-Edit `.env` and replace the placeholder with the value you just generated:
-
-```text
-SESSION_SECRET=paste-the-random-value-from-openssl-here
-```
-
-`.env` is gitignored — it never leaves this server. `NODE_ENV`, `PORT`,
+`.env.example` in the repo is just the committed template — the command
+above generates a real secret and writes `.env` directly, no manual
+editing needed. `.env` is gitignored, so it never leaves this server.
+`NODE_ENV`, `PORT`,
 `LIFTWISE_DB_PATH`, and `TRUST_PROXY` are already set correctly in
 `docker-compose.yml` and don't need to be touched.
 
@@ -260,6 +288,21 @@ currently in `/opt/liftwise/dist` and proxies to the same container port.
 - **`dist/` on the host looks stale after a rebuild** — the `docker cp`
   extraction step (8 or 15) was skipped or targeted the wrong container
   name; re-run it after every `docker compose build`.
+- **`permission denied ... /var/run/docker.sock`** — your user isn't in the
+  `docker` group yet, or the group membership hasn't been picked up by this
+  shell. Re-run the `usermod`/`newgrp` commands from step 3, or prefix the
+  command with `sudo`.
+- **`docker compose build` fails on `npm ci` with `npm error code ERESOLVE`**
+  — this is already handled by the `Dockerfile` shipped in this repo
+  (`npm ci --legacy-peer-deps`); if you see it anyway, you're building an
+  older copy of the `Dockerfile` — `git pull` and rebuild. The underlying
+  cause: the project's `typescript` devDependency is ahead of what
+  `typescript-eslint` (a lint-only tool, never shipped in the image) allows
+  as a peer, and plain `npm ci` enforces peer ranges strictly.
+- **`docker compose build` gets killed partway through with no clear error,
+  or the SSH session itself drops** — likely an out-of-memory kill on a
+  small VPS. Check `free -h` and `dmesg | tail -30 | grep -i -e kill -e oom`.
+  Add swap (see step 2) and retry.
 
 ## Why not containerize Nginx and Certbot too?
 
