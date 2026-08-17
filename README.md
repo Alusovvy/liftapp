@@ -69,7 +69,9 @@ your account's data.
 
 See [`DEPLOYMENT.md`](DEPLOYMENT.md) for a step-by-step guide to running
 Liftwise on a VPS behind Nginx with a real domain and TLS, including a
-systemd service and Nginx config in [`deploy/`](deploy/). The commands
+systemd service and Nginx config in [`deploy/`](deploy/), or
+[`DOCKER-DEPLOYMENT.md`](DOCKER-DEPLOYMENT.md) for the same end state with
+the app running in Docker instead of directly on the host. The commands
 above run everything on `localhost` only; `SESSION_SECRET` must be set
 explicitly before running the server with `NODE_ENV=production` (it
 refuses to start on a default secret in production).

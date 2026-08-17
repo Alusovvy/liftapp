@@ -1,0 +1,23 @@
+services:
+  app:
+    build: .
+    image: liftwise:latest
+    container_name: liftwise
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      NODE_ENV: production
+      PORT: 3001
+      LIFTWISE_DB_PATH: /data/liftwise.sqlite3
+      TRUST_PROXY: "1"
+    # Bound to localhost only — Nginx on the host terminates TLS and
+    # reverse-proxies to this port; the container is never reachable
+    # directly from outside the VPS.
+    ports:
+      - "127.0.0.1:3001:3001"
+    # A host bind mount (not a named volume) so the host's sqlite3 CLI can
+    # back up and query the database file directly — see
+    # DOCKER-DEPLOYMENT.md.
+    volumes:
+      - ./data:/data
