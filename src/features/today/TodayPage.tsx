@@ -9,6 +9,7 @@ import {
   buildMuscleExerciseBreakdown,
   buildMuscleMapRows,
 } from "../../components/muscle-map/muscle-map-rows";
+import { WeekNav } from "../../components/navigation/WeekNav";
 import { WeekdayBoard } from "../../components/weekday-board/WeekdayBoard";
 import { buildWeekdayBoard } from "../../components/weekday-board/weekday-board";
 import { evidenceLabel } from "../../domain/coaching/evidence-sufficiency";
@@ -16,6 +17,11 @@ import { formatWeekLabel } from "../../domain/dates";
 import type { CoachingAction } from "../../domain/coaching/types";
 import type { LiftwiseData, Muscle } from "../../domain/models/schema";
 import { buildTodayViewModel, mondayKey, nextMondayKey } from "./selectors";
+
+function progressPercent(value: number, max: number): number {
+  if (max <= 0) return 0;
+  return Math.max(0, Math.min(100, Math.round((value / max) * 100)));
+}
 
 type TodayPageProps = {
   data: LiftwiseData;
@@ -97,23 +103,26 @@ export function TodayPage({
   onOpenTrainWorkout,
   onOpenTrainRoutines,
 }: TodayPageProps) {
-  const view = buildTodayViewModel(data);
-  const muscleRows = buildMuscleMapRows(data, view.weeklyDose);
-  const [selectedMuscle, setSelectedMuscle] = useState<Muscle | null>(null);
-  const selectedRow = muscleRows.find((row) => row.muscle === selectedMuscle) ?? null;
+  // The hero recommendation and weekly-focus list are always about today —
+  // "add a set" or "start this routine" makes no sense for a past week —
+  // so they stay pinned to the real current date regardless of the week
+  // navigator below, which only moves the descriptive/browsable widgets
+  // (weekly summary, muscle coverage, day-by-day log).
+  const todayView = buildTodayViewModel(data);
 
-  const [boardWeekOffset, setBoardWeekOffset] = useState(0);
-  const boardReferenceNow = useMemo(() => {
+  const [weekOffset, setWeekOffset] = useState(0);
+  const referenceNow = useMemo(() => {
     const date = new Date();
     date.setHours(12, 0, 0, 0);
-    date.setDate(date.getDate() + boardWeekOffset * 7);
+    date.setDate(date.getDate() + weekOffset * 7);
     return date;
-  }, [boardWeekOffset]);
-  const boardWeekStart = mondayKey(boardReferenceNow);
-  const boardWeekEnd = nextMondayKey(boardReferenceNow);
-  const boardWeekWorkouts = data.workouts.filter(
-    (workout) => workout.date >= boardWeekStart && workout.date < boardWeekEnd,
-  );
+  }, [weekOffset]);
+  const weekView = useMemo(() => buildTodayViewModel(data, referenceNow), [data, referenceNow]);
+  const weekStart = mondayKey(referenceNow);
+  const weekEnd = nextMondayKey(referenceNow);
+  const muscleRows = buildMuscleMapRows(data, weekView.weeklyDose);
+  const [selectedMuscle, setSelectedMuscle] = useState<Muscle | null>(null);
+  const selectedRow = muscleRows.find((row) => row.muscle === selectedMuscle) ?? null;
   const earliestWorkoutMonday = useMemo(() => {
     if (!data.workouts.length) return null;
     const earliestDate = data.workouts.reduce(
@@ -122,7 +131,13 @@ export function TodayPage({
     );
     return mondayKey(new Date(`${earliestDate}T12:00:00`));
   }, [data.workouts]);
-  const weekdayDays = buildWeekdayBoard(data, boardWeekStart, boardWeekWorkouts);
+  const weekdayDays = buildWeekdayBoard(data, weekStart, weekView.weekWorkouts);
+  const isCurrentWeek = weekOffset === 0;
+  const weekNavLabel = formatWeekLabel(weekStart, weekEnd, isCurrentWeek);
+  const goToPreviousWeek = () => setWeekOffset((current) => current - 1);
+  const goToNextWeek = () => setWeekOffset((current) => Math.min(0, current + 1));
+  const previousWeekDisabled = earliestWorkoutMonday !== null && weekStart <= earliestWorkoutMonday;
+  const nextWeekDisabled = weekOffset >= 0;
 
   return (
     <div className="page page-today">
@@ -130,9 +145,6 @@ export function TodayPage({
         <div>
           <p className="eyebrow">{formattedToday()}</p>
           <h1>What matters today</h1>
-          <p className="page-intro">
-            One useful action first. The calculation is available when you want it.
-          </p>
         </div>
         <div className="page-header-actions">
           <button className="button button-secondary" type="button" onClick={onOpenImport}>
@@ -144,68 +156,125 @@ export function TodayPage({
         </div>
       </header>
 
-      <section className="today-hero" aria-label="Today's recommendation and week status">
+      <section className="today-hero" aria-label="Today's recommendation">
         <RecommendationCard
-          action={view.attention.primary}
-          primary={primaryDestination(view.attention.primary, {
+          action={todayView.attention.primary}
+          primary={primaryDestination(todayView.attention.primary, {
             onStartRecommendedWorkout,
             onOpenTrainWorkout,
             onOpenProgress,
           })}
-          alternative={alternativeDestination(view.attention.primary, {
+          alternative={alternativeDestination(todayView.attention.primary, {
             onOpenTrainWorkout,
             onOpenTrainRoutines,
             onOpenProgress,
           })}
         />
-        <aside className="week-strip" aria-labelledby="week-status-title">
-          <div className="section-heading compact-heading">
-            <div>
-              <p className="eyebrow">This week</p>
-              <h2 id="week-status-title">Current plan</h2>
-            </div>
-            <button className="text-button" type="button" onClick={onOpenProgress}>
-              Details
-            </button>
+      </section>
+
+      <section
+        className="page-section weekly-summary-section"
+        aria-labelledby="weekly-summary-heading"
+      >
+        <div className="section-heading">
+          <div>
+            <p className="eyebrow">Weekly summary</p>
+            <h2 id="weekly-summary-heading">
+              {isCurrentWeek ? "How this week is going" : "How that week went"}
+            </h2>
           </div>
-          <dl className="week-metrics">
-            <div>
-              <dt>Sessions</dt>
-              <dd>
-                {view.completedSessions} / {view.plannedSessions}
-              </dd>
+          <WeekNav
+            label={weekNavLabel}
+            onPrevious={goToPreviousWeek}
+            onNext={goToNextWeek}
+            previousDisabled={previousWeekDisabled}
+            nextDisabled={nextWeekDisabled}
+          />
+        </div>
+        <div className="stat-tile-row">
+          <div className="stat-tile">
+            <p className="stat-tile-label">Sessions</p>
+            <p className="stat-tile-value">
+              {weekView.completedSessions}
+              <span> / {weekView.plannedSessions}</span>
+            </p>
+            <div className="stat-tile-track" aria-hidden="true">
+              <span
+                className="stat-tile-fill"
+                style={{
+                  width: `${progressPercent(weekView.completedSessions, weekView.plannedSessions)}%`,
+                }}
+              />
             </div>
-            <div>
-              <dt>Muscles in range</dt>
-              <dd>
-                {view.targetMusclesInRange} / {view.totalTargetMuscles}
-              </dd>
+          </div>
+          <div className="stat-tile">
+            <p className="stat-tile-label">Muscles in range</p>
+            <p className="stat-tile-value">
+              {weekView.targetMusclesInRange}
+              <span> / {weekView.totalTargetMuscles}</span>
+            </p>
+            <div className="stat-tile-track" aria-hidden="true">
+              <span
+                className="stat-tile-fill"
+                style={{
+                  width: `${progressPercent(weekView.targetMusclesInRange, weekView.totalTargetMuscles)}%`,
+                }}
+              />
             </div>
-            <div>
-              <dt>Effort data</dt>
-              <dd>{view.effortCoveragePercent}%</dd>
+          </div>
+          <div className="stat-tile">
+            <p className="stat-tile-label">Effort logged</p>
+            <p className="stat-tile-value">
+              {weekView.effortCoveragePercent}
+              <span>%</span>
+            </p>
+            <div className="stat-tile-track" aria-hidden="true">
+              <span
+                className="stat-tile-fill"
+                style={{ width: `${weekView.effortCoveragePercent}%` }}
+              />
             </div>
-          </dl>
-          <p className="week-note">
-            Updated from {view.completedSessions} session{view.completedSessions === 1 ? "" : "s"}{" "}
-            in the current Monday–Sunday week.
-          </p>
-        </aside>
+          </div>
+        </div>
+        <MuscleMap
+          rows={muscleRows}
+          selectedMuscle={selectedMuscle}
+          onSelectMuscle={(muscle) =>
+            setSelectedMuscle((current) => (current === muscle ? null : muscle))
+          }
+        />
+        <p className="muscle-map-selection" aria-live="polite">
+          {selectedRow
+            ? `${selectedRow.muscle}: ${selectedRow.status} — ${selectedRow.value} of ${selectedRow.minimum}–${selectedRow.maximum} weekly sets.`
+            : "Tap a muscle to see its set count against your weekly target range."}
+        </p>
+        {selectedMuscle ? (
+          <MuscleExerciseBreakdown
+            key={selectedMuscle}
+            data={data}
+            muscle={selectedMuscle}
+            contributions={buildMuscleExerciseBreakdown(
+              data,
+              weekView.weekWorkouts,
+              selectedMuscle,
+            )}
+          />
+        ) : null}
       </section>
 
       <section className="page-section" aria-labelledby="weekly-focus-heading">
         <div className="section-heading">
           <div>
             <p className="eyebrow">Weekly focus</p>
-            <h2 id="weekly-focus-heading">Up to three useful priorities</h2>
+            <h2 id="weekly-focus-heading">What to prioritize next</h2>
           </div>
           <button className="text-button" type="button" onClick={onOpenProgress}>
             Open progress
           </button>
         </div>
-        {view.attention.weeklyFocus.length ? (
+        {todayView.attention.weeklyFocus.length ? (
           <ol className="focus-list">
-            {view.attention.weeklyFocus.map((focus, index) => (
+            {todayView.attention.weeklyFocus.map((focus, index) => (
               <li key={focus.id}>
                 <span className="focus-number">{index + 1}</span>
                 <div>
@@ -226,57 +295,27 @@ export function TodayPage({
         )}
       </section>
 
-      <section className="page-section muscle-map-section" aria-labelledby="muscle-map-heading">
-        <div className="section-heading">
-          <div>
-            <p className="eyebrow">This week</p>
-            <h2 id="muscle-map-heading">Muscle coverage</h2>
-          </div>
-          <button className="text-button" type="button" onClick={onOpenProgress}>
-            Details
-          </button>
-        </div>
-        <MuscleMap
-          rows={muscleRows}
-          selectedMuscle={selectedMuscle}
-          onSelectMuscle={(muscle) =>
-            setSelectedMuscle((current) => (current === muscle ? null : muscle))
-          }
-        />
-        <p className="muscle-map-selection" aria-live="polite">
-          {selectedRow
-            ? `${selectedRow.muscle}: ${selectedRow.status} — ${selectedRow.value} of ${selectedRow.minimum}–${selectedRow.maximum} weekly sets.`
-            : "Tap a muscle to see this week's set count against its target range."}
-        </p>
-        {selectedMuscle ? (
-          <MuscleExerciseBreakdown
-            key={selectedMuscle}
-            data={data}
-            muscle={selectedMuscle}
-            contributions={buildMuscleExerciseBreakdown(data, view.weekWorkouts, selectedMuscle)}
-          />
-        ) : null}
-      </section>
-
       <section className="page-section last-session-section" aria-labelledby="last-session-heading">
         <div className="section-heading">
           <div>
             <p className="eyebrow">Last session</p>
-            <h2 id="last-session-heading">{view.latestWorkout?.name ?? "No workout logged yet"}</h2>
+            <h2 id="last-session-heading">
+              {todayView.latestWorkout?.name ?? "No workout logged yet"}
+            </h2>
           </div>
-          {view.latestWorkout ? (
-            <time dateTime={view.latestWorkout.date}>{view.latestWorkout.date}</time>
+          {todayView.latestWorkout ? (
+            <time dateTime={todayView.latestWorkout.date}>{todayView.latestWorkout.date}</time>
           ) : null}
         </div>
-        {view.latestWorkout ? (
+        {todayView.latestWorkout ? (
           <div className="last-session-summary">
             <div>
-              <strong>{view.latestWorkout.entries.length}</strong>
+              <strong>{todayView.latestWorkout.entries.length}</strong>
               <span>exercises</span>
             </div>
             <div>
               <strong>
-                {view.latestWorkout.entries.reduce(
+                {todayView.latestWorkout.entries.reduce(
                   (total, entry) =>
                     total + entry.sets.filter((set) => set.type !== "warmup").length,
                   0,
@@ -285,8 +324,8 @@ export function TodayPage({
               <span>working sets</span>
             </div>
             <div>
-              <strong>{view.latestWorkout.duration ?? "—"}</strong>
-              <span>{view.latestWorkout.duration ? "minutes" : "duration missing"}</span>
+              <strong>{todayView.latestWorkout.duration ?? "—"}</strong>
+              <span>{todayView.latestWorkout.duration ? "minutes" : "duration missing"}</span>
             </div>
             <a className="button button-secondary" href="./index.html">
               Review workout
@@ -303,18 +342,16 @@ export function TodayPage({
         <div className="section-heading">
           <div>
             <p className="eyebrow">Session log</p>
-            <h2 id="weekday-board-heading">This week, day by day</h2>
+            <h2 id="weekday-board-heading">Day by day</h2>
           </div>
         </div>
         <WeekdayBoard
           days={weekdayDays}
-          weekLabel={formatWeekLabel(boardWeekStart, boardWeekEnd, boardWeekOffset === 0)}
-          onPrevious={() => setBoardWeekOffset((current) => current - 1)}
-          onNext={() => setBoardWeekOffset((current) => Math.min(0, current + 1))}
-          previousDisabled={
-            earliestWorkoutMonday !== null && boardWeekStart <= earliestWorkoutMonday
-          }
-          nextDisabled={boardWeekOffset >= 0}
+          weekLabel={weekNavLabel}
+          onPrevious={goToPreviousWeek}
+          onNext={goToNextWeek}
+          previousDisabled={previousWeekDisabled}
+          nextDisabled={nextWeekDisabled}
         />
       </section>
     </div>
